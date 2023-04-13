@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">Traccar Client</string>
-  <string name="app_logo">Traccar</string>
+  <string name="app_name">MyMetro Operator</string>
+  <string name="app_logo">MyMetro Operator</string>
   <string name="shortcut_start">Start teneste</string>
   <string name="shortcut_stop">Stopp teneste</string>
   <string name="shortcut_sos">Send SOS</string>

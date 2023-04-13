@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">ට්‍රැකකාර් අනුග්‍රාහකය</string>
-  <string name="app_logo">ට්‍රැකකාර්</string>
+  <string name="app_name">MyMetro Operator</string>
+  <string name="app_logo">MyMetro Operator</string>
   <string name="shortcut_start">සේවාව නවතන්න</string>
   <string name="shortcut_stop">සේවාව නවතන්න</string>
   <string name="settings_id_title">උපාංගයේ හඳුන්වනය</string>
