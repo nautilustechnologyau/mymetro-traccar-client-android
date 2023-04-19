@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="org.traccar.client.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="org.traccar.client.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <!--
+    <fragment
+        android:id="@+id/navigation_place_holder"
+        android:label=""
+        />
+-->
+    <fragment
+        android:id="@+id/navigation_notifications"
+        android:name="org.traccar.client.ui.notifications.NotificationsFragment"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_info"
+        android:label="@string/title_about"
+        android:name="org.traccar.client.ui.info.InfoFragment"
+        tools:layout="@layout/fragment_info"/>
+</navigation>

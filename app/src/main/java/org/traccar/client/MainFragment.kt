@@ -58,10 +58,10 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
 
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        if (BuildConfig.HIDDEN_APP && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            removeLauncherIcon()
-        }
-        setHasOptionsMenu(true)
+        //if (BuildConfig.HIDDEN_APP && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        //    removeLauncherIcon()
+        //}
+        // setHasOptionsMenu(true)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         setPreferencesFromResource(R.xml.preferences, rootKey)
         initPreferences()
@@ -91,7 +91,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         findPreference<Preference>(KEY_DISTANCE)?.onPreferenceChangeListener = numberValidationListener
         findPreference<Preference>(KEY_ANGLE)?.onPreferenceChangeListener = numberValidationListener
 
-        alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        /*alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val originalIntent = Intent(activity, AutostartReceiver::class.java)
         originalIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
 
@@ -100,10 +100,11 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
-        alarmIntent = PendingIntent.getBroadcast(activity, 0, originalIntent, flags)
+        alarmIntent = PendingIntent.getBroadcast(activity, 0, originalIntent, flags)*/
 
         if (sharedPreferences.getBoolean(KEY_STATUS, false)) {
-            startTrackingService(checkPermission = true, initialPermission = false)
+            //startTrackingService(checkPermission = true, initialPermission = false)
+            setPreferencesEnabled(false)
         }
     }
 
@@ -138,8 +139,8 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         }
     }
 
-    private fun removeLauncherIcon() {
-        val className = MainActivity::class.java.canonicalName!!.replace(".MainActivity", ".Launcher")
+    /*private fun removeLauncherIcon() {
+        val className = MainActivity::class.java.canonicalName!!.replace(".MainActivity2", ".Launcher")
         val componentName = ComponentName(requireActivity().packageName, className)
         val packageManager = requireActivity().packageManager
         if (packageManager.getComponentEnabledSetting(componentName) != PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
@@ -154,13 +155,13 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             builder.setPositiveButton(android.R.string.ok, null)
             builder.show()
         }
-    }
+    }*/
 
     override fun onStart() {
         super.onStart()
-        if (requestingPermissions) {
+        /*if (requestingPermissions) {
             requestingPermissions = BatteryOptimizationHelper().requestException(requireContext())
-        }
+        }*/
     }
 
     override fun onResume() {
@@ -187,22 +188,24 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == KEY_STATUS) {
             if (sharedPreferences.getBoolean(KEY_STATUS, false)) {
-                startTrackingService(checkPermission = true, initialPermission = false)
+                // startTrackingService(checkPermission = true, initialPermission = false)
+                setPreferencesEnabled(false)
             } else {
-                stopTrackingService()
+                // stopTrackingService()
+                setPreferencesEnabled(true)
             }
-            (requireActivity().application as MainApplication).handleRatingFlow(requireActivity())
+            // (requireActivity().application as MainApplication).handleRatingFlow(requireActivity())
         } else if (key == KEY_DEVICE) {
             findPreference<Preference>(KEY_DEVICE)?.summary = sharedPreferences.getString(KEY_DEVICE, null)
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    /*override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.main, menu)
         super.onCreateOptionsMenu(menu, inflater)
-    }
+    }*/
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.status) {
             startActivity(Intent(activity, StatusActivity::class.java))
             return true
@@ -211,7 +214,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
+    }*/
 
     private fun initPreferences() {
         PreferenceManager.setDefaultValues(requireActivity(), R.xml.preferences, false)
@@ -221,9 +224,14 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             findPreference<EditTextPreference>(KEY_DEVICE)?.text = id
         }
         findPreference<Preference>(KEY_DEVICE)?.summary = sharedPreferences.getString(KEY_DEVICE, null)
+
+        // disable and hide the status preference
+        val preference = findPreference<Preference>(KEY_STATUS)
+        preference?.isEnabled = false
+        preference?.isVisible = false
     }
 
-    private fun showBackgroundLocationDialog(context: Context, onSuccess: () -> Unit) {
+    /*private fun showBackgroundLocationDialog(context: Context, onSuccess: () -> Unit) {
         val builder = AlertDialog.Builder(context)
         val option = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             context.packageManager.backgroundPermissionOptionLabel
@@ -296,7 +304,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             }
             startTrackingService(false, granted)
         }
-    }
+    }*/
 
     private fun validateServerURL(userUrl: String): Boolean {
         val port = Uri.parse(userUrl).port
@@ -313,7 +321,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
 
     companion object {
         private val TAG = MainFragment::class.java.simpleName
-        private const val ALARM_MANAGER_INTERVAL = 15000
+        // private const val ALARM_MANAGER_INTERVAL = 15000
         const val KEY_DEVICE = "id"
         const val KEY_URL = "url"
         const val KEY_INTERVAL = "interval"
@@ -323,8 +331,8 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         const val KEY_STATUS = "status"
         const val KEY_BUFFER = "buffer"
         const val KEY_WAKELOCK = "wakelock"
-        private const val PERMISSIONS_REQUEST_LOCATION = 2
-        private const val PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 3
+        // private const val PERMISSIONS_REQUEST_LOCATION = 2
+        // private const val PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 3
     }
 
 }

@@ -26,6 +26,7 @@ import androidx.preference.PreferenceManager
 import android.util.Log
 import org.traccar.client.DatabaseHelper.DatabaseHandler
 import org.traccar.client.RequestManager.RequestHandler
+import org.traccar.client.ui.notifications.NotificationsFragment
 
 class TrackingController(private val context: Context) : PositionListener, NetworkHandler {
 
@@ -64,7 +65,8 @@ class TrackingController(private val context: Context) : PositionListener, Netwo
     }
 
     override fun onPositionUpdate(position: Position) {
-        StatusActivity.addMessage(context.getString(R.string.status_location_update))
+        //StatusActivity.addMessage(context.getString(R.string.status_location_update))
+        NotificationsFragment.addMessage(context.getString(R.string.status_location_update))
         if (buffer) {
             write(position)
         } else {
@@ -75,7 +77,8 @@ class TrackingController(private val context: Context) : PositionListener, Netwo
     override fun onPositionError(error: Throwable) {}
     override fun onNetworkUpdate(isOnline: Boolean) {
         val message = if (isOnline) R.string.status_network_online else R.string.status_network_offline
-        StatusActivity.addMessage(context.getString(message))
+        //StatusActivity.addMessage(context.getString(message))
+        NotificationsFragment.addMessage(context.getString(message))
         if (!this.isOnline && isOnline) {
             read()
         }
@@ -161,6 +164,7 @@ class TrackingController(private val context: Context) : PositionListener, Netwo
                     }
                 } else {
                     StatusActivity.addMessage(context.getString(R.string.status_send_fail))
+                    NotificationsFragment.addMessage(context.getString(R.string.status_send_fail))
                     if (buffer) {
                         retry()
                     }

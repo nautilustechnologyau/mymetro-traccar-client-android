@@ -33,6 +33,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import org.traccar.client.ui.notifications.NotificationsFragment
 
 class TrackingService : Service() {
 
@@ -60,7 +61,8 @@ class TrackingService : Service() {
         startForeground(NOTIFICATION_ID, createNotification(this))
         Log.i(TAG, "service create")
         sendBroadcast(Intent(ACTION_STARTED))
-        StatusActivity.addMessage(getString(R.string.status_service_create))
+        //StatusActivity.addMessage(getString(R.string.status_service_create))
+        NotificationsFragment.addMessage(getString(R.string.status_service_create))
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(MainFragment.KEY_WAKELOCK, true)) {
@@ -91,7 +93,8 @@ class TrackingService : Service() {
         stopForeground(true)
         Log.i(TAG, "service destroy")
         sendBroadcast(Intent(ACTION_STOPPED))
-        StatusActivity.addMessage(getString(R.string.status_service_destroy))
+        //StatusActivity.addMessage(getString(R.string.status_service_destroy))
+        NotificationsFragment.addMessage(getString(R.string.status_service_destroy))
         if (wakeLock?.isHeld == true) {
             wakeLock?.release()
         }
