@@ -31,6 +31,7 @@ object RequestManager {
         var inputStream: InputStream? = null
         return try {
             val url = URL(request)
+            Log.d(RequestManager::class.java.simpleName, url.toString())
             val connection = url.openConnection() as HttpURLConnection
             connection.readTimeout = TIMEOUT
             connection.connectTimeout = TIMEOUT
@@ -38,8 +39,11 @@ object RequestManager {
             connection.connect()
             inputStream = connection.inputStream
             while (inputStream.read() != -1) {}
+            //val inputAsString = inputStream.bufferedReader().use { it.readText() }
+            //Log.d(RequestManager::class.java.simpleName, inputAsString)
             true
         } catch (error: IOException) {
+            // Log.w(RequestManager::class.java.simpleName, error)
             false
         } finally {
             try {
