@@ -31,7 +31,7 @@ import org.traccar.client.oba.io.elements.ObaRegion;
 import org.traccar.client.oba.io.elements.ObaRegionElement;
 import org.traccar.client.oba.io.request.ObaRegionsRequest;
 import org.traccar.client.oba.io.request.ObaRegionsResponse;
-import org.traccar.client.oba.povider.ObaContract;
+import org.traccar.client.oba.provider.ObaContract;
 
 import java.security.MessageDigest;
 import java.text.DecimalFormat;

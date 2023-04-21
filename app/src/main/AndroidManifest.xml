@@ -88,6 +88,23 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <!-- Provider is defined in build.gradle flavors -->
+        <provider
+            android:name="org.traccar.client.oba.provider.ObaProvider"
+            android:authorities="${databaseAuthority}"/>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="au.mymetro.android.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- ressource file to create -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths">
+            </meta-data>
+        </provider>
     </application>
 
 </manifest>

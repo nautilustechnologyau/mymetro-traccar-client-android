@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.traccar.client.oba.povider;
+package org.traccar.client.oba.provider;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;

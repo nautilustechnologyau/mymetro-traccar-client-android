@@ -33,7 +33,7 @@ import org.traccar.client.R;
 import org.traccar.client.oba.io.ObaAnalytics;
 import org.traccar.client.oba.io.ObaApi;
 import org.traccar.client.oba.io.elements.ObaRegion;
-import org.traccar.client.oba.povider.ObaContract;
+import org.traccar.client.oba.provider.ObaContract;
 import org.traccar.client.oba.util.LocationUtils;
 import org.traccar.client.oba.util.PreferenceUtils;
 
