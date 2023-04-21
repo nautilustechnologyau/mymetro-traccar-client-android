@@ -2,8 +2,8 @@ package org.traccar.client;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-
 import static org.traccar.client.MainFragment.KEY_STATUS;
+import static org.traccar.client.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -12,14 +12,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -31,10 +31,25 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import org.traccar.client.app.Application;
 import org.traccar.client.databinding.ActivityMainBinding;
+import org.traccar.client.oba.io.ObaAnalytics;
 import org.traccar.client.oba.region.ObaRegionsTask;
+import org.traccar.client.oba.util.LocationUtils;
+import org.traccar.client.oba.util.PermissionUtils;
+import org.traccar.client.oba.util.PreferenceUtils;
 import org.traccar.client.oba.util.UIUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Callback {
 
@@ -42,9 +57,15 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     private static final long ALARM_MANAGER_INTERVAL = 15000;
 
+    //One week, in milliseconds
+    private static final long REGION_UPDATE_THRESHOLD = 1000 * 60 * 60 * 24 * 7;
+
+    private static final String CHECK_REGION_VER = "checkRegionVer";
+
     private static boolean mServiceStarted = false;
 
     private static boolean mStartClicked = false;
+
     private ActivityMainBinding mBinding;
 
     private SharedPreferences mSharedPreferences;
@@ -57,9 +78,22 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     private boolean mRequestingPermissions = false;
 
+    private static final String INITIAL_STARTUP = "initialStartup";
+
+    boolean mInitialStartup = true;
+
+    private FirebaseAnalytics mFirebaseAnalytics;
+
+    /**
+     * GoogleApiClient being used for Location Services
+     */
+    protected GoogleApiClient mGoogleApiClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -72,12 +106,21 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPreferences.edit().putBoolean(KEY_STATUS, false).commit();
+        mInitialStartup = Application.getPrefs().getBoolean(INITIAL_STARTUP, true);
 
         setupAlarmManager();
 
         setupStartStopButtonState();
 
         setupStatusPreference();
+
+        setupGooglePlayServices();
+
+        if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
+            // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
+            // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
+            checkRegionStatus();
+        }
     }
 
     // Register the permissions callback, which handles the user's response to the
@@ -104,6 +147,22 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         if (mRequestingPermissions) {
             mRequestingPermissions = new BatteryOptimizationHelper().requestException(this);
         }
+
+        if (mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.connect();
+        }
+        AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
+        Boolean isTalkBackEnabled = am.isTouchExplorationEnabled();
+        ObaAnalytics.setAccessibility(mFirebaseAnalytics, isTalkBackEnabled);
+    }
+
+    @Override
+    public void onStop() {
+        // Tear down GoogleApiClient
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
     }
 
     @Override
@@ -298,6 +357,79 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             ).show();
         }
         // updateLayersFab();
+    }
+
+    private void setupGooglePlayServices() {
+        // Init Google Play Services as early as possible in the Fragment lifecycle to give it time
+        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+        if (api.isGooglePlayServicesAvailable(this)
+                == ConnectionResult.SUCCESS) {
+            mGoogleApiClient = LocationUtils.getGoogleApiClientWithCallbacks(this);
+            mGoogleApiClient.connect();
+        }
+    }
+
+    /**
+     * Checks region status, which can potentially including forcing a reload of region
+     * info from the server.  Also includes auto-selection of closest region.
+     */
+    private void checkRegionStatus() {
+        //First check for custom API URL set by user via Preferences, since if that is set we don't need region info from the REST API
+        if (!TextUtils.isEmpty(Application.get().getCustomApiUrl())) {
+            return;
+        }
+
+        // Check if region is hard-coded for this build flavor
+        /*if (BuildConfig.USE_FIXED_REGION) {
+            ObaRegion r = RegionUtils.getRegionFromBuildFlavor();
+            // Set the hard-coded region
+            RegionUtils.saveToProvider(this, Collections.singletonList(r));
+            Application.get().setCurrentRegion(r);
+            // Disable any region auto-selection in preferences
+            PreferenceUtils
+                    .saveBoolean(getString(R.string.preference_key_auto_select_region), false);
+            return;
+        }*/
+
+        boolean forceReload = false;
+        boolean showProgressDialog = true;
+
+        //If we don't have region info selected, or if enough time has passed since last region info update,
+        //force contacting the server again
+        if (Application.get().getCurrentRegion() == null ||
+                new Date().getTime() - Application.get().getLastRegionUpdateDate()
+                        > REGION_UPDATE_THRESHOLD) {
+            forceReload = true;
+            Log.d(TAG,
+                    "Region info has expired (or does not exist), forcing a reload from the server...");
+        }
+
+        if (Application.get().getCurrentRegion() != null) {
+            //We already have region info locally, so just check current region status quietly in the background
+            showProgressDialog = false;
+        }
+
+        try {
+            PackageInfo appInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_META_DATA);
+            SharedPreferences settings = Application.getPrefs();
+            final int oldVer = settings.getInt(CHECK_REGION_VER, 0);
+            final int newVer = appInfo.versionCode;
+
+            if (oldVer < newVer) {
+                forceReload = true;
+            }
+            PreferenceUtils.saveInt(CHECK_REGION_VER, appInfo.versionCode);
+        } catch (PackageManager.NameNotFoundException e) {
+            // Do nothing
+        }
+
+        //Check region status, possibly forcing a reload from server and checking proximity to current region
+        List<ObaRegionsTask.Callback> callbacks = new ArrayList<>();
+        //callbacks.add(mMapFragment);
+        callbacks.add(this);
+        ObaRegionsTask task = new ObaRegionsTask(this, callbacks, forceReload, showProgressDialog);
+        task.execute();
     }
 
 }
