@@ -12,6 +12,8 @@ android {
         versionCode 81
         versionName '7.0'
         multiDexEnabled true
+
+        manifestPlaceholders = [databaseAuthority: applicationId.toString() + '.provider']
     }
     namespace 'org.traccar.client'
 
