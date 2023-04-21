@@ -1,0 +1,499 @@
+{
+  "code": 200,
+  "text": "OK",
+  "version": 5,
+  "data": {
+    "list": [
+      {
+        "siriBaseUrl": "https://transit.nautilus-tech.com.au/onebusaway-api-webapp/siri/",
+        "supportsEmbeddedSocial": true,
+        "supportsObaRealtimeApis": true,
+        "traccarBaseUrl": "https://dhaka-traccar.mymetro.au/",
+        "contactEmail": "mymetro@nautilus-tech.com.au",
+        "enrollParticipantsInStudy": false,
+        "obaBaseUrl": "https://transit.nautilus-tech.com.au/onebusaway-api-webapp/",
+        "id": 0,
+        "regionName": "Adelaide Metro",
+        "obaVersionInfo": "2.1.12|2|1|12|d8f32f8cd028d2b8f43941c62694218d8f84f7c9",
+        "travelBehaviorDataCollectionEnabled": false,
+        "supportsObaDiscoveryApis": true,
+        "supportsOtpBikeshare": false,
+        "otpContactEmail": "mymetro@nautilus-tech.com.au",
+        "otpBaseUrl": "https://otp.nautilus-tech.com.au/otp/",
+        "paymentWarningBody": null,
+        "supportsSiriRealtimeApis": true,
+        "twitterUrl": "",
+        "paymentAndroidAppId": null,
+        "paymentiOSAppStoreIdentifier": null,
+        "paymentiOSAppUrlScheme": null,
+        "active": true,
+        "open311Servers": [
+          {
+            "juridisctionId": "ureport_sa",
+            "apiKey": "642bda8b6edd6",
+            "baseUrl": "https://sa-ureport.mymetro.au/open311/v2/"
+          }
+        ],
+        "paymentWarningTitle": null,
+        "language": "en_AU",
+        "bounds": [
+          {
+            "lat": -34.89224,
+            "latSpan": 0.5954540000000037,
+            "lon": 138.61566499999998,
+            "lonSpan": 0.2644420000000025
+          },
+          {
+            "lat": -34.943813500000005,
+            "latSpan": 0.07320100000000451,
+            "lon": 138.5605365,
+            "lonSpan": 0.09742500000001542
+          },
+          {
+            "lat": -35.096154776118254,
+            "latSpan": 0.3999424477635003,
+            "lon": 138.8118255,
+            "lonSpan": 0.4485230000000229
+          },
+          {
+            "lat": -34.83309800000001,
+            "latSpan": 0.5241100000000003,
+            "lon": 138.6211112248135,
+            "lonSpan": 0.28507155037300436
+          },
+          {
+            "lat": -35.128530999999995,
+            "latSpan": 0.4213839999999962,
+            "lon": 138.529113,
+            "lonSpan": 0.16759400000000824
+          },
+          {
+            "lat": -35.1519865,
+            "latSpan": 0.3744729999999947,
+            "lon": 138.535168737546,
+            "lonSpan": 0.17908252490798304
+          },
+          {
+            "lat": -34.8541185,
+            "latSpan": 0.4444030000000012,
+            "lon": 138.6073665,
+            "lonSpan": 0.25774700000002326
+          },
+          {
+            "lat": -34.991378,
+            "latSpan": 0.18545800000000412,
+            "lon": 138.7513752659545,
+            "lonSpan": 0.32939346809101266
+          },
+          {
+            "lat": -34.932278,
+            "latSpan": 0.1703159999999997,
+            "lon": 138.6044295,
+            "lonSpan": 0.1155210000000011
+          }
+        ],
+        "facebookUrl": "https://www.facebook.com/profile.php?id=100088209295306",
+        "stopInfoUrl": null,
+        "experimental": false
+      },
+      {
+        "siriBaseUrl": "https://nsw.mymetro.au/onebusaway-api-webapp/siri/",
+        "supportsEmbeddedSocial": true,
+        "supportsObaRealtimeApis": true,
+        "traccarBaseUrl": "https://dhaka-traccar.mymetro.au/",
+        "contactEmail": "mymetro@nautilus-tech.com.au",
+        "enrollParticipantsInStudy": false,
+        "obaBaseUrl": "https://nsw.mymetro.au/onebusaway-api-webapp/",
+        "id": 1,
+        "regionName": "Transport NSW",
+        "obaVersionInfo": "2.1.12|2|1|12|d8f32f8cd028d2b8f43941c62694218d8f84f7c9",
+        "travelBehaviorDataCollectionEnabled": false,
+        "supportsObaDiscoveryApis": true,
+        "supportsOtpBikeshare": false,
+        "otpContactEmail": "mymetro@nautilus-tech.com.au",
+        "otpBaseUrl": "https://nsw-otp.mymetro.au/otp/",
+        "paymentWarningBody": null,
+        "supportsSiriRealtimeApis": true,
+        "twitterUrl": "",
+        "paymentAndroidAppId": null,
+        "paymentiOSAppStoreIdentifier": null,
+        "paymentiOSAppUrlScheme": null,
+        "active": true,
+        "open311Servers": [
+          {
+            "juridisctionId": "ureport_nsw",
+            "apiKey": "642bda8b6edd6",
+            "baseUrl": "https://nsw-ureport.mymetro.au/open311/v2/"
+          }
+        ],
+        "paymentWarningTitle": null,
+        "language": "en_AU",
+        "bounds": [
+          {
+            "lat": -33.8155965,
+            "latSpan": 0.003976999999999009,
+            "lon": 151.0266805,
+            "lonSpan": 0.034467000000006465
+          },
+          {
+            "lat": -32.5777505,
+            "latSpan": 1.061817000000005,
+            "lon": 151.313106,
+            "lonSpan": 0.8920300000000054
+          },
+          {
+            "lat": -33.744544000000005,
+            "latSpan": 0.10587799999999703,
+            "lon": 151.04342200000002,
+            "lonSpan": 0.275117999999992
+          },
+          {
+            "lat": -33.257434,
+            "latSpan": 0.5901600000000045,
+            "lon": 151.417644,
+            "lonSpan": 0.555402000000015
+          },
+          {
+            "lat": -33.008329,
+            "latSpan": 0.5440220000000053,
+            "lon": 151.5833835,
+            "lonSpan": 0.3948649999999816
+          },
+          {
+            "lat": -32.992110999999994,
+            "latSpan": 0.2442399999999978,
+            "lon": 151.7001385,
+            "lonSpan": 0.186191000000008
+          },
+          {
+            "lat": -32.843185000000005,
+            "latSpan": 0.28397199999999856,
+            "lon": 151.8852995,
+            "lonSpan": 0.5800009999999816
+          },
+          {
+            "lat": -32.666610500000004,
+            "latSpan": 0.6870450000000048,
+            "lon": 151.476325,
+            "lonSpan": 1.3213499999999954
+          },
+          {
+            "lat": -32.881563,
+            "latSpan": 0.45401599999999576,
+            "lon": 151.4398235,
+            "lonSpan": 0.6381909999999777
+          },
+          {
+            "lat": -34.1544375,
+            "latSpan": 0.5452370000000002,
+            "lon": 150.677599,
+            "lonSpan": 0.4530160000000194
+          },
+          {
+            "lat": -33.8369045,
+            "latSpan": 0.07288899999999643,
+            "lon": 151.1471905,
+            "lonSpan": 0.2732110000000034
+          },
+          {
+            "lat": -33.7643855,
+            "latSpan": 0.21186499999999597,
+            "lon": 151.1869235,
+            "lonSpan": 0.23667699999998604
+          },
+          {
+            "lat": -33.939780999999996,
+            "latSpan": 0.26569799999999333,
+            "lon": 151.002428,
+            "lonSpan": 0.4119039999999927
+          },
+          {
+            "lat": -33.690839999999994,
+            "latSpan": 0.35895599999999916,
+            "lon": 151.140125,
+            "lonSpan": 0.2404820000000143
+          },
+          {
+            "lat": -33.9605975,
+            "latSpan": 0.28640699999999697,
+            "lon": 151.001489,
+            "lonSpan": 0.43278799999998796
+          },
+          {
+            "lat": -33.902447499999994,
+            "latSpan": 0.1709770000000006,
+            "lon": 151.17722750000001,
+            "lonSpan": 0.21935299999998392
+          },
+          {
+            "lat": -33.732338,
+            "latSpan": 0.27986800000000045,
+            "lon": 151.203062,
+            "lonSpan": 0.2710219999999879
+          },
+          {
+            "lat": -33.800228000000004,
+            "latSpan": 0.19299600000000083,
+            "lon": 151.13706100000002,
+            "lonSpan": 0.2953579999999931
+          },
+          {
+            "lat": -33.8821585,
+            "latSpan": 0.018110999999997546,
+            "lon": 151.227304,
+            "lonSpan": 0.041273999999987154
+          },
+          {
+            "lat": -33.743299500000006,
+            "latSpan": 0.10411500000000018,
+            "lon": 151.04328450000003,
+            "lonSpan": 0.2742590000000007
+          },
+          {
+            "lat": -33.9413505,
+            "latSpan": 0.1960770000000025,
+            "lon": 151.116026,
+            "lonSpan": 0.18470800000000054
+          },
+          {
+            "lat": -33.904376,
+            "latSpan": 0.27364400000000444,
+            "lon": 151.1352915,
+            "lonSpan": 0.2267750000000035
+          },
+          {
+            "lat": -33.697761,
+            "latSpan": 0.543760000000006,
+            "lon": 150.9537305,
+            "lonSpan": 0.5154129999999952
+          },
+          {
+            "lat": -34.380900999999994,
+            "latSpan": 0.14934000000000225,
+            "lon": 150.8818135,
+            "lonSpan": 0.10448900000000094
+          },
+          {
+            "lat": -33.858126,
+            "latSpan": 0.19087799999999788,
+            "lon": 150.8720105,
+            "lonSpan": 0.2854910000000075
+          },
+          {
+            "lat": -33.294472999999996,
+            "latSpan": 0.2910220000000052,
+            "lon": 151.451985,
+            "lonSpan": 0.2306199999999876
+          },
+          {
+            "lat": -33.8879415,
+            "latSpan": 0.5781729999999996,
+            "lon": 150.9599375,
+            "lonSpan": 0.5769990000000007
+          },
+          {
+            "lat": -33.9805925,
+            "latSpan": 0.1991430000000065,
+            "lon": 150.8041555,
+            "lonSpan": 0.2529529999999909
+          },
+          {
+            "lat": -34.513593,
+            "latSpan": 0.33716400000000135,
+            "lon": 150.8003775,
+            "lonSpan": 0.24387500000000273
+          },
+          {
+            "lat": -33.647439000000006,
+            "latSpan": 0.534162000000002,
+            "lon": 150.73968050000002,
+            "lonSpan": 0.6022670000000119
+          },
+          {
+            "lat": -34.2319015,
+            "latSpan": 0.3908090000000044,
+            "lon": 150.95036349999998,
+            "lonSpan": 0.11952299999998672
+          },
+          {
+            "lat": -33.734147,
+            "latSpan": 0.3081580000000059,
+            "lon": 150.727145,
+            "lonSpan": 0.9624699999999962
+          },
+          {
+            "lat": -33.3521385,
+            "latSpan": 0.2212770000000006,
+            "lon": 151.44480099999998,
+            "lonSpan": 0.2311380000000156
+          }
+        ],
+        "facebookUrl": "https://www.facebook.com/profile.php?id=100088209295306",
+        "stopInfoUrl": null,
+        "experimental": false
+      },
+      {
+        "siriBaseUrl": "https://vic-oba.mymetro.au/onebusaway-api-webapp/siri/",
+        "supportsEmbeddedSocial": true,
+        "supportsObaRealtimeApis": true,
+        "traccarBaseUrl": "https://dhaka-traccar.mymetro.au/",
+        "contactEmail": "mymetro@nautilus-tech.com.au",
+        "enrollParticipantsInStudy": false,
+        "obaBaseUrl": "https://vic-oba.mymetro.au/onebusaway-api-webapp/",
+        "id": 2,
+        "regionName": "Public Transport Victoria",
+        "obaVersionInfo": "2.1.12|2|1|12|d8f32f8cd028d2b8f43941c62694218d8f84f7c9",
+        "travelBehaviorDataCollectionEnabled": false,
+        "supportsObaDiscoveryApis": true,
+        "supportsOtpBikeshare": false,
+        "otpContactEmail": "mymetro@nautilus-tech.com.au",
+        "otpBaseUrl": "https://vic-otp.mymetro.au/otp/",
+        "paymentWarningBody": null,
+        "supportsSiriRealtimeApis": true,
+        "twitterUrl": "",
+        "paymentAndroidAppId": null,
+        "paymentiOSAppStoreIdentifier": null,
+        "paymentiOSAppUrlScheme": null,
+        "active": true,
+        "open311Servers": [
+          {
+            "juridisctionId": "ureport_vic",
+            "apiKey": "642bda8b6edd6",
+            "baseUrl": "https://vic-ureport.mymetro.au/open311/v2/"
+          }
+        ],
+        "paymentWarningTitle": null,
+        "language": "en_AU",
+        "bounds": [
+          {
+            "lat": -37.832488999999995,
+            "latSpan": 1.283054,
+            "lon": 145.224574,
+            "lonSpan": 1.3701800000000048
+          }
+        ],
+        "facebookUrl": "https://www.facebook.com/profile.php?id=100088209295306",
+        "stopInfoUrl": null,
+        "experimental": false
+      },
+      {
+        "siriBaseUrl": "https://qld-oba.mymetro.au/onebusaway-api-webapp/siri/",
+        "supportsEmbeddedSocial": true,
+        "supportsObaRealtimeApis": true,
+        "traccarBaseUrl": "https://dhaka-traccar.mymetro.au/",
+        "contactEmail": "mymetro@nautilus-tech.com.au",
+        "enrollParticipantsInStudy": false,
+        "obaBaseUrl": "https://qld-oba.mymetro.au/onebusaway-api-webapp/",
+        "id": 3,
+        "regionName": "Translink Queensland",
+        "obaVersionInfo": "2.1.12|2|1|12|d8f32f8cd028d2b8f43941c62694218d8f84f7c9",
+        "travelBehaviorDataCollectionEnabled": false,
+        "supportsObaDiscoveryApis": true,
+        "supportsOtpBikeshare": false,
+        "otpContactEmail": "mymetro@nautilus-tech.com.au",
+        "otpBaseUrl": "https://qld-otp.mymetro.au/otp/",
+        "paymentWarningBody": null,
+        "supportsSiriRealtimeApis": true,
+        "twitterUrl": "",
+        "paymentAndroidAppId": null,
+        "paymentiOSAppStoreIdentifier": null,
+        "paymentiOSAppUrlScheme": null,
+        "active": true,
+        "open311Servers": [
+          {
+            "juridisctionId": "ureport_qld",
+            "apiKey": "642bda8b6edd6",
+            "baseUrl": "https://qld-ureport.mymetro.au/open311/v2/"
+          }
+        ],
+        "paymentWarningTitle": null,
+        "language": "en_AU",
+        "bounds": [
+          {
+            "lat": -27.449114,
+            "latSpan": 0.10825200000000024,
+            "lon": 153.4724465,
+            "lonSpan": 0.14255299999999238
+          },
+          {
+            "lat": -25.3722565,
+            "latSpan": 0.376536999999999,
+            "lon": 152.733538,
+            "lonSpan": 0.35072199999999043
+          },
+          {
+            "lat": -17.517360500000002,
+            "latSpan": 0.053183000000000646,
+            "lon": 146.03243750000001,
+            "lonSpan": 0.08778700000002004
+          },
+          {
+            "lat": -16.9238155,
+            "latSpan": 0.3604970000000023,
+            "lon": 145.724879,
+            "lonSpan": 0.12323000000000661
+          },
+          {
+            "lat": -19.994709,
+            "latSpan": 0.047708000000000084,
+            "lon": 148.24535300000002,
+            "lonSpan": 0.04003800000000979
+          },
+          {
+            "lat": -27.165819499999998,
+            "latSpan": 2.012753,
+            "lon": 152.83380599999998,
+            "lonSpan": 1.4191360000000088
+          }
+        ],
+        "facebookUrl": "https://www.facebook.com/profile.php?id=100088209295306",
+        "stopInfoUrl": null,
+        "experimental": false
+      },
+      {
+        "siriBaseUrl": "https://dhaka.mymetro.au/onebusaway-api-webapp/siri/",
+        "supportsEmbeddedSocial": true,
+        "supportsObaRealtimeApis": true,
+        "traccarBaseUrl": "https://dhaka-traccar.mymetro.au/",
+        "contactEmail": "mymetro@nautilus-tech.com.au",
+        "enrollParticipantsInStudy": false,
+        "obaBaseUrl": "https://dhaka-oba.mymetro.au/onebusaway-api-webapp/",
+        "id": 4,
+        "regionName": "Dhaka Mass Rapid Transit",
+        "obaVersionInfo": "2.1.12|2|1|12|d8f32f8cd028d2b8f43941c62694218d8f84f7c9",
+        "travelBehaviorDataCollectionEnabled": false,
+        "supportsObaDiscoveryApis": true,
+        "supportsOtpBikeshare": false,
+        "otpContactEmail": "mymetro@nautilus-tech.com.au",
+        "otpBaseUrl": "https://dhaka-otp.mymetro.au/otp/",
+        "paymentWarningBody": null,
+        "supportsSiriRealtimeApis": true,
+        "twitterUrl": "",
+        "paymentAndroidAppId": null,
+        "paymentiOSAppStoreIdentifier": null,
+        "paymentiOSAppUrlScheme": null,
+        "active": true,
+        "open311Servers": [
+          {
+            "juridisctionId": "ureport_dhaka",
+            "apiKey": "642bda8b6edd6",
+            "baseUrl": "https://dhaka-ureport.mymetro.au/open311/v2/"
+          }
+        ],
+        "paymentWarningTitle": null,
+        "language": "en_EN",
+        "bounds": [
+          {
+            "lat": 23.8238555,
+            "latSpan": 0.09089300000000122,
+            "lon": 90.371564,
+            "lonSpan": 0.01720400000000666
+          }
+        ],
+        "facebookUrl": "https://www.facebook.com/profile.php?id=100088209295306",
+        "stopInfoUrl": null,
+        "experimental": false
+      }
+    ]
+  }
+}

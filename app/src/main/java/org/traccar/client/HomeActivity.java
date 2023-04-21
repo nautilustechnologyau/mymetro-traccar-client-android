@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,9 +31,12 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import org.traccar.client.app.Application;
 import org.traccar.client.databinding.ActivityMainBinding;
+import org.traccar.client.oba.region.ObaRegionsTask;
+import org.traccar.client.oba.util.UIUtils;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Callback {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
 
@@ -269,6 +273,31 @@ public class HomeActivity extends AppCompatActivity {
             builder.setPositiveButton(android.R.string.ok, null);
             builder.show();
         }
+    }
+
+    @Override
+    public void onRegionTaskFinished(boolean currentRegionChanged) {
+        // Show "What's New" (which might need refreshed Regions API contents)
+        //boolean update = autoShowWhatsNew();
+
+        // Redraw nav drawer if the region changed, or if we just installed a new version
+        //if (currentRegionChanged || update) {
+        //    redrawNavigationDrawerFragment();
+        //}
+
+        // If region changed and was auto-selected, show user what region we're using
+        if (currentRegionChanged
+                && Application.getPrefs()
+                .getBoolean(getString(R.string.preference_key_auto_select_region), true)
+                && Application.get().getCurrentRegion() != null
+                && UIUtils.canManageDialog(this)) {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.region_region_found,
+                            Application.get().getCurrentRegion().getName()),
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+        // updateLayersFab();
     }
 
 }
