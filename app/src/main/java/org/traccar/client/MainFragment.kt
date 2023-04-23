@@ -15,39 +15,23 @@
  */
 package org.traccar.client
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.webkit.URLUtil
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-import androidx.preference.EditTextPreference
-import androidx.preference.EditTextPreferenceDialogFragmentCompat
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
-import androidx.preference.TwoStatePreference
-import dev.doubledot.doki.ui.DokiActivity
+import androidx.preference.*
+import org.traccar.client.app.Application
+import org.traccar.client.oba.ui.RegionsActivity
 import java.util.*
-import kotlin.collections.HashSet
 
 class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
 
@@ -88,8 +72,15 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
                 false
             }
         }
+
+        val regionClickListener = Preference.OnPreferenceClickListener { preference ->
+            RegionsActivity.start(activity)
+            true
+        }
         findPreference<Preference>(KEY_DISTANCE)?.onPreferenceChangeListener = numberValidationListener
         findPreference<Preference>(KEY_ANGLE)?.onPreferenceChangeListener = numberValidationListener
+
+        findPreference<Preference>(getString(R.string.preference_key_region))?.onPreferenceClickListener = regionClickListener
 
         /*alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val originalIntent = Intent(activity, AutostartReceiver::class.java)
@@ -167,6 +158,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
     override fun onResume() {
         super.onResume()
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        changePreferenceSummary(getString(R.string.preference_key_region))
     }
 
     override fun onPause() {
@@ -317,6 +309,31 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         }
         Toast.makeText(activity, R.string.error_msg_invalid_url, Toast.LENGTH_LONG).show()
         return false
+    }
+
+    /**
+     * Changes the summary of a preference based on a given preference key
+     *
+     * @param preferenceKey preference key that triggers a change in summary
+     */
+    private fun changePreferenceSummary(preferenceKey: String) {
+        // Change the current region summary and server API URL summary
+        if (preferenceKey.equals(getString(R.string.preference_key_region), ignoreCase = true)) {
+            if (Application.get().currentRegion != null) {
+                findPreference<Preference>(getString(R.string.preference_key_region))?.summary = Application.get().currentRegion.name
+                //mCustomApiUrlPref.setSummary(getString(R.string.preferences_oba_api_servername_summary))
+                //val customOtpApiUrl: String = Application.get().getCustomOtpApiUrl()
+                //if (!TextUtils.isEmpty(customOtpApiUrl)) {
+                //    mCustomOtpApiUrlPref.setSummary(customOtpApiUrl)
+                //} else {
+                //    mCustomOtpApiUrlPref
+                //            .setSummary(getString(R.string.preferences_otp_api_servername_summary))
+                //}
+            } else {
+                //mPreference.setSummary(getString(R.string.preferences_region_summary_custom_api))
+                //mCustomApiUrlPref.setSummary(Application.get().getCustomApiUrl())
+            }
+        }
     }
 
     companion object {

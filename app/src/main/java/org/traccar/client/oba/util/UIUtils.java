@@ -21,12 +21,28 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.traccar.client.HomeActivity;
+
 /**
  * A class containing utility methods related to the user interface
  */
 public final class UIUtils {
 
     private static final String TAG = "UIHelp";
+
+    public static void setupActionBar(AppCompatActivity activity) {
+        ActionBar bar = activity.getSupportActionBar();
+        bar.setIcon(android.R.color.transparent);
+        bar.setDisplayShowTitleEnabled(true);
+
+        // HomeActivity is the root for all other activities
+        if (!(activity instanceof HomeActivity)) {
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
 
     /**
      * Returns true if the activity is still active and dialogs can be managed (i.e., displayed
