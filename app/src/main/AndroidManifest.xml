@@ -59,6 +59,9 @@
             android:name=".StatusActivity"
             android:exported="false" />
         <activity
+            android:name=".oba.ui.RegionsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ShortcutActivity"
             android:exported="true"
             android:label="@string/menu_shortcuts">

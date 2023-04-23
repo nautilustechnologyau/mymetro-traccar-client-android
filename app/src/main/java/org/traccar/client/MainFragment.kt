@@ -29,16 +29,22 @@ import android.webkit.URLUtil
 import android.widget.EditText
 import android.widget.Toast
 import androidx.preference.*
+import com.google.firebase.analytics.FirebaseAnalytics
 import org.traccar.client.app.Application
+import org.traccar.client.oba.io.ObaAnalytics
+import org.traccar.client.oba.region.ObaRegionsTask
+import org.traccar.client.oba.ui.NavHelp
 import org.traccar.client.oba.ui.RegionsActivity
 import java.util.*
 
-class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
+class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener, ObaRegionsTask.Callback {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var alarmManager: AlarmManager
     private lateinit var alarmIntent: PendingIntent
     private var requestingPermissions: Boolean = false
+    private var mAutoSelectInitialValue: Boolean = true
+    private lateinit var mFirebaseAnalytics: FirebaseAnalytics
 
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -49,6 +55,8 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         setPreferencesFromResource(R.xml.preferences, rootKey)
         initPreferences()
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context!!)
 
         findPreference<Preference>(KEY_DEVICE)?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
             newValue != null && newValue != ""
@@ -73,7 +81,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             }
         }
 
-        val regionClickListener = Preference.OnPreferenceClickListener { preference ->
+        val regionClickListener = Preference.OnPreferenceClickListener { _ ->
             RegionsActivity.start(activity)
             true
         }
@@ -166,6 +174,14 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
+    override fun onDestroy() {
+        val currentValue = findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled ?: true
+        if (currentValue and !mAutoSelectInitialValue) {
+            NavHelp.goHome(activity, false)
+        }
+        super.onDestroy()
+    }
+
     private fun setPreferencesEnabled(enabled: Boolean) {
         findPreference<Preference>(KEY_DEVICE)?.isEnabled = enabled
         findPreference<Preference>(KEY_URL)?.isEnabled = enabled
@@ -189,6 +205,13 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             // (requireActivity().application as MainApplication).handleRatingFlow(requireActivity())
         } else if (key == KEY_DEVICE) {
             findPreference<Preference>(KEY_DEVICE)?.summary = sharedPreferences.getString(KEY_DEVICE, null)
+        } else if (key == getString(R.string.preference_key_auto_select_region)) {
+            val autoSelect = findPreference<Preference>(key)?.isEnabled
+            if (autoSelect!!) {
+                ObaAnalytics.reportUiEvent(mFirebaseAnalytics, getString(R.string.analytics_label_button_press_auto), null)
+            } else {
+                ObaAnalytics.reportUiEvent(mFirebaseAnalytics, getString(R.string.analytics_label_button_press_manual), null)
+            }
         }
     }
 
@@ -216,6 +239,8 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             findPreference<EditTextPreference>(KEY_DEVICE)?.text = id
         }
         findPreference<Preference>(KEY_DEVICE)?.summary = sharedPreferences.getString(KEY_DEVICE, null)
+
+        mAutoSelectInitialValue = findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled ?: true
 
         // disable and hide the status preference
         val preference = findPreference<Preference>(KEY_STATUS)
@@ -350,6 +375,9 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         const val KEY_WAKELOCK = "wakelock"
         // private const val PERMISSIONS_REQUEST_LOCATION = 2
         // private const val PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 3
+    }
+
+    override fun onRegionTaskFinished(currentRegionChanged: Boolean) {
     }
 
 }

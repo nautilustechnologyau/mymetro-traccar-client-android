@@ -119,10 +119,10 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
         setupGooglePlayServices();
 
-        if (Application.get().getCurrentRegion() != null) {
-            PreferenceUtils.saveString(getString(R.string.preference_key_region),
-                    Application.get().getCurrentRegion().getName());
-        }
+        //if (Application.get().getCurrentRegion() != null) {
+        //    PreferenceUtils.saveString(getString(R.string.preference_key_region),
+        //            Application.get().getCurrentRegion().getName());
+        //}
 
         if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
             // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
@@ -358,10 +358,10 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         //    redrawNavigationDrawerFragment();
         //}
 
-        if (Application.get().getCurrentRegion() != null) {
-            PreferenceUtils.saveString(getString(R.string.preference_key_region),
-                    Application.get().getCurrentRegion().getName());
-        }
+        //if (Application.get().getCurrentRegion() != null) {
+        //    PreferenceUtils.saveString(getString(R.string.preference_key_region),
+        //            Application.get().getCurrentRegion().getName());
+        //}
         // If region changed and was auto-selected, show user what region we're using
         if (currentRegionChanged
                 && Application.getPrefs()
