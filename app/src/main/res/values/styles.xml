@@ -5,7 +5,7 @@
         <item name="colorPrimaryVariant">#0F9D58</item>
         <item name="colorOnPrimary">#000</item>
     </style>
-    <style name="CustomAlertDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+    <style name="CustomAlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="android:windowBackground">@drawable/popup_background</item>
     </style>
 </resources>

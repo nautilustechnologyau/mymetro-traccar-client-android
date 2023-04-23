@@ -96,10 +96,10 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="au.mymetro.android.fileprovider"
+            android:authorities="au.mymetro.operator.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
-            <!-- ressource file to create -->
+            <!-- resource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths">

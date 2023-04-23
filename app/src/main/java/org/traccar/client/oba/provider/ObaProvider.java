@@ -49,7 +49,7 @@ public class ObaProvider extends ContentProvider {
 
     private class OpenHelper extends SQLiteOpenHelper {
 
-        private static final int DATABASE_VERSION = 30;
+        private static final int DATABASE_VERSION = 31;
 
         public OpenHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -305,7 +305,15 @@ public class ObaProvider extends ContentProvider {
                         " ADD COLUMN " + ObaContract.Regions.TRAVEL_BEHAVIOR_DATA_COLLECTION + " INTEGER");
                 db.execSQL("ALTER TABLE " + ObaContract.Regions.PATH +
                         " ADD COLUMN " + ObaContract.Regions.ENROLL_PARTICIPANTS_IN_STUDY + " INTEGER");
+                ++oldVersion;
             }
+
+            if (oldVersion == 30) {
+                db.execSQL(
+                        "ALTER TABLE " + ObaContract.Regions.PATH +
+                                " ADD COLUMN " + ObaContract.Regions.TRACCAR_BASE_URL + " VARCHAR");
+            }
+
         }
 
         @Override
@@ -575,6 +583,8 @@ public class ObaProvider extends ContentProvider {
                 .put(ObaContract.Regions.TRAVEL_BEHAVIOR_DATA_COLLECTION, ObaContract.Regions.TRAVEL_BEHAVIOR_DATA_COLLECTION);
         sRegionsProjectionMap
                 .put(ObaContract.Regions.ENROLL_PARTICIPANTS_IN_STUDY, ObaContract.Regions.ENROLL_PARTICIPANTS_IN_STUDY);
+        sRegionsProjectionMap
+                .put(ObaContract.Regions.TRACCAR_BASE_URL, ObaContract.Regions.TRACCAR_BASE_URL);
 
         sRegionBoundsProjectionMap = new HashMap<String, String>();
         sRegionBoundsProjectionMap.put(ObaContract.RegionBounds._ID, ObaContract.RegionBounds._ID);

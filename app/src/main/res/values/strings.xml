@@ -6,7 +6,35 @@
     <string name="shortcut_stop">Stop service</string>
     <string name="shortcut_sos">Send SOS</string>
     <string name="channel_default">Primary Channel</string>
-    <string name="settings_id_title">Device identifier</string>
+
+    <string name="menu_status">Status</string>
+    <string name="menu_info">Info</string>
+    <string name="menu_shortcuts">Add shortcuts</string>
+    <string name="menu_clear">Clear</string>
+    <string name="status_service_create">Service started</string>
+    <string name="status_service_destroy">Service stopped</string>
+    <string name="status_send_success">Send successfully</string>
+    <string name="status_send_fail">Send failed</string>
+    <string name="status_location_update">Location update</string>
+    <string name="status_network_online">Network online</string>
+    <string name="status_network_offline">Network offline</string>
+    <string name="hidden_app_name">Device Settings</string>
+    <string name="hidden_alert">The app has been hidden. To open it again please dial 8722227 (TRACCAR).</string>
+    <string name="error_msg_invalid_url">Please enter a valid http:// or https:// URL</string>
+    <string name="request_exception">To continuously collect location data please turn off battery optimization for the app.</string>
+    <string name="request_background">To continuously collect location data please enable \"%s\" permission.</string>
+    <string name="request_background_option">Allow all the time</string>
+    <string name="title_activity_main">MyMetro Operator</string>
+    <string name="title_home">Dashboard</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_info">Info</string>
+    <string name="title_help">Help</string>
+    <string name="title_about">About</string>
+
+    <!-- Traccar Preferences -->
+    <string name="settings_category_traccar">Transitclock</string>
+    <string name="settings_id_title">Vehicle/Block ID</string>
     <string name="settings_url_title">Server URL</string>
     <string name="settings_url_summary">Tracking server URL</string>
     <string name="settings_interval_title">Frequency</string>
@@ -33,60 +61,31 @@
     <string name="settings_accuracy_low">Low</string>
     <string name="settings_foreground_title">Foreground service</string>
     <string name="settings_foreground_summary">Increase service priority</string>
-    <string name="menu_status">Status</string>
-    <string name="menu_info">Info</string>
-    <string name="menu_shortcuts">Add shortcuts</string>
-    <string name="menu_clear">Clear</string>
-    <string name="status_service_create">Service started</string>
-    <string name="status_service_destroy">Service stopped</string>
-    <string name="status_send_success">Send successfully</string>
-    <string name="status_send_fail">Send failed</string>
-    <string name="status_location_update">Location update</string>
-    <string name="status_network_online">Network online</string>
-    <string name="status_network_offline">Network offline</string>
-    <string name="hidden_app_name">Device Settings</string>
-    <string name="hidden_alert">The app has been hidden. To open it again please dial 8722227 (TRACCAR).</string>
-    <string name="error_msg_invalid_url">Please enter a valid http:// or https:// URL</string>
-    <string name="request_exception">To continuously collect location data please turn off battery optimization for the app.</string>
-    <string name="request_background">To continuously collect location data please enable \"%s\" permission.</string>
-    <string name="request_background_option">Allow all the time</string>
-    <string name="title_activity_main">MyMetro Operator</string>
-    <string name="title_home">Dashboard</string>
-    <string name="title_settings">Settings</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="title_info">Info</string>
-    <string name="title_help">Help</string>
-    <string name="title_about">About</string>
 
-    <!-- Application Preferences -->
+    <!-- OBA Preferences -->
     <string name="preferences_category_location">Location</string>
     <string name="preferences_category_advanced">Advanced</string>
     <string name="preferences_region_title">Your region</string>
     <string name="preferences_region_summary_custom_api">A custom API server is being used</string>
     <string name="preferences_auto_select_region_title">Automatic region</string>
-    <string name="preferences_auto_select_region_summary">Set your current transit region based on
-        your current location
-    </string>
+    <string name="preferences_auto_select_region_summary">Set your current transit region based on your current location</string>
 
     <string name="region_unavailable">unavailable</string>
     <string name="region_option_refresh">Refresh</string>
     <string name="region_detecting_server">Finding your transit services&#8230;</string>
     <string name="region_choose_region">Choose region</string>
-    <string name="region_disabled_auto_selection">Disabled automatic region selection. You can
-        enable in Preferences.
-    </string>
+    <string name="region_disabled_auto_selection">Disabled automatic region selection. You can enable in Preferences.</string>
     <string name="region_selected_auto">selected automatically</string>
     <string name="region_selected_manually">selected manually</string>
     <string name="region_region_found">Found %1$s region</string>
-
     <string name="preferences_experimental_regions_title">Experimental regions</string>
-    <string name="preferences_experimental_regions_summary">Enables regions that may be unstable
-    </string>
-    <string name="preferences_experimental_regions_enable_warning">Experimental regions may be
-        unstable and without real-time info! Go ahead?
-    </string>
-    <string name="preferences_experimental_regions_disable_warning">Your current experimental region
-        won\'t be available! Go ahead?
-    </string>
+    <string name="preferences_experimental_regions_summary">Enables regions that may be unstable</string>
+    <string name="preferences_experimental_regions_enable_warning">Experimental regions may be unstable and without real-time info! Go ahead?</string>
+    <string name="preferences_experimental_regions_disable_warning">Your current experimental region won\'t be available! Go ahead?</string>
+
+    <string name="oba_api_key_dialog_title">API Key for %1$s Region</string>
+    <string name="oba_api_key_dialog_ok">Ok</string>
+    <string name="preference_oba_api_key_summary">API Key to Access MyMetro Services</string>
+    <string name="preference_oba_api_key_title">MyMetro API Key</string>
 
 </resources>

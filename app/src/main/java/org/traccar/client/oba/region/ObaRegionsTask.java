@@ -218,7 +218,7 @@ public class ObaRegionsTask extends AsyncTask<Void, Integer, ArrayList<ObaRegion
         final CharSequence[] items = serverNames
                 .toArray(new CharSequence[serverNames.size()]);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, R.style.CustomAlertDialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext); //, R.style.CustomAlertDialog);
         builder.setTitle(mContext.getString(R.string.region_choose_region));
         builder.setCancelable(false);
         builder.setItems(items, new DialogInterface.OnClickListener() {

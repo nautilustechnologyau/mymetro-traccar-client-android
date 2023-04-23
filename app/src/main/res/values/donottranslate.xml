@@ -69,6 +69,7 @@
     <string name="preferences_key_travel_behavior">preference_travel_behavior</string>
     <string name="preferences_key_user_denied_location_permissions">preferences_key_user_denied_location_permissions</string>
     <string name="preference_key_push_firebase_data">preference_key_push_firebase_data</string>
+    <string name="preference_key_oba_api_key">preference_key_oba_api_key</string>
 
     <!-- Regions API URL -->
     <string name="regions_api_url">https://regions.onebusaway.org/regions-v5.json</string>

@@ -10,15 +10,18 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -116,6 +119,11 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
         setupGooglePlayServices();
 
+        if (Application.get().getCurrentRegion() != null) {
+            PreferenceUtils.saveString(getString(R.string.preference_key_region),
+                    Application.get().getCurrentRegion().getName());
+        }
+
         if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
             // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
             // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
@@ -127,6 +135,12 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     // system permissions dialog. Save the return value, an instance of
     // ActivityResultLauncher, as an instance variable.
     private ActivityResultLauncher<String> locationRequestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+        if (mInitialStartup) {
+            // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
+            // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
+            mInitialStartup = true;
+            checkRegionStatus();
+        }
         if (mStartClicked) {
             startTrackingService(false, isGranted);
         }
@@ -196,7 +210,7 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             startTrackingService(true, false);
         }
 
-        ((MainApplication)getApplication()).handleRatingFlow(this);
+        ((Application)getApplication()).handleRatingFlow(this);
 
         setupStartStopButtonState();
 
@@ -344,6 +358,10 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         //    redrawNavigationDrawerFragment();
         //}
 
+        if (Application.get().getCurrentRegion() != null) {
+            PreferenceUtils.saveString(getString(R.string.preference_key_region),
+                    Application.get().getCurrentRegion().getName());
+        }
         // If region changed and was auto-selected, show user what region we're using
         if (currentRegionChanged
                 && Application.getPrefs()
@@ -357,6 +375,30 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             ).show();
         }
         // updateLayersFab();
+    }
+
+    private void showObaApiKeyInputDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.oba_api_key_dialog_title,
+                Application.get().getCurrentRegion().getName()));
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(R.string.oba_api_key_dialog_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String apiKey = input.getText().toString();
+
+                PreferenceUtils.saveString(getString(R.string.preference_key_oba_api_key), apiKey);
+            }
+        });
+
+        builder.show();
     }
 
     private void setupGooglePlayServices() {
