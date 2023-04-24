@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/wheelchair"
+        android:layout_width="@dimen/vehicle_features_icon"
+        android:layout_height="@dimen/vehicle_features_icon"
+        android:layout_marginStart="@dimen/vehicle_features_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/air_conditioner"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:srcCompat="@drawable/ic_access"
+        app:tint="@color/theme_accent"
+        android:contentDescription="This vehicle has wheelchair accessibility" />
+
+    <ImageView
+        android:id="@+id/air_conditioner"
+        android:layout_width="@dimen/vehicle_features_icon"
+        android:layout_height="@dimen/vehicle_features_icon"
+        android:layout_marginStart="@dimen/vehicle_features_margin"
+        android:contentDescription="This vehicle is air-conditioned"
+        android:tint="@color/theme_accent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/speed"
+        app:layout_constraintStart_toEndOf="@id/wheelchair"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_snow_flake" />
+
+    <ImageView
+        android:id="@+id/speed"
+        android:layout_width="@dimen/vehicle_features_icon"
+        android:layout_height="@dimen/vehicle_features_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/air_conditioner"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="@dimen/vehicle_features_margin"
+        app:srcCompat="@drawable/ic_very_slow"
+        android:tint="@color/theme_accent"
+        android:contentDescription="Current speed of the vehicle" />
+</androidx.constraintlayout.widget.ConstraintLayout>

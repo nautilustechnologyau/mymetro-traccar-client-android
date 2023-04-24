@@ -25,7 +25,6 @@
     <string name="preference_key_region">preference_region</string>
     <string name="preference_key_oba_api_url">preferences_oba_api_url</string>
     <string name="preference_key_otp_api_url">preferences_otp_api_url</string>
-    <string name="preference_key_traccar_url">preferences_traccar_url</string>
     <string name="preference_key_otp_api_url_version">preferences_otp_api_url_structure</string>
     <string name="preference_key_last_region_update">preference_last_region_update</string>
     <string name="preference_key_auto_select_region">preference_auto_select_region</string>
@@ -69,10 +68,9 @@
     <string name="preferences_key_travel_behavior">preference_travel_behavior</string>
     <string name="preferences_key_user_denied_location_permissions">preferences_key_user_denied_location_permissions</string>
     <string name="preference_key_push_firebase_data">preference_key_push_firebase_data</string>
-    <string name="preference_key_oba_api_key">preference_key_oba_api_key</string>
 
     <!-- Regions API URL -->
-    <string name="regions_api_url">https://regions.onebusaway.org/regions-v5.json</string>
+    <string name="regions_api_url">https://regions.mymetro.au/regions-v5.json</string>
 
     <!-- Donate URL -->
     <string name="donate_url">https://onebusaway.org/donate/</string>

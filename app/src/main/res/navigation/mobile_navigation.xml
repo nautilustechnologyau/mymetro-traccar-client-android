@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="org.traccar.client.ui.home.HomeFragment"
+        android:name="au.mymetro.operator.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="org.traccar.client.ui.settings.SettingsFragment"
+        android:name="au.mymetro.operator.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 
@@ -25,13 +25,13 @@
 -->
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="org.traccar.client.ui.notifications.NotificationsFragment"
+        android:name="au.mymetro.operator.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 
     <fragment
         android:id="@+id/navigation_info"
         android:label="@string/title_about"
-        android:name="org.traccar.client.ui.info.InfoFragment"
+        android:name="au.mymetro.operator.ui.info.InfoFragment"
         tools:layout="@layout/fragment_info"/>
 </navigation>

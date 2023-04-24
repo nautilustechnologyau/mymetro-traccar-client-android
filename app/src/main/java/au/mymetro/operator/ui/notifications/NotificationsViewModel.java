@@ -1,0 +1,8 @@
+package au.mymetro.operator.ui.notifications;
+
+import androidx.lifecycle.ViewModel;
+
+public class NotificationsViewModel extends ViewModel {
+    public NotificationsViewModel() {
+    }
+}

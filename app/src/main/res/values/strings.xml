@@ -61,71 +61,12 @@
     <string name="settings_accuracy_low">Low</string>
     <string name="settings_foreground_title">Foreground service</string>
     <string name="settings_foreground_summary">Increase service priority</string>
-
-    <!-- OBA Preferences -->
-    <string name="preferences_category_location">Location</string>
-    <string name="preferences_category_advanced">Advanced</string>
-    <string name="preferences_region_title">Your region</string>
-    <string name="preferences_region_summary_custom_api">A custom API server is being used</string>
-    <string name="preferences_auto_select_region_title">Automatic region</string>
-    <string name="preferences_auto_select_region_summary">Set your current transit region based on your current location</string>
-
-    <!-- Region list -->
-    <plurals name="distance_miles">
-        <item quantity="one">1 mile away</item>
-        <!-- Entire element below should be on a single line if XML is reformatted - see #99 -->
-        <item quantity="other">
-            <xliff:g id="count">%s</xliff:g>
-            miles away
-        </item>
-    </plurals>
-    <plurals name="distance_feet">
-        <item quantity="one">1 foot away</item>
-        <!-- Entire element below should be on a single line if XML is reformatted - see #99 -->
-        <item quantity="other">
-            <xliff:g id="count">%s</xliff:g>
-            feet away
-        </item>
-    </plurals>
-    <plurals name="distance_kilometers">
-        <item quantity="one">1 kilometer away</item>
-        <!-- Entire element below should be on a single line if XML is reformatted - see #99 -->
-        <item quantity="other">
-            <xliff:g id="count">%s</xliff:g>
-            kilometers away
-        </item>
-    </plurals>
-    <plurals name="distance_meters">
-        <item quantity="one">1 meter away</item>
-        <!-- Entire element below should be on a single line if XML is reformatted - see #99 -->
-        <item quantity="other">
-            <xliff:g id="count">%s</xliff:g>
-            meters away
-        </item>
-    </plurals>
-
-    <string name="region_unavailable">unavailable</string>
-    <string name="region_option_refresh">Refresh</string>
-    <string name="region_detecting_server">Finding your transit services&#8230;</string>
-    <string name="region_choose_region">Choose region</string>
-    <string name="region_disabled_auto_selection">Disabled automatic region selection. You can enable in Preferences.</string>
-    <string name="region_selected_auto">selected automatically</string>
-    <string name="region_selected_manually">selected manually</string>
-    <string name="region_region_found">Found %1$s region</string>
-    <string name="preferences_experimental_regions_title">Experimental regions</string>
-    <string name="preferences_experimental_regions_summary">Enables regions that may be unstable</string>
-    <string name="preferences_experimental_regions_enable_warning">Experimental regions may be unstable and without real-time info! Go ahead?</string>
-    <string name="preferences_experimental_regions_disable_warning">Your current experimental region won\'t be available! Go ahead?</string>
+    <string name="preference_key_traccar_url">preferences_traccar_url</string>
+    <string name="preference_key_oba_api_key">preference_key_oba_api_key</string>
 
     <string name="oba_api_key_dialog_title">API Key for %1$s Region</string>
     <string name="oba_api_key_dialog_ok">Ok</string>
     <string name="preference_oba_api_key_summary">API Key to Access MyMetro Services</string>
     <string name="preference_oba_api_key_title">MyMetro API Key</string>
-
-    <string name="preferences_preferred_units_title">Preferred distance units</string>
-    <string name="preferences_preferred_units_option_automatic">Automatic</string>
-    <string name="preferences_preferred_units_option_metric">Metric (km, m)</string>
-    <string name="preferences_preferred_units_option_imperial">Imperial (mi, ft)</string>
-
-    <string name="checkmark_description">Selection checkmark</string>
+    <string name="oba_api_key_invalid">A valid API key is required. Please set a valid API key from the settings.</string>
 </resources>

@@ -1,0 +1,1211 @@
+/*
+ * Copyright (C) 2010-2017 Paul Watts (paulcwatts@gmail.com),
+ * University of South  Florida (sjbarbeau@gmail.com), Microsoft Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package au.mymetro.operator.oba.util;
+
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Rect;
+import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.provider.Settings;
+import android.text.InputType;
+import android.text.Spannable;
+import android.text.TextUtils;
+import android.text.format.DateUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.ImageViewCompat;
+import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import au.mymetro.operator.ApiKeyCheckerTask;
+import au.mymetro.operator.HomeActivity;
+import au.mymetro.operator.R;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.io.ObaApi;
+import au.mymetro.operator.oba.io.ObaContext;
+import au.mymetro.operator.oba.io.elements.ObaArrivalInfo;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
+import au.mymetro.operator.oba.io.elements.ObaRoute;
+import au.mymetro.operator.oba.io.elements.ObaSituation;
+import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.elements.ObaTripStatus;
+import au.mymetro.operator.oba.io.elements.Occupancy;
+import au.mymetro.operator.oba.io.elements.OccupancyState;
+import au.mymetro.operator.oba.io.request.ObaArrivalInfoResponse;
+import au.mymetro.operator.oba.map.MapParams;
+import au.mymetro.operator.oba.view.RealtimeIndicatorView;
+
+/**
+ * A class containing utility methods related to the user interface
+ */
+public final class UIUtils {
+
+    private static final String TAG = "UIHelp";
+
+    public static final int MINUTES_IN_HOUR = 60;
+
+    public static void setupActionBar(AppCompatActivity activity) {
+        ActionBar bar = activity.getSupportActionBar();
+        bar.setIcon(android.R.color.transparent);
+        bar.setDisplayShowTitleEnabled(true);
+
+        // HomeActivity is the root for all other activities
+        if (!(activity instanceof HomeActivity)) {
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    /**
+     * Returns true if the activity is still active and dialogs can be managed (i.e., displayed
+     * or dismissed), or false if it is
+     * not
+     *
+     * @param activity Activity to check for displaying/dismissing a dialog
+     * @return true if the activity is still active and dialogs can be managed, or false if it is
+     * not
+     */
+    public static boolean canManageDialog(Activity activity) {
+        if (activity == null) {
+            return false;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return !activity.isFinishing() && !activity.isDestroyed();
+        } else {
+            return !activity.isFinishing();
+        }
+    }
+
+    /**
+     * Returns true if the context is an Activity and is still active and dialogs can be managed
+     * (i.e., displayed or dismissed) OR the context is not an Activity, or false if the Activity
+     * is
+     * no longer active.
+     *
+     * NOTE: We really shouldn't display dialogs from a Service - a notification is a better way
+     * to communicate with the user.
+     *
+     * @param context Context to check for displaying/dismissing a dialog
+     * @return true if the context is an Activity and is still active and dialogs can be managed
+     * (i.e., displayed or dismissed) OR the context is not an Activity, or false if the Activity
+     * is
+     * no longer active
+     */
+    public static boolean canManageDialog(Context context) {
+        if (context == null) {
+            return false;
+        }
+
+        if (context instanceof Activity) {
+            return canManageDialog((Activity) context);
+        } else {
+            // We really shouldn't be displaying dialogs from a Service, but if for some reason we
+            // need to do this, we don't have any way of checking whether its possible
+            return true;
+        }
+    }
+
+    public static void showObaApiKeyInputDialog(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getString(R.string.oba_api_key_dialog_title,
+                Application.get().getCurrentRegion().getName()));
+
+        // Set up the input
+        final EditText input = new EditText(context);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton(R.string.oba_api_key_dialog_ok, null);
+
+        final AlertDialog dialog = builder.create();
+
+        ApiKeyCheckerTask checkerTask = new ApiKeyCheckerTask();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String apiKey = input.getText().toString();
+                        PreferenceUtils.saveString(context.getString(R.string.preference_key_oba_api_key), apiKey);
+                        ObaContext.setApiKey(apiKey);
+                        checkerTask.execute(context, apiKey);
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
+
+        dialog.show();
+    }
+
+    public static void showProgress(Fragment fragment, boolean visible) {
+        AppCompatActivity act = (AppCompatActivity) fragment.getActivity();
+        if (act != null) {
+            act.setSupportProgressBarIndeterminateVisibility(visible);
+        }
+    }
+
+    /**
+     * Returns a formatted displayText for displaying in the UI for stops, routes, and headsigns, or
+     * null if the displayText is null.  If the displayText IS ALL CAPS and more than one word and
+     * does not contain SPLC (see #883), it will be converted to title case (Is All Caps), otherwise
+     * the returned string will match the input.
+     *
+     * @param displayText displayText to be formatted
+     * @return formatted text for stop, route, and heasigns for displaying in the UI, or null if the
+     * displayText is null.  If the displayText IS ALL CAPS and more than one word and does not
+     * contain SPLC (see #883), it will be converted to title case (Is All Caps), otherwise the
+     * returned string will match the input.
+     */
+    public static String formatDisplayText(String displayText) {
+        if (displayText == null) {
+            return null;
+        }
+        // See #883 for "SPLC" logic
+        if (MyTextUtils.isAllCaps(displayText) && displayText.contains(" ") && !displayText.contains("SPLC")) {
+            return MyTextUtils.toTitleCase(displayText);
+        } else {
+            return displayText;
+        }
+    }
+
+    /**
+     * Returns the location of the map center if it has been previously saved in the bundle, or
+     * null if it wasn't saved in the bundle.
+     *
+     * @param b bundle to check for the map center
+     * @return the location of the map center if it has been previously saved in the bundle, or null
+     * if it wasn't saved in the bundle.
+     */
+    public static Location getMapCenter(Bundle b) {
+        if (b == null) {
+            return null;
+        }
+        Location center = null;
+        double lat = b.getDouble(MapParams.CENTER_LAT);
+        double lon = b.getDouble(MapParams.CENTER_LON);
+
+        if (lat != 0.0 && lon != 0.0) {
+            center = LocationUtils.makeLocation(lat, lon);
+        }
+        return center;
+    }
+
+    /**
+     * Returns the current time for comparison against another current time.  For API levels >=
+     * Jelly Bean MR1 the SystemClock.getElapsedRealtimeNanos() method is used, and for API levels
+     * <
+     * Jelly Bean MR1 System.currentTimeMillis() is used.
+     *
+     * @return the current time for comparison against another current time, in nanoseconds
+     */
+    public static long getCurrentTimeForComparison() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // Use elapsed real-time nanos, since its guaranteed monotonic
+            return SystemClock.elapsedRealtimeNanos();
+        } else {
+            return TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * Hides a view, using animation if the platform supports it
+     *
+     * @param v                 View to hide
+     * @param animationDuration duration of animation
+     */
+    @TargetApi(14)
+    public static void hideViewWithAnimation(final View v, int animationDuration) {
+        // If we're on a legacy device, hide the view without the animation
+        if (!canAnimateViewModern()) {
+            hideViewWithoutAnimation(v);
+            return;
+        }
+
+        if (v.getVisibility() == View.GONE) {
+            // View is already gone, return without doing anything
+            return;
+        }
+
+        v.clearAnimation();
+        if (canCancelAnimation()) {
+            v.animate().cancel();
+        }
+
+        // Animate the view to 0% opacity. After the animation ends, set its visibility to GONE as
+        // an optimization step (it won't participate in layout passes, etc.)
+        v.animate()
+                .alpha(0f)
+                .setDuration(animationDuration)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        v.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+    /**
+     * Hides a view without using animation
+     *
+     * @param v View to hide
+     */
+    public static void hideViewWithoutAnimation(final View v) {
+        if (v.getVisibility() == View.GONE) {
+            // View is already gone, return without doing anything
+            return;
+        }
+        // Hide the view without animation
+        v.setVisibility(View.GONE);
+    }
+
+    /**
+     * Returns true if the API level supports animating Views using ViewPropertyAnimator, false if
+     * it doesn't
+     *
+     * @return true if the API level supports animating Views using ViewPropertyAnimator, false if
+     * it doesn't
+     */
+    public static boolean canAnimateViewModern() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
+    }
+
+    /**
+     * Returns true if the API level supports canceling existing animations via the
+     * ViewPropertyAnimator, and false if it does not
+     *
+     * @return true if the API level supports canceling existing animations via the
+     * ViewPropertyAnimator, and false if it does not
+     */
+    public static boolean canCancelAnimation() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    }
+
+    /**
+     * Shows a view without using animation
+     *
+     * @param v View to show
+     */
+    public static void showViewWithoutAnimation(final View v) {
+        if (v.getVisibility() == View.VISIBLE) {
+            // View is already visible, return without doing anything
+            return;
+        }
+        v.setVisibility(View.VISIBLE);
+    }
+
+    public static String getRouteDisplayName(String routeShortName, String routeLongName) {
+        if (!TextUtils.isEmpty(routeShortName)) {
+            return routeShortName;
+        }
+        if (!TextUtils.isEmpty(routeLongName)) {
+            return routeLongName;
+        }
+        // Just so we never return null.
+        return "";
+    }
+
+    public static String getRouteDisplayName(ObaRoute route) {
+        return getRouteDisplayName(route.getShortName(), route.getLongName());
+    }
+
+    public static String getRouteDisplayName(ObaArrivalInfo arrivalInfo) {
+        return getRouteDisplayName(arrivalInfo.getShortName(), arrivalInfo.getRouteLongName());
+    }
+
+    public static String getRouteDescription(ObaRoute route) {
+        String shortName = route.getShortName();
+        String longName = route.getLongName();
+
+        if (TextUtils.isEmpty(shortName)) {
+            shortName = longName;
+        }
+        if (TextUtils.isEmpty(longName) || shortName.equals(longName)) {
+            longName = route.getDescription();
+        }
+        return UIUtils.formatDisplayText(longName);
+    }
+
+    /**
+     * Converts screen dimension units from dp to pixels, based on algorithm defined in
+     * http://developer.android.com/guide/practices/screens_support.html#dips-pels
+     *
+     * @param dp value in dp
+     * @return value in pixels
+     */
+    public static int dpToPixels(Context context, float dp) {
+        // Get the screen's density scale
+        final float scale = context.getResources().getDisplayMetrics().density;
+        // Convert the dps to pixels, based on density scale
+        return (int) (dp * scale + 0.5f);
+    }
+
+    public static String getRouteErrorString(Context context, int code) {
+        if (!isConnected(context)) {
+            if (isAirplaneMode(context)) {
+                return context.getString(R.string.airplane_mode_error);
+            } else {
+                return context.getString(R.string.no_network_error);
+            }
+        }
+        switch (code) {
+            case ObaApi.OBA_INTERNAL_ERROR:
+                return context.getString(R.string.internal_error);
+            case ObaApi.OBA_NOT_FOUND:
+                ObaRegion r = Application.get().getCurrentRegion();
+                if (r != null) {
+                    return context.getString(R.string.route_not_found_error_with_region_name,
+                            r.getName());
+                } else {
+                    return context.getString(R.string.route_not_found_error_no_region);
+                }
+            case ObaApi.OBA_BAD_GATEWAY:
+                return context.getString(R.string.bad_gateway_error);
+            case ObaApi.OBA_OUT_OF_MEMORY:
+                return context.getString(R.string.out_of_memory_error);
+            default:
+                return context.getString(R.string.generic_comm_error);
+        }
+    }
+
+    /**
+     * Returns true if the device is in Airplane Mode, and false if the device isn't in Airplane
+     * mode or if it can't be determined
+     * @param context
+     * @return true if the device is in Airplane Mode, and false if the device isn't in Airplane
+     * mode or if it can't be determined
+     */
+    public static boolean isAirplaneMode(Context context) {
+        if (context == null) {
+            // If the context is null, we can't get airplane mode state - assume no
+            return false;
+        }
+        ContentResolver cr = context.getContentResolver();
+        return Settings.System.getInt(cr, Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+    }
+
+    /**
+     * Returns true if the device is connected to a network, and false if the device isn't or if it
+     * can't be determined
+     * @param context
+     * @return true if the device is connected to a network, and false if the device isn't or if it
+     * can't be determined
+     */
+    public static boolean isConnected(Context context) {
+        if (context == null) {
+            // If the context is null, we can't get connected state - assume yes
+            return true;
+        }
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return (activeNetwork != null) && activeNetwork.isConnectedOrConnecting();
+    }
+
+    public static void setVehicleFeatures(ViewGroup v, ObaTripStatus tripStatus, int color) {
+        if (v == null) {
+            return;
+        }
+
+        if (tripStatus == null) {
+            v.setVisibility(View.GONE);
+            return;
+        } else {
+            v.setVisibility(View.VISIBLE);
+        }
+
+        ImageView mAirConditionerView = v.findViewById(R.id.air_conditioner);
+        ImageView mWheelchairAccessibilityView = v.findViewById(R.id.wheelchair);
+        ImageView mSpeed = v.findViewById(R.id.speed);
+        // ImageView mRealtimeView = v.findViewById(R.id.realtime);
+
+        int featureColor = Application.get().getResources().getColor(color);
+
+        if (tripStatus.getAirConditioned()) {
+            ImageViewCompat.setImageTintList(mAirConditionerView, ColorStateList.valueOf(featureColor));
+            mAirConditionerView.setVisibility(View.VISIBLE);
+        } else {
+            mAirConditionerView.setVisibility(View.GONE);
+        }
+
+        if (tripStatus.getWheelchairAccessible()) {
+            ImageViewCompat.setImageTintList(mWheelchairAccessibilityView, ColorStateList.valueOf(featureColor));
+            mWheelchairAccessibilityView.setVisibility(View.VISIBLE);
+        } else {
+            mWheelchairAccessibilityView.setVisibility(View.GONE);
+        }
+
+        /*if (isLocationRealtime(tripStatus)) {
+            ImageViewCompat.setImageTintList(mRealtimeView, ColorStateList.valueOf(featureColor));
+            mRealtimeView.setVisibility(View.VISIBLE);
+        } else {
+            mRealtimeView.setVisibility(View.GONE);
+        }*/
+
+        float speed = tripStatus.getSpeed();
+        if (speed <= 0) {
+            mSpeed.setVisibility(View.GONE);
+        } else {
+            ImageViewCompat.setImageTintList(mSpeed, ColorStateList.valueOf(featureColor));
+            mSpeed.setVisibility(View.VISIBLE);
+
+            if (speed < 10) {
+                mSpeed.setImageResource(R.drawable.ic_very_slow);
+            } else if (speed >= 10 && speed <= 40) {
+                mSpeed.setImageResource(R.drawable.ic_slow);
+            } else {
+                mSpeed.setImageResource(R.drawable.ic_fast);
+            }
+        }
+    }
+
+    /**
+     * Returns the time formatting as "1:10pm" to be displayed as an absolute time for an
+     * arrival/departure
+     *
+     * @param time an arrival or departure time (e.g., from ArrivalInfo)
+     * @return the time formatting as "1:10pm" to be displayed as an absolute time for an
+     * arrival/departure
+     */
+    public static String formatTime(Context context, long time) {
+        return DateUtils.formatDateTime(context,
+                time,
+                DateUtils.FORMAT_SHOW_TIME |
+                        DateUtils.FORMAT_NO_NOON |
+                        DateUtils.FORMAT_NO_MIDNIGHT
+        );
+    }
+
+    /**
+     * Sets the visibility and colors of the silhouettes in the provided occupancy.xml viewgroup
+     *  @param v         occupancy.xml layout viewgroup containing the silhouettes
+     * @param occupancy the occupancy value to use to set the silhouette visibility
+     * @param occupancyState the state of the occupancy to use to set the silhouette color
+     */
+    public static void setOccupancyVisibilityAndColor(ViewGroup v, Occupancy occupancy, OccupancyState occupancyState, int color) {
+        ImageView silhouette1 = v.findViewById(R.id.silhouette1);
+        silhouette1.setVisibility(View.GONE);
+        ImageView silhouette2 = v.findViewById(R.id.silhouette2);
+        silhouette2.setVisibility(View.GONE);
+        ImageView silhouette3 = v.findViewById(R.id.silhouette3);
+        silhouette3.setVisibility(View.GONE);
+
+        // Hide the entire view group if occupancy is null
+        if (occupancy == null) {
+            v.setVisibility(View.GONE);
+            return;
+        } else {
+            v.setVisibility(View.VISIBLE);
+        }
+
+        float alpha = 0f;
+        if (occupancyState == OccupancyState.HISTORICAL) {
+            // Set the alpha for historical occupancy to 60%
+            alpha = 0.7f;
+            v.setAlpha(alpha);
+        }
+
+        // Set silhouette colors
+        int silhouetteColor = Application.get().getResources().getColor(color);
+
+        // Below switch continues into following cases to minimize number of setVisibility() calls
+        switch (occupancy) {
+            case NOT_ACCEPTING_PASSENGERS:
+                // 3 icons
+            case FULL:
+                // 3 icons
+            case CRUSHED_STANDING_ROOM_ONLY:
+                // 3 icons
+                silhouette3.setVisibility(View.VISIBLE);
+                ImageViewCompat.setImageTintList(silhouette3, ColorStateList.valueOf(silhouetteColor));
+                break;
+
+            case STANDING_ROOM_ONLY:
+            case FEW_SEATS_AVAILABLE:
+                // 2 icons
+                silhouette2.setVisibility(View.VISIBLE);
+                ImageViewCompat.setImageTintList(silhouette2, ColorStateList.valueOf(silhouetteColor));
+                break;
+
+            case MANY_SEATS_AVAILABLE:
+                // 1 icon
+                silhouette1.setVisibility(View.VISIBLE);
+                ImageViewCompat.setImageTintList(silhouette1, ColorStateList.valueOf(silhouetteColor));
+                break;
+
+            case EMPTY:
+                // 0 icons
+        }
+
+        if (alpha > 0) {
+            if (silhouette1.getVisibility() == View.VISIBLE) {
+                silhouette1.setAlpha(alpha);
+            }
+            if (silhouette2.getVisibility() == View.VISIBLE) {
+                silhouette2.setAlpha(alpha);
+            }
+            if (silhouette3.getVisibility() == View.VISIBLE) {
+                silhouette3.setAlpha(alpha);
+            }
+        }
+    }
+
+    /**
+     * Sets the visibility and colors of the silhouettes in the provided occupancy.xml viewgroup
+     *  @param v         occupancy.xml layout viewgroup containing the silhouettes
+     * @param occupancy the occupancy value to use to set the silhouette visibility
+     * @param occupancyState the state of the occupancy to use to set the silhouette color
+     */
+    public static void setOccupancyVisibilityAndColor(ViewGroup v, Occupancy occupancy, OccupancyState occupancyState) {
+        setOccupancyVisibilityAndColor(v, occupancy, occupancyState, R.color.theme_muted);
+    }
+
+    /**
+     * Sets the content description of the occupancy view group based on the provided occupancy
+     *
+     * @param v              occupancy.xml layout viewgroup containing the silhouettes
+     * @param occupancy      the occupancy value to use to set the content description
+     * @param occupancyState the state of the occupancy
+     */
+    public static void setOccupancyContentDescription(ViewGroup v, Occupancy occupancy, OccupancyState occupancyState) {
+        // Hide the entire view group if occupancy is null
+        if (occupancy == null) {
+            v.setContentDescription("");
+            return;
+        }
+
+        int stringId = R.string.historically_full;
+
+        // Below switch continues into following cases to minimize lines of code
+        switch (occupancy) {
+            case NOT_ACCEPTING_PASSENGERS:
+                // "Full"
+            case FULL:
+                // "Full"
+            case CRUSHED_STANDING_ROOM_ONLY:
+                // "Full"
+                if (occupancyState == OccupancyState.HISTORICAL) {
+                    stringId = R.string.historically_full;
+                } else if (occupancyState == OccupancyState.REALTIME) {
+                    stringId = R.string.realtime_full;
+                } else if (occupancyState == OccupancyState.PREDICTED) {
+                    stringId = R.string.predicted_full;
+                }
+                break;
+            case STANDING_ROOM_ONLY:
+                // "Standing room"
+                if (occupancyState == OccupancyState.HISTORICAL) {
+                    stringId = R.string.historically_standing_room;
+                } else if (occupancyState == OccupancyState.REALTIME) {
+                    stringId = R.string.realtime_standing_room;
+                } else if (occupancyState == OccupancyState.PREDICTED) {
+                    stringId = R.string.predicted_standing_room;
+                }
+                break;
+            case FEW_SEATS_AVAILABLE:
+                // "Few seats available"
+                if (occupancyState == OccupancyState.HISTORICAL) {
+                    stringId = R.string.historically_few_seats_available;
+                } else if (occupancyState == OccupancyState.REALTIME) {
+                    stringId = R.string.realtime_few_seats_available;
+                } else if (occupancyState == OccupancyState.PREDICTED) {
+                    stringId = R.string.predicted_few_seats_available;
+                }
+                break;
+            case MANY_SEATS_AVAILABLE:
+                // "Many seats available"
+                if (occupancyState == OccupancyState.HISTORICAL) {
+                    stringId = R.string.historically_many_seats_available;
+                } else if (occupancyState == OccupancyState.REALTIME) {
+                    stringId = R.string.realtime_many_seats_available;
+                } else if (occupancyState == OccupancyState.PREDICTED) {
+                    stringId = R.string.predicted_many_seats_available;
+                }
+                break;
+            case EMPTY:
+                // "Empty"
+                if (occupancyState == OccupancyState.HISTORICAL) {
+                    stringId = R.string.historically_empty;
+                } else if (occupancyState == OccupancyState.REALTIME) {
+                    stringId = R.string.realtime_empty;
+                } else if (occupancyState == OccupancyState.PREDICTED) {
+                    stringId = R.string.predicted_empty;
+                }
+                break;
+        }
+
+        v.setContentDescription(Application.get().getString(stringId));
+    }
+
+    /**
+     * Returns a comma-delimited list of route display names that serve a stop
+     * <p/>
+     * For example, if a stop was served by "14" and "54", this method will return "14,54"
+     *
+     * @param stop   the stop for which the route display names should be serialized
+     * @param routes a HashMap containing all routes that serve this stop, with the routeId as the
+     *               key.
+     *               Note that for efficiency this routes HashMap may contain routes that don't
+     *               serve this stop as well -
+     *               the routes for the stop are referenced via stop.getRouteDisplayNames()
+     * @return comma-delimited list of route display names that serve a stop
+     */
+    public static String serializeRouteDisplayNames(ObaStop stop,
+                                                    HashMap<String, ObaRoute> routes) {
+        StringBuffer sb = new StringBuffer();
+        String[] routeIds = stop.getRouteIds();
+        for (int i = 0; i < routeIds.length; i++) {
+            if (routes != null) {
+                ObaRoute route = routes.get(routeIds[i]);
+                sb.append(getRouteDisplayName(route));
+            } else {
+                // We don't have route mappings - use routeIds
+                sb.append(routeIds[i]);
+            }
+
+            if (i != routeIds.length - 1) {
+                sb.append(",");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    public static void setClickableSpan(TextView v, ClickableSpan span) {
+        Spannable text = (Spannable) v.getText();
+        text.setSpan(span, 0, text.length(), 0);
+        v.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public static void removeAllClickableSpans(TextView v) {
+        Spannable text = (Spannable) v.getText();
+        ClickableSpan[] spans = text.getSpans(0, text.length(), ClickableSpan.class);
+        for (ClickableSpan cs : spans) {
+            text.removeSpan(cs);
+        }
+    }
+
+    /**
+     * Shows a view, using animation if the platform supports it
+     *
+     * @param v                 View to show
+     * @param animationDuration duration of animation
+     */
+    @TargetApi(14)
+    public static void showViewWithAnimation(final View v, int animationDuration) {
+        // If we're on a legacy device, show the view without the animation
+        if (!canAnimateViewModern()) {
+            showViewWithoutAnimation(v);
+            return;
+        }
+
+        if (v.getVisibility() == View.VISIBLE && v.getAlpha() == 1) {
+            // View is already visible and not transparent, return without doing anything
+            return;
+        }
+
+        v.clearAnimation();
+        if (canCancelAnimation()) {
+            v.animate().cancel();
+        }
+
+        if (v.getVisibility() != View.VISIBLE) {
+            // Set the content view to 0% opacity but visible, so that it is visible
+            // (but fully transparent) during the animation.
+            v.setAlpha(0f);
+            v.setVisibility(View.VISIBLE);
+        }
+
+        // Animate the content view to 100% opacity, and clear any animation listener set on the view.
+        v.animate()
+                .alpha(1f)
+                .setDuration(animationDuration)
+                .setListener(null);
+    }
+
+    /**
+     * Takes the number of minutes, and returns a user-readable string
+     * saying the number of minutes in which no arrivals are coming,
+     * or the number of hours and minutes if minutes if minutes > 60
+     *
+     * @param minutes            number of minutes for which there are no upcoming arrivals
+     * @param additionalArrivals true if the response should include the word additional, false if
+     *                           it should not
+     * @param shortFormat        true if the format should be abbreviated, false if it should be
+     *                           long
+     * @return a user-readable string saying the number of minutes in which no arrivals are coming,
+     * or the number of hours and minutes if minutes > 60
+     */
+    public static String getNoArrivalsMessage(Context context, int minutes,
+                                              boolean additionalArrivals, boolean shortFormat) {
+        if (minutes <= MINUTES_IN_HOUR) {
+            // Return just minutes
+            if (additionalArrivals) {
+                if (shortFormat) {
+                    // Abbreviated version
+                    return context
+                            .getString(R.string.stop_info_no_additional_data_minutes_short_format,
+                                    minutes);
+                } else {
+                    // Long version
+                    return context
+                            .getString(R.string.stop_info_no_additional_data_minutes, minutes);
+                }
+            } else {
+                if (shortFormat) {
+                    // Abbreviated version
+                    return context
+                            .getString(R.string.stop_info_nodata_minutes_short_format, minutes);
+                } else {
+                    // Long version
+                    return context.getString(R.string.stop_info_nodata_minutes, minutes);
+                }
+            }
+        } else {
+            // Return hours and minutes
+            if (additionalArrivals) {
+                if (shortFormat) {
+                    // Abbreviated version
+                    return context.getResources()
+                            .getQuantityString(
+                                    R.plurals.stop_info_no_additional_data_hours_minutes_short_format,
+                                    minutes / 60, minutes % 60, minutes / 60);
+                } else {
+                    // Long version
+                    return context.getResources()
+                            .getQuantityString(R.plurals.stop_info_no_additional_data_hours_minutes,
+                                    minutes / 60, minutes % 60, minutes / 60);
+                }
+            } else {
+                if (shortFormat) {
+                    // Abbreviated version
+                    return context.getResources()
+                            .getQuantityString(
+                                    R.plurals.stop_info_nodata_hours_minutes_short_format,
+                                    minutes / 60,
+                                    minutes % 60, minutes / 60);
+                } else {
+                    // Long version
+                    return context.getResources()
+                            .getQuantityString(R.plurals.stop_info_nodata_hours_minutes,
+                                    minutes / 60,
+                                    minutes % 60, minutes / 60);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true if the provided touch event was within the provided view
+     *
+     * @return true if the provided touch event was within the provided view
+     */
+    public static boolean isTouchInView(View view, MotionEvent event) {
+        Rect rect = new Rect();
+        view.getGlobalVisibleRect(rect);
+        return rect.contains((int) event.getRawX(), (int) event.getRawY());
+    }
+
+    // Shows or hides the view, depending on whether or not the direction is
+    // available.
+    public static void setStopDirection(View v, String direction, boolean show) {
+        final TextView text = (TextView) v;
+        final int directionText = UIUtils.getStopDirectionText(direction);
+        if ((directionText != R.string.direction_none) || show) {
+            text.setText(directionText);
+            text.setVisibility(View.VISIBLE);
+        } else {
+            text.setVisibility(View.GONE);
+        }
+    }
+
+    public static int getStopDirectionText(String direction) {
+        if (direction.equals("N")) {
+            return R.string.direction_n;
+        } else if (direction.equals("NW")) {
+            return R.string.direction_nw;
+        } else if (direction.equals("W")) {
+            return R.string.direction_w;
+        } else if (direction.equals("SW")) {
+            return R.string.direction_sw;
+        } else if (direction.equals("S")) {
+            return R.string.direction_s;
+        } else if (direction.equals("SE")) {
+            return R.string.direction_se;
+        } else if (direction.equals("E")) {
+            return R.string.direction_e;
+        } else if (direction.equals("NE")) {
+            return R.string.direction_ne;
+        } else {
+            return R.string.direction_none;
+        }
+    }
+
+    /**
+     * Open the soft keyboard
+     */
+    public static void openKeyboard(Context context) {
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED,
+                InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    /**
+     * Closes the soft keyboard
+     */
+    public static void closeKeyboard(Context context, View v) {
+        InputMethodManager imm =
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    /**
+     * Returns the first string for the query URI.
+     */
+    public static String stringForQuery(Context context, Uri uri, String column) {
+        ContentResolver cr = context.getContentResolver();
+        Cursor c = cr.query(uri, new String[]{column}, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return c.getString(0);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return "";
+    }
+
+    public static Integer intForQuery(Context context, Uri uri, String column) {
+        ContentResolver cr = context.getContentResolver();
+        Cursor c = cr.query(uri, new String[]{column}, null, null, null);
+        if (c != null) {
+            try {
+                if (c.moveToFirst()) {
+                    return c.getInt(0);
+                }
+            } finally {
+                c.close();
+            }
+        }
+        return null;
+    }
+
+    public static void goToUrl(Context context, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(context, context.getString(R.string.browser_error), Toast.LENGTH_SHORT)
+                    .show();
+        }
+    }
+
+    /**
+     * Sets the line and fill colors for real-time indicator circles contained in the provided
+     * realtime_indicator.xml layout.  There are several circles, so each needs to be set
+     * individually.  The resource code for the color to be used should be provided.
+     *
+     * @param vg        realtime_indicator.xml layout
+     * @param lineColor resource code color to be used as line color, or null to use the default
+     *                  colors
+     * @param fillColor resource code color to be used as fill color, or null to use the default
+     *                  colors
+     */
+    public static void setRealtimeIndicatorColorByResourceCode(ViewGroup vg, Integer lineColor,
+                                                               Integer fillColor) {
+        Resources r = vg.getResources();
+        setRealtimeIndicatorColor(vg, r.getColor(lineColor), r.getColor(fillColor));
+    }
+
+    /**
+     * Sets the line and fill colors for real-time indicator circles contained in the provided
+     * realtime_indicator.xml layout.  There are several circles, so each needs to be set
+     * individually.  The integer representation of the color to be used should be provided.
+     *
+     * @param vg        realtime_indicator.xml layout
+     * @param lineColor color to be used as line color, or null to use the default colors
+     * @param fillColor color to be used as fill color, or null to use the default colors
+     */
+    public static void setRealtimeIndicatorColor(ViewGroup vg, Integer lineColor,
+                                                 Integer fillColor) {
+        for (int i = 0; i < vg.getChildCount(); i++) {
+            View v = vg.getChildAt(i);
+            if (v instanceof RealtimeIndicatorView) {
+                if (lineColor != null) {
+                    ((RealtimeIndicatorView) v).setLineColor(lineColor);
+                } else {
+                    // Use default color
+                    ((RealtimeIndicatorView) v).setLineColor(
+                            R.color.realtime_indicator_line);
+                }
+                if (fillColor != null) {
+                    ((RealtimeIndicatorView) v).setFillColor(fillColor);
+                } else {
+                    // Use default color
+                    ((RealtimeIndicatorView) v).setLineColor(
+                            R.color.realtime_indicator_fill);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a list of all situations (service alerts) that are specific to the stop, routes, and
+     * agency for the provided arrivals-and-departures-for-stop response.  For route-specific alerts, this
+     * involves looping through the routes and checking the references element to see if there are
+     * any route-specific alerts, and adding them to the list to be shown above the list of
+     * arrivals for a stop.  See #700.
+     *
+     * @param response response from arrivals-and-departures-for-stop API
+     * @param filter   list of route_ids to retrieve service alerts for, or null to retrieve service
+     *                 alerts for all routes. Note that this filter only affects alerts scoped to
+     *                 routes - it does not affect alerts scoped to stops or agencies
+     * @return a list of all situations (service alerts) that are specific to the stop, routes, and
+     * agency. If a route filter list is provided, situations for all stops and agencies are included
+     * in the returned list, but only situations scoped for route_ids in the provided filter list are
+     * included in the returned list (i.e., situations specified for route_ids that aren't in the
+     * filter list are excluded).
+     */
+    public static List<ObaSituation> getAllSituations(final ObaArrivalInfoResponse response, List<String> filter) {
+        List<ObaSituation> allSituations = new ArrayList<>();
+        // Add agency-wide and stop-specific alerts
+        allSituations.addAll(response.getSituations());
+
+        // Add all existing Ids to a HashSet for O(1) retrieval (vs. list)
+        HashSet<String> allIds = new HashSet<>();
+        for (ObaSituation s : allSituations) {
+            allIds.add(s.getId());
+        }
+
+        // Do the same for filtered routes
+        HashSet<String> filterIds = new HashSet<>();
+        if (filter != null && !filter.isEmpty()) {
+            for (String routeId : filter) {
+                filterIds.add(routeId);
+            }
+        }
+
+        // Scan through the routes, and if a route-specific situation hasn't been added yet, add it
+        // If a filter list exists and a route_id is not included in the filter list, don't included
+        // it's situations in the returned list.
+        ObaArrivalInfo[] info = response.getArrivalInfo();
+        for (ObaArrivalInfo i : info) {
+            if (filterIds.isEmpty() || filterIds.contains(i.getRouteId())) {
+                for (String situationId : i.getSituationIds()) {
+                    if (!allIds.contains(situationId)) {
+                        allIds.add(situationId);
+                        allSituations.add(response.getSituation(situationId));
+                    }
+                }
+            }
+        }
+        return allSituations;
+    }
+
+    public static String getStopErrorString(Context context, int code) {
+        if (!isConnected(context)) {
+            if (isAirplaneMode(context)) {
+                return context.getString(R.string.airplane_mode_error);
+            } else {
+                return context.getString(R.string.no_network_error);
+            }
+        }
+        switch (code) {
+            case ObaApi.OBA_INTERNAL_ERROR:
+                return context.getString(R.string.internal_error);
+            case ObaApi.OBA_NOT_FOUND:
+                ObaRegion r = Application.get().getCurrentRegion();
+                if (r != null) {
+                    return context
+                            .getString(R.string.stop_not_found_error_with_region_name, r.getName());
+                } else {
+                    return context.getString(R.string.stop_not_found_error_no_region);
+                }
+            case ObaApi.OBA_BAD_GATEWAY:
+                return context.getString(R.string.bad_gateway_error);
+            case ObaApi.OBA_OUT_OF_MEMORY:
+                return context.getString(R.string.out_of_memory_error);
+            default:
+                return context.getString(R.string.generic_comm_error);
+        }
+    }
+
+    /**
+     * Builds the list of Strings that should be shown for a given trip "Bus Options" menu,
+     * provided the arguments for that trip
+     *
+     * @param c                 Context
+     * @param isRouteFavorite   true if this route is a user favorite, false if it is not
+     * @param hasUrl            true if the route provides a URL for schedule data, false if it does
+     *                          not
+     * @param isReminderVisible true if the reminder is currently visible for a trip, false if it
+     *                          is
+     *                          not
+     * @param occupancy occupancy of this trip
+     * @param occupancyState occupanceState of this trip
+     * @return the list of Strings that should be shown for a given trip, provided the arguments for
+     * that trip
+     */
+    public static List<String> buildTripOptions(Context c, boolean isRouteFavorite, boolean hasUrl,
+                                                boolean isReminderVisible, boolean hasRouteFilter, Occupancy occupancy, OccupancyState occupancyState) {
+        ArrayList<String> list = new ArrayList<>();
+        if (!isRouteFavorite) {
+            list.add(c.getString(R.string.bus_options_menu_add_star));
+        } else {
+            list.add(c.getString(R.string.bus_options_menu_remove_star));
+        }
+
+        list.add(c.getString(R.string.bus_options_menu_show_route_on_map));
+        list.add(c.getString(R.string.bus_options_menu_show_trip_details));
+
+        if (!isReminderVisible) {
+            list.add(c.getString(R.string.bus_options_menu_set_reminder));
+        } else {
+            list.add(c.getString(R.string.bus_options_menu_edit_reminder));
+        }
+
+        if (!hasRouteFilter) {
+            list.add(c.getString(R.string.bus_options_menu_show_only_this_route));
+        } else {
+            list.add(c.getString(R.string.bus_options_menu_show_all_routes));
+        }
+
+        if (hasUrl) {
+            list.add(c.getString(R.string.bus_options_menu_show_route_schedule));
+        }
+
+        list.add(c.getString(R.string.bus_options_menu_report_trip_problem));
+
+        if (occupancy != null) {
+            if (occupancyState == OccupancyState.HISTORICAL) {
+                list.add(c.getString(R.string.menu_title_about_historical_occupancy));
+            } else {
+                list.add(c.getString(R.string.menu_title_about_occupancy));
+            }
+        }
+
+        return list;
+    }
+
+    /**
+     * Builds the array of icons that should be shown for the trip "Bus Options" menu, given the
+     * provided arguments for that trip
+     *
+     * @param isRouteFavorite   true if this route is a user favorite, false if it is not
+     * @param hasUrl true if the route provides a URL for schedule data, false if it does
+     *               not
+     * @param occupancy occupancy of this trip
+     * @return the array of icons that should be shown for a given trip
+     */
+    public static List<Integer> buildTripOptionsIcons(boolean isRouteFavorite, boolean hasUrl, Occupancy occupancy) {
+        ArrayList<Integer> list = new ArrayList<>();
+        if (!isRouteFavorite) {
+            list.add(R.drawable.focus_star_on);
+        } else {
+            list.add(R.drawable.focus_star_off);
+        }
+        list.add(R.drawable.ic_arrivals_styleb_action_map);
+        list.add(R.drawable.ic_trip_details);
+        list.add(R.drawable.ic_drawer_alarm);
+        list.add(R.drawable.ic_content_filter_list);
+        if (hasUrl) {
+            list.add(R.drawable.ic_notification_event_note);
+        }
+        list.add(R.drawable.ic_alert_warning);
+        if (occupancy != null) {
+            list.add(R.drawable.ic_occupancy);
+        }
+        return list;
+    }
+
+    /**
+     * Returns a list of route display names from a serialized list of route display names
+     * <p/>
+     * See {@link #serializeRouteDisplayNames(ObaStop, java.util.HashMap)}
+     *
+     * @param serializedRouteDisplayNames comma-separate list of routeIds from serializeRouteDisplayNames()
+     * @return list of route display names
+     */
+    public static List<String> deserializeRouteDisplayNames(String serializedRouteDisplayNames) {
+        String[] routes = serializedRouteDisplayNames.split(",");
+        return Arrays.asList(routes);
+    }
+
+    /**
+     * Set smaller text size if the route short name has more than 3 characters
+     *
+     * @param view Text view
+     * @param routeShortName Route short name
+     */
+    public static void maybeShrinkRouteName(Context context, TextView view, String routeShortName) {
+        if (routeShortName.length() < 4) {
+            // No-op if text is short enough to fit
+            return;
+        } else if (routeShortName.length() == 4) {
+            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().
+                    getDimension(R.dimen.route_name_text_size_medium));
+        } else if (routeShortName.length() > 4) {
+            view.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().
+                    getDimension(R.dimen.route_name_text_size_small));
+        }
+    }
+}

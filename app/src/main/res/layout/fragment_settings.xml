@@ -5,13 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.settings.SettingsFragment">
+    tools:context="au.mymetro.operator.ui.settings.SettingsFragment">
 
     <!--androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="org.traccar.client.MainFragment" /-->
+        android:name="au.mymetro.operator.MainFragment" /-->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -38,6 +38,6 @@
         android:id="@+id/fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="org.traccar.client.MainFragment" />
+        android:name="au.mymetro.operator.MainFragment" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout-->

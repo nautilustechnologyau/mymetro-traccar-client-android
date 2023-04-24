@@ -1,0 +1,75 @@
+# To enable ProGuard in your project, edit project.properties
+# to define the proguard.config property as described in that file.
+#
+# Add project specific ProGuard rules here.
+# By default, the flags in this file are appended to flags specified
+# in ${sdk.dir}/tools/proguard/proguard-android.txt
+# You can edit the include path and order by changing the ProGuard
+# include property in project.properties.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# Add any project specific keep options here:
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Don't rename class names - this makes stack traces must easier to read/troubleshoot
+-dontobfuscate
+
+# For Jackson, using for JSON data binding
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
+-keepattributes *Annotation*, EnclosingMethod, Signature
+-keepnames class com.fasterxml.jackson.** { *; }
+-dontwarn com.fasterxml.jackson.databind.**
+-keep class org.codehaus.** { *; }
+-keep class com.fasterxml.jackson.annotation.** { *; }
+-keepclassmembers public final enum org.codehaus.jackson.annotate.JsonAutoDetect$Visibility {
+ public static final org.codehaus.jackson.annotate.JsonAutoDetect$Visibility *; }
+
+# Keep all OneBusAway Android classes
+#-keep class org.onebusaway.android.** { *; }
+
+# Keep all OpenTripPlanner POJO classes
+#-keep class org.opentripplanner.** { *; }
+
+# Keep all MyMetro classes
+-keep class au.mymetro.** { *; }
+
+# Keep all Pelias POJO classes for geocoding
+#-keep class edu.usf.cutr.pelias.** { *; }
+
+# Keep all class members for GeoJSON Feature class and deserializers for geocoding
+-keepclassmembers class org.geojson.Feature** { *; }
+-keepclassmembers class org.geojson.jackson.LngLatAltDeserializer** { *; }
+
+# SearchView
+-keep class android.support.v7.widget.SearchView { *; }
+
+# "About" activity - see #418
+-keep public class * extends android.support.design.widget.CoordinatorLayout$Behavior { *; }
+
+# Below is required to do a release build as of Play Services 8.1 - see #342
+-dontwarn com.google.android.gms.ads.**
+-dontwarn com.facebook.infer.annotation.Nullsafe$Mode
+-dontwarn com.facebook.infer.annotation.Nullsafe
+
+# Necessary because of library uk.co.markormesher:android-fab:1.3.3
+# Necessary for Java 8 lambdas
+-dontwarn java.lang.invoke.**
+
+# Keep Open311 library (needed for unit tests)
+-keep class edu.usf.cutr.open311client.** { *; }
+
+# for AndroidSlidingUpPanel and compiling with API 28 (see https://github.com/OneBusAway/onebusaway-android/issues/944#issuecomment-446340531)
+-dontwarn com.sothree.**
+-keep class com.sothree.**
+-keep interface com.sothree.**
+
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.OpenSSLProvider

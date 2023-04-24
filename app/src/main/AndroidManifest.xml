@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -32,21 +31,13 @@
             android:label="@string/title_activity_main"
             android:launchMode="singleTask" />
 
-        <meta-data
-            android:name="google_analytics_adid_collection_enabled"
-            android:value="false" />
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTask" />
-
         <activity-alias
             android:name=".Launcher"
             android:exported="true"
             android:targetActivity=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -55,6 +46,14 @@
                 android:resource="@xml/shortcuts" />
         </activity-alias>
 
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask" />
         <activity
             android:name=".StatusActivity"
             android:exported="false" />
@@ -90,23 +89,20 @@
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
-        </receiver>
-
-        <!-- Provider is defined in build.gradle flavors -->
+        </receiver> <!-- Provider is defined in build.gradle flavors -->
         <provider
-            android:name="org.traccar.client.oba.provider.ObaProvider"
-            android:authorities="${databaseAuthority}"/>
-
+            android:name=".oba.provider.ObaProvider"
+            android:authorities="${databaseAuthority}" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="au.mymetro.operator.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <!-- resource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths">
-            </meta-data>
+                android:resource="@xml/provider_paths"></meta-data>
         </provider>
     </application>
 

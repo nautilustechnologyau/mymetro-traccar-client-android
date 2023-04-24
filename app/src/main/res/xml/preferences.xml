@@ -17,7 +17,8 @@
 
         <EditTextPreference
             android:key="vehicle_id"
-            android:title="@string/settings_id_title" />
+            android:title="@string/settings_id_title"
+            app:isPreferenceVisible="false"/>
 
         <EditTextPreference
             android:defaultValue=""
@@ -87,7 +88,7 @@
             android:title="@string/preferences_auto_select_region_title" />
         <EditTextPreference
             android:defaultValue=""
-            android:inputType="textWebPassword"
+            android:inputType="textPassword|textWebPassword"
             android:key="@string/preference_key_oba_api_key"
             android:summary="@string/preference_oba_api_key_summary"
             android:title="@string/preference_oba_api_key_title" />
