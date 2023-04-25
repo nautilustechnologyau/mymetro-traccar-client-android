@@ -17,8 +17,12 @@ package au.mymetro.operator.oba.util;
 
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.os.Bundle;
 
+import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.map.MapParams;
 
 /**
  * A class containing utility methods related to preferences
@@ -126,4 +130,55 @@ public class PreferenceUtils {
     public static boolean getBoolean(String key, boolean defaultValue) {
         return Application.getPrefs().getBoolean(key, defaultValue);
     }
+
+    /**
+     * Returns true if the user has previously indicated that they don't want to be prompted to provide
+     * location permissions. Note that this means they haven't actually be prompted with the
+     * system permission dialog.
+     */
+    public static boolean userDeniedLocationPermission() {
+        Resources r = Application.get().getResources();
+        return getBoolean(r.getString(R.string.preferences_key_user_denied_location_permissions), false);
+    }
+
+    /**
+     * Retrieves the map view location and zoom level from a preference and stores it in the
+     * provided bundle, if a valid lat/long and zoom level has been previously saved to prefs
+     *
+     * @param b bundle to store the map view center and zoom level in
+     */
+    public static void maybeRestoreMapViewToBundle(Bundle b) {
+        Double lat = PreferenceUtils.getDouble(MapParams.CENTER_LAT, 0.0d);
+        Double lon = PreferenceUtils.getDouble(MapParams.CENTER_LON, 0.0d);
+        float zoom = PreferenceUtils.getFloat(MapParams.ZOOM, MapParams.DEFAULT_ZOOM);
+        if (lat != 0.0 && lon != 0.0 && zoom != 0.0) {
+            b.putDouble(MapParams.CENTER_LAT, lat);
+            b.putDouble(MapParams.CENTER_LON, lon);
+            b.putFloat(MapParams.ZOOM, zoom);
+        }
+    }
+
+    /**
+     * Saves provided MapView center location and zoom level to preferences
+     *
+     * @param lat  latitude of map center
+     * @param lon  longitude of map center
+     * @param zoom zoom level of map
+     */
+    public static void saveMapViewToPreferences(double lat, double lon, float zoom) {
+        saveDouble(MapParams.CENTER_LAT, lat);
+        saveDouble(MapParams.CENTER_LON, lon);
+        saveFloat(MapParams.ZOOM, zoom);
+    }
+
+    /**
+     * Set value to true if the user has previously indicated that they don't want to be prompted to provide
+     * location permissions, or false if they have indicated that they want to be prompted with
+     * the system permission dialog.
+     */
+    public static void setUserDeniedLocationPermissions(boolean value) {
+        Resources r = Application.get().getResources();
+        saveBoolean(r.getString(R.string.preferences_key_user_denied_location_permissions), value);
+    }
+
 }

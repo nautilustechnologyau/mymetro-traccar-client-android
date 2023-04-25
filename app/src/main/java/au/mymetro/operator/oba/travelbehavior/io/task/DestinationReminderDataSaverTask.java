@@ -15,18 +15,6 @@
  */
 package au.mymetro.operator.oba.travelbehavior.io.task;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.gson.Gson;
-
-import org.apache.commons.io.FileUtils;
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.io.TravelBehaviorFileSaverExecutorManager;
-import org.onebusaway.android.travelbehavior.model.DestinationReminderData;
-import org.onebusaway.android.travelbehavior.model.DestinationReminderInfo;
-import org.onebusaway.android.util.PreferenceUtils;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -36,11 +24,23 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.gson.Gson;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.io.TravelBehaviorFileSaverExecutorManager;
+import au.mymetro.operator.oba.travelbehavior.model.DestinationReminderData;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class DestinationReminderDataSaverTask implements Runnable {
 

@@ -30,6 +30,8 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -58,11 +60,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 
+import org.onebusaway.util.comparators.AlphanumComparator;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1206,6 +1212,252 @@ public final class UIUtils {
         } else if (routeShortName.length() > 4) {
             view.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getResources().
                     getDimension(R.dimen.route_name_text_size_small));
+        }
+    }
+
+    /**
+     * Transforms a given opaque color into the same color but with the given alpha value
+     *
+     * @param solidColor hex color value that is completely opaque
+     * @param alpha      Specify an alpha value. 0 means fully transparent, and 255 means fully
+     *                   opaque.
+     * @return the provided color with the given alpha value
+     */
+    public static int getTransparentColor(int solidColor, int alpha) {
+        int r = Color.red(solidColor);
+        int g = Color.green(solidColor);
+        int b = Color.blue(solidColor);
+        return Color.argb(alpha, r, g, b);
+    }
+
+    /**
+     * Returns true if the API level supports our Arrival Info Style B (sort by route) views, false
+     * if it does not.  See #350 and #275.
+     *
+     * @return true if the API level supports our Arrival Info Style B (sort by route) views, false
+     * if it does not
+     */
+    public static boolean canSupportArrivalInfoStyleB() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    }
+
+    /**
+     * Generates the dialog text that is used to show detailed information about a particular stop
+     *
+     * @return a pair of Strings consisting of the <dialog title, dialog message>
+     */
+    public static Pair<String, String> createStopDetailsDialogText(Context context, String stopName,
+                                                                   String stopUserName, String stopCode, String stopDirection,
+                                                                   List<String> routeDisplayNames) {
+        final String newLine = "\n";
+        String title = "";
+        StringBuilder message = new StringBuilder();
+
+        if (!TextUtils.isEmpty(stopUserName)) {
+            title = stopUserName;
+            if (stopName != null) {
+                // Show official stop name in addition to user name
+                message.append(
+                                context.getString(R.string.stop_info_official_stop_name_label, stopName))
+                        .append(newLine);
+            }
+        } else if (stopName != null) {
+            title = stopName;
+        }
+
+        if (stopCode != null) {
+            message.append(context.getString(R.string.stop_details_code, stopCode) + newLine);
+        }
+
+        // Routes that serve this stop
+        if (routeDisplayNames != null) {
+            String routes = context.getString(R.string.stop_info_route_ids_label) + " " + UIUtils
+                    .formatRouteDisplayNames(routeDisplayNames, new ArrayList<String>());
+            message.append(routes);
+        }
+
+        if (!TextUtils.isEmpty(stopDirection)) {
+            message.append(newLine)
+                    .append(context.getString(UIUtils.getStopDirectionText(stopDirection)));
+        }
+        return new Pair(title, message.toString());
+    }
+
+    /**
+     * Returns a formatted and sorted list of route display names for presentation in a single line
+     * <p/>
+     * For example, the following list:
+     * <p/>
+     * 11,1,15, 8b
+     * <p/>
+     * ...would be formatted as:
+     * <p/>
+     * 4, 8b, 11, 15
+     *
+     * @param routeDisplayNames          list of route display names
+     * @param nextArrivalRouteShortNames the short route names of the next X arrivals at the stop
+     *                                   that are the same.  These will be highlighted in the
+     *                                   results.
+     * @return a formatted and sorted list of route display names for presentation in a single line
+     */
+    public static String formatRouteDisplayNames(List<String> routeDisplayNames,
+                                                 List<String> nextArrivalRouteShortNames) {
+        Collections.sort(routeDisplayNames, new AlphanumComparator());
+        StringBuffer sb = new StringBuffer();
+
+        for (int i = 0; i < routeDisplayNames.size(); i++) {
+            boolean match = false;
+
+            for (String nextArrivalRouteShortName : nextArrivalRouteShortNames) {
+                if (routeDisplayNames.get(i).equalsIgnoreCase(nextArrivalRouteShortName)) {
+                    match = true;
+                    break;
+                }
+            }
+
+            if (match) {
+                // If this route name matches a route name for the next X arrivals that are the same, highlight this route in the text
+                sb.append(routeDisplayNames.get(i) + "*");
+            } else {
+                // Just append the normally-formatted route name
+                sb.append(routeDisplayNames.get(i));
+            }
+
+            if (i != routeDisplayNames.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Builds an AlertDialog with the given title and message
+     *
+     * @return an AlertDialog with the given title and message
+     */
+    public static androidx.appcompat.app.AlertDialog buildAlertDialog(Context context, String title, String message) {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomAlertDialog);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        return builder.create();
+    }
+
+    /**
+     * Returns true if the provided currentTime falls within the situation's (i.e., alert's) active
+     * windows or if the situation does not provide an active window, and false if the currentTime
+     * falls outside of the situation's active windows
+     *
+     * @param currentTime the time to compare to the situation's windows, in milliseconds between
+     *                    the current time and midnight, January 1, 1970 UTC
+     * @return true if the provided currentTime falls within the situation's (i.e., alert's) active
+     * windows or if the situation does not provide an active window, and false if the currentTime
+     * falls outside of the situation's active windows
+     */
+    public static boolean isActiveWindowForSituation(ObaSituation situation, long currentTime) {
+        if (situation.getActiveWindows().length == 0) {
+            // We assume a situation is active if it doesn't contain any active window information
+            return true;
+        }
+        // Active window times are in seconds since epoch
+        long currentTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(currentTime);
+        boolean isActiveWindowForSituation = false;
+        for (ObaSituation.ActiveWindow activeWindow : situation.getActiveWindows()) {
+            long from = activeWindow.getFrom();
+            long to = activeWindow.getTo();
+            // 0 is a valid end time that means no end to the window - see #990
+            if (from <= currentTimeSeconds && (to == 0 || currentTimeSeconds <= to)) {
+                isActiveWindowForSituation = true;
+                break;
+            }
+        }
+        return isActiveWindowForSituation;
+    }
+
+    public static boolean isLocationRealtime(ObaTripStatus status) {
+        if (status == null) {
+            return false;
+        }
+
+        Location l = status.getLastKnownLocation();
+        if (l != null) {
+            return true;
+        }
+
+        return status.isPredicted();
+
+        /*boolean isRealtime = true;
+        Location l = status.getLastKnownLocation();
+        if (l == null) {
+            isRealtime = false;
+        }
+        if (!status.isPredicted()) {
+            isRealtime = false;
+        }
+        return isRealtime;*/
+    }
+
+    /**
+     * Creates a new Bitmap, with the black color of the source image changed to the given color.
+     * The source Bitmap isn't modified.
+     *
+     * @param source the source Bitmap with a black background
+     * @param color  the color to change the black color to
+     * @return the resulting Bitmap that has the black changed to the color
+     */
+    public static Bitmap colorBitmap(Bitmap source, int color) {
+        int width = source.getWidth();
+        int height = source.getHeight();
+        int[] pixels = new int[width * height];
+        source.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        for (int x = 0; x < pixels.length; ++x) {
+            pixels[x] = (pixels[x] == Color.BLACK) ? color : pixels[x];
+        }
+
+        Bitmap out = Bitmap.createBitmap(width, height, source.getConfig());
+        out.setPixels(pixels, 0, width, 0, 0, width, height);
+        return out;
+    }
+
+    /**
+     * Asks the user to whitelist the application for energy restrictions (e.g., running in
+     * the background). See https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
+     *
+     * @param activity
+     */
+    public static void openBatteryIgnoreIntent(Activity activity) {
+        Intent intent = new Intent();
+        intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+        intent.setData(Uri.parse("package:" + activity.getPackageName()));
+        activity.startActivity(intent);
+    }
+
+    /**
+     * Returns the resource ID for a user-friendly error message based on device state (if a
+     * network
+     * connection is available or airplane mode is on) or an OBA REST API response code
+     *
+     * @param code The status code (one of the ObaApi.OBA_* constants)
+     * @return the resource ID for a user-friendly error message based on device state (if a network
+     * connection is available or airplane mode is on) or an OBA REST API response code
+     */
+    public static int getMapErrorString(Context context, int code) {
+        if (!isConnected(context)) {
+            if (isAirplaneMode(context)) {
+                return R.string.airplane_mode_error;
+            } else {
+                return R.string.no_network_error;
+            }
+        }
+        switch (code) {
+            case ObaApi.OBA_INTERNAL_ERROR:
+                return R.string.internal_error;
+            case ObaApi.OBA_BAD_GATEWAY:
+                return R.string.bad_gateway_error;
+            case ObaApi.OBA_OUT_OF_MEMORY:
+                return R.string.out_of_memory_error;
+            default:
+                return R.string.map_generic_error;
         }
     }
 }

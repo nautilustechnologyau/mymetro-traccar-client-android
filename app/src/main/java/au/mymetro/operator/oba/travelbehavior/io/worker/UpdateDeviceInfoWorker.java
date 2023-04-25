@@ -15,13 +15,7 @@
  */
 package au.mymetro.operator.oba.travelbehavior.io.worker;
 
-import com.google.android.gms.common.GoogleApiAvailability;
-
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.model.DeviceInformation;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
-import org.onebusaway.android.util.PreferenceUtils;
+import static android.content.Context.ACCESSIBILITY_SERVICE;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -34,7 +28,13 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import static android.content.Context.ACCESSIBILITY_SERVICE;
+import com.google.android.gms.common.GoogleApiAvailability;
+
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.model.DeviceInformation;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class UpdateDeviceInfoWorker extends Worker {
 

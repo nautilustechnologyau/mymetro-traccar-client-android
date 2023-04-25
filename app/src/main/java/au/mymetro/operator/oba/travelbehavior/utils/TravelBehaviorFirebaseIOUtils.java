@@ -15,27 +15,27 @@
  */
 package au.mymetro.operator.oba.travelbehavior.utils;
 
+import android.location.Location;
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.model.ArrivalAndDepartureData;
-import org.onebusaway.android.travelbehavior.model.ArrivalAndDepartureInfo;
-import org.onebusaway.android.travelbehavior.model.DestinationReminderData;
-import org.onebusaway.android.travelbehavior.model.DestinationReminderInfo;
-import org.onebusaway.android.travelbehavior.model.DeviceInformation;
-import org.onebusaway.android.travelbehavior.model.TravelBehaviorInfo;
-import org.onebusaway.android.travelbehavior.model.TripPlanData;
-import org.onebusaway.android.travelbehavior.model.TripPlanInfo;
-import org.onebusaway.android.util.PreferenceUtils;
-
-import android.location.Location;
-import android.util.Log;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.model.ArrivalAndDepartureData;
+import au.mymetro.operator.oba.travelbehavior.model.ArrivalAndDepartureInfo;
+import au.mymetro.operator.oba.travelbehavior.model.DestinationReminderData;
+import au.mymetro.operator.oba.travelbehavior.model.DestinationReminderInfo;
+import au.mymetro.operator.oba.travelbehavior.model.DeviceInformation;
+import au.mymetro.operator.oba.travelbehavior.model.TravelBehaviorInfo;
+import au.mymetro.operator.oba.travelbehavior.model.TripPlanData;
+import au.mymetro.operator.oba.travelbehavior.model.TripPlanInfo;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class TravelBehaviorFirebaseIOUtils {
 

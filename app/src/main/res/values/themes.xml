@@ -2,7 +2,7 @@
 <resources>
 
     <!--style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar"-->
-    <style name="AppTheme" parent="Theme.MaterialComponents">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -17,5 +17,16 @@
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="colorSecondary">@color/primary_dark</item>
+    </style>
+    <style name="Theme.OneBusAway" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!--style name="Theme.OneBusAway" parent="Theme.MaterialComponents.Light.DarkActionBar"-->
+        <!--   App branding color for the app bar -->
+        <item name="colorPrimary">@color/primary</item>
+        <!--   Darker variant for the status bar and contextual app bars -->
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <!--   Theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">@color/accent</item>
+        <!-- Change the default cursor color so its visible in the action bar -->
+        <item name="autoCompleteTextViewStyle">@style/cursorColor</item>
     </style>
 </resources>

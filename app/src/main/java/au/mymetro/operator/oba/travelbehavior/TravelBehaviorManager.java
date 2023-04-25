@@ -50,8 +50,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.analytics.FirebaseAnalytics;
-
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import com.google.firebase.crashlytics.buildtools.reloc.org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -15,16 +15,16 @@
  */
 package au.mymetro.operator.oba.travelbehavior.receiver;
 
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
-import org.onebusaway.android.util.PreferenceUtils;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
+
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class LocationBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "LocationReceiver";

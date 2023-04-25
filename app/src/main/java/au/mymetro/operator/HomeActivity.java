@@ -2,7 +2,6 @@ package au.mymetro.operator;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static au.mymetro.operator.MainFragment.KEY_DEVICE;
 import static au.mymetro.operator.MainFragment.KEY_STATUS;
 import static au.mymetro.operator.MainFragment.KEY_URL;
 import static au.mymetro.operator.oba.util.PermissionUtils.BACKGROUND_LOCATION_PERMISSION_REQUEST;
@@ -14,24 +13,24 @@ import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -45,22 +44,26 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import au.mymetro.operator.app.Application;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
+import au.mymetro.operator.app.Application;
 import au.mymetro.operator.databinding.ActivityMainBinding;
 import au.mymetro.operator.oba.io.ObaAnalytics;
 import au.mymetro.operator.oba.io.ObaContext;
+import au.mymetro.operator.oba.io.elements.ObaRoute;
+import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.map.MapParams;
+import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment;
 import au.mymetro.operator.oba.region.ObaRegionsTask;
 import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.ui.ArrivalsListFragment;
 import au.mymetro.operator.oba.util.LocationUtils;
 import au.mymetro.operator.oba.util.PermissionUtils;
 import au.mymetro.operator.oba.util.PreferenceUtils;
 import au.mymetro.operator.oba.util.UIUtils;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Callback {
 
@@ -90,6 +93,8 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     //One week, in milliseconds
     private static final long REGION_UPDATE_THRESHOLD = 1000 * 60 * 60 * 24 * 7;
 
+    public static final int BATTERY_OPTIMIZATIONS_PERMISSION_REQUEST = 111;
+
     private static final String CHECK_REGION_VER = "checkRegionVer";
 
     private static boolean mServiceStarted = false;
@@ -116,6 +121,11 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     private ActivityResultLauncher<String> travelBehaviorPermissionsLauncher;
 
+    private ArrivalsListFragment mArrivalsListFragment;
+
+    //Map Fragment
+    private BaseMapFragment mMapFragment;
+
     /**
      * GoogleApiClient being used for Location Services
      */
@@ -130,6 +140,17 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
      */
     public static void start(Context context, String routeId) {
         context.startActivity(makeIntent(context, routeId));
+    }
+
+    /**
+     * Starts the MapActivity with a particular stop focused with the center of
+     * the map at a particular point.
+     *
+     * @param context The context of the activity.
+     * @param stop    The stop to focus on.
+     */
+    public static void start(Context context, ObaStop stop) {
+        context.startActivity(makeIntent(context, stop));
     }
 
     /**
@@ -184,6 +205,27 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         return myIntent;
     }
 
+    /**
+     * Returns an intent that will start the MapActivity with a particular stop
+     * focused with the center of the map at a particular point.
+     *
+     * @param context The context of the activity.
+     * @param stop    The stop to focus on.
+     */
+    public static Intent makeIntent(Context context, ObaStop stop) {
+        Intent myIntent = new Intent(context, HomeActivity.class);
+        myIntent.putExtra(MapParams.STOP_ID, stop.getId());
+        myIntent.putExtra(MapParams.STOP_NAME, stop.getName());
+        myIntent.putExtra(MapParams.STOP_CODE, stop.getStopCode());
+        myIntent.putExtra(MapParams.CENTER_LAT, stop.getLatitude());
+        myIntent.putExtra(MapParams.CENTER_LON, stop.getLongitude());
+        return myIntent;
+    }
+
+    public ArrivalsListFragment getArrivalsListFragment() {
+        return mArrivalsListFragment;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -223,6 +265,10 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
             checkRegionStatus();
         }
+
+        //setupMapFragment(savedInstanceState);
+
+        // setupLocationHelper(savedInstanceState);
     }
 
     // Register the permissions callback, which handles the user's response to the
@@ -252,7 +298,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     @Override
     public void onStart() {
-        super.onStart();
         requestPermissionsIfRequired(true, false);
         if (mRequestingPermissions) {
             mRequestingPermissions = new BatteryOptimizationHelper().requestException(this);
@@ -264,6 +309,8 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         Boolean isTalkBackEnabled = am.isTouchExplorationEnabled();
         ObaAnalytics.setAccessibility(mFirebaseAnalytics, isTalkBackEnabled);
+
+        super.onStart();
     }
 
     @Override
@@ -598,4 +645,57 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         }
     }
 
+    /**
+     * Setting up the BaseMapFragment
+     * BaseMapFragment was used to implement a map.
+     */
+    /*
+    private void setupMapFragment(Bundle bundle) {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentByTag(BaseMapFragment.TAG);
+        if (fragment != null) {
+            mMapFragment = (BaseMapFragment) fragment;
+            mMapFragment.setOnFocusChangeListener(this);
+        }
+        if (mMapFragment == null) {
+
+            mMapFragment = BaseMapFragment.newInstance();
+            mMapFragment.setArguments(bundle);
+            // Register listener for map focus callbacks
+            mMapFragment.setOnFocusChangeListener(this);
+
+            fm.beginTransaction().add(R.id.ri_frame_map_view, mMapFragment,
+                    BaseMapFragment.TAG).commit();
+        }
+        fm.beginTransaction().show(mMapFragment).commit();
+    }
+
+    private void setupLocationHelper(Bundle savedInstanceState) {
+
+        double lat;
+        double lon;
+        if (savedInstanceState == null) {
+            lat = getIntent().getDoubleExtra(MapParams.CENTER_LAT, 0);
+            lon = getIntent().getDoubleExtra(MapParams.CENTER_LON, 0);
+        } else {
+            lat = savedInstanceState.getDouble(MapParams.CENTER_LAT, 0);
+            lon = savedInstanceState.getDouble(MapParams.CENTER_LON, 0);
+        }
+
+        Location mapCenterLocation = LocationUtils.makeLocation(lat, lon);
+        // mIssueLocationHelper = new IssueLocationHelper(mapCenterLocation, this);
+
+        // Set map center location
+        mMapFragment.setMapCenter(mapCenterLocation, true, false);
+    }
+
+    @Override
+    public void onFocusChanged(ObaStop stop, HashMap<String, ObaRoute> routes, Location location) {
+        if (stop != null) {
+            // Show bus stop name on the header
+            //showBusStopHeader(stop.getName());
+        } else if (location != null) {
+            //hideBusStopHeader();
+        }
+    }*/
 }

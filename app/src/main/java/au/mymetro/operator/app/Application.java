@@ -17,7 +17,9 @@ import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.multidex.MultiDexApplication;
@@ -503,4 +505,32 @@ public class Application extends MultiDexApplication {
     }
 
     public void handleRatingFlow(Activity activity) {}
+
+    /**
+     * Method to check whether bikeshare layer is enabled or not.
+     *
+     * @return true if the bikeshare layer is an option that can be toggled on/off
+     */
+    public static boolean isBikeshareEnabled() {
+        // Bike layer is enabled if either the current region
+        // supports it or a custom otp url is set. The custom otp url is used to make the testing
+        // process easier
+        return ((Application.get().getCurrentRegion() != null
+                && Application.get().getCurrentRegion().getSupportsOtpBikeshare())
+                || !TextUtils.isEmpty(Application.get().getCustomOtpApiUrl()));
+    }
+
+    public static Boolean isIgnoringBatteryOptimizations(Context applicationContext) {
+        PowerManager pm = (PowerManager) applicationContext.getSystemService(Context.POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                pm.isIgnoringBatteryOptimizations(applicationContext.getPackageName())) {
+            return true;
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return null;
+        }
+
+        return false;
+    }
 }

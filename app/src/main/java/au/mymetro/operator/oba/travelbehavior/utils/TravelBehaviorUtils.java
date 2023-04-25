@@ -15,22 +15,22 @@
  */
 package au.mymetro.operator.oba.travelbehavior.utils;
 
-import com.google.android.gms.location.ActivityTransition;
-import com.google.android.gms.location.DetectedActivity;
-
-import org.onebusaway.android.BuildConfig;
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.io.elements.ObaRegion;
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.model.TravelBehaviorInfo;
-import org.onebusaway.android.util.PreferenceUtils;
-
 import android.content.Context;
 import android.os.Vibrator;
 import android.widget.Toast;
 
+import com.google.android.gms.location.ActivityTransition;
+import com.google.android.gms.location.DetectedActivity;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import au.mymetro.operator.BuildConfig;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.model.TravelBehaviorInfo;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class TravelBehaviorUtils {
 

@@ -3,4 +3,30 @@
     <color name="primary">#AC0AFC</color>
     <color name="primary_dark">#9832CB</color>
     <color name="accent">#9E00FE</color>
+    <color name="muted">#7E38EB</color>
+
+    <!-- MyMetro Theme -->
+    <color name="theme_primary_dark">@color/primary_dark</color>
+    <color name="theme_primary">@color/primary</color>
+    <color name="theme_muted">@color/muted</color>
+    <color name="theme_accent">@color/accent</color>
+
+    <!-- Arrival time colors -->
+    <color name="stop_info_ontime">#4F1C70</color>
+    <color name="stop_info_early">#1F0954</color>
+    <color name="stop_info_delayed">#6D5ACE</color>
+    <color name="stop_info_scheduled_time">#BE77F5</color>
+
+    <!-- Arrival times header -->
+    <color name="header_text_color">@android:color/white</color>
+    <color name="header_text_faded_color">#bbffffff</color>
+    <color name="header_stop_info_ontime">@color/theme_primary</color>
+
+    <!-- Navigation Drawer -->
+    <color name="navdrawer_background">@android:color/white</color>
+    <color name="navdrawer_text_color">@color/body_text_1</color>
+    <color name="navdrawer_text_color_selected">@color/theme_primary</color>
+    <color name="navdrawer_background_color_selected">#11000000</color>
+    <color name="navdrawer_icon_tint">#888</color>
+    <color name="navdrawer_icon_tint_selected">@color/theme_primary</color>
 </resources>

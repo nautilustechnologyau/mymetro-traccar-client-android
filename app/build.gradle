@@ -3,6 +3,23 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 
+repositories {
+    maven {
+        // OBA Releases - for comparator to sort alphanumeric routes
+        url "https://repo.camsys-apps.com/releases"
+    }
+    maven {
+        // for Amazon Maps
+        url uri('../.m2/repository')
+    }
+    maven {
+        // CUTR Releases
+        url "https://github.com/CUTR-at-USF/cutr-mvn-repo/raw/master/snapshots"
+    }
+    google()
+    mavenCentral()
+}
+
 android {
     compileSdkVersion 33
     /*android {
@@ -131,6 +148,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.5.0'
     implementation 'androidx.work:work-runtime:2.8.1'
     implementation 'com.google.firebase:firebase-storage:20.1.0'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.5'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.7.3'
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
@@ -151,6 +170,8 @@ dependencies {
 
     // For sorting alphanumeric route names
     implementation 'org.onebusaway.util:comparators:1.0.0'
+    // For floating action button speed dial
+    implementation 'uk.co.markormesher:android-fab:2.2.0'
 
 
 
@@ -170,6 +191,7 @@ dependencies {
     implementation 'de.grundid.opendatalab:geojson-jackson:1.7'
     implementation 'commons-io:commons-io:2.8.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'edu.usf.cutr.opentripplanner.android:opentripplanner-pojos:1.0.0-SNAPSHOT'
 
 
 

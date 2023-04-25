@@ -40,21 +40,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.onebusaway.android.R;
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.io.elements.ObaRoute;
-import org.onebusaway.android.io.elements.ObaTrip;
-import org.onebusaway.android.io.elements.ObaTripDetails;
-import org.onebusaway.android.io.elements.ObaTripStatus;
-import org.onebusaway.android.io.elements.OccupancyState;
-import org.onebusaway.android.io.elements.Status;
-import org.onebusaway.android.io.request.ObaTripsForRouteResponse;
-import org.onebusaway.android.ui.TripDetailsActivity;
-import org.onebusaway.android.ui.TripDetailsListFragment;
-import org.onebusaway.android.util.ArrivalInfoUtils;
-import org.onebusaway.android.util.MathUtils;
-import org.onebusaway.android.util.UIUtils;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,8 +49,17 @@ import java.util.concurrent.TimeUnit;
 import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
+import au.mymetro.operator.oba.io.elements.ObaTrip;
+import au.mymetro.operator.oba.io.elements.ObaTripDetails;
 import au.mymetro.operator.oba.io.elements.ObaTripStatus;
+import au.mymetro.operator.oba.io.elements.OccupancyState;
+import au.mymetro.operator.oba.io.elements.Status;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
+import au.mymetro.operator.oba.ui.TripDetailsActivity;
+import au.mymetro.operator.oba.ui.TripDetailsListFragment;
+import au.mymetro.operator.oba.util.ArrivalInfoUtils;
+import au.mymetro.operator.oba.util.MathUtils;
+import au.mymetro.operator.oba.util.UIUtils;
 
 /**
  * A map overlay that shows vehicle positions on the map

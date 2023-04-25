@@ -56,9 +56,6 @@ import androidx.loader.content.Loader;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.onebusaway.android.util.ArrayAdapterWithIcon;
-import org.onebusaway.android.util.BuildFlavorUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,7 +78,6 @@ import au.mymetro.operator.oba.io.elements.OccupancyState;
 import au.mymetro.operator.oba.io.request.ObaArrivalInfoResponse;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.provider.ObaContract;
-import au.mymetro.operator.oba.report.ui.InfrastructureIssueActivity;
 import au.mymetro.operator.oba.travelbehavior.TravelBehaviorManager;
 import au.mymetro.operator.oba.util.ArrayAdapterWithIcon;
 import au.mymetro.operator.oba.util.ArrivalInfoUtils;
@@ -655,8 +651,8 @@ public class ArrivalsListFragment extends ListFragment
             if (mStop != null) {
                 Intent intent = makeIntent(getActivity(), mStop.getId(), mStop.getName(),
                         mStop.getStopCode(), mStop.getLatitude(), mStop.getLongitude());
-                InfrastructureIssueActivity.startWithService(getActivity(), intent,
-                        getString(R.string.ri_selected_service_stop));
+                //InfrastructureIssueActivity.startWithService(getActivity(), intent,
+                //        getString(R.string.ri_selected_service_stop));
             }
         } else if (menuItemId == R.id.night_light) {
             // NightLightActivity.start(getActivity());
@@ -801,9 +797,9 @@ public class ArrivalsListFragment extends ListFragment
                     Intent intent = makeIntent(getActivity(), mStop.getId(), mStop.getName(),
                             mStop.getStopCode(), mStop.getLatitude(), mStop.getLongitude());
 
-                    InfrastructureIssueActivity.startWithService(getActivity(), intent,
-                            getString(R.string.ri_selected_service_trip), arrivalInfo.getInfo(),
-                            agencyName, blockId);
+                    //InfrastructureIssueActivity.startWithService(getActivity(), intent,
+                    //        getString(R.string.ri_selected_service_trip), arrivalInfo.getInfo(),
+                    //        agencyName, blockId);
                 } else if (occupancy != null &&
                         ((!hasUrl && which == 6) || (hasUrl && which == 7))) {
                     ObaAnalytics.reportUiEvent(mFirebaseAnalytics,

@@ -15,19 +15,19 @@
  */
 package au.mymetro.operator.oba.travelbehavior.io.worker;
 
-import com.google.gson.Gson;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.model.TripPlanData;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
-
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
+
+import com.google.gson.Gson;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +35,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.model.TripPlanData;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
 
 public class TripPlanDataReaderWorker extends Worker {
 

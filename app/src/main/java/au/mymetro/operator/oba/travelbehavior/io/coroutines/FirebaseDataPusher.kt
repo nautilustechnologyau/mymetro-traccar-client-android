@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.onebusaway.android.travelbehavior.io.coroutines
+package au.mymetro.operator.oba.travelbehavior.io.coroutines
 
 import android.app.ProgressDialog
 import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import au.mymetro.operator.R
+import au.mymetro.operator.app.Application
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorUtils
 import com.google.firebase.firestore.FirebaseFirestore
-import org.onebusaway.android.R
-import org.onebusaway.android.app.Application
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorUtils
 
 const val TAG = "FirebaseDataPusher"
 

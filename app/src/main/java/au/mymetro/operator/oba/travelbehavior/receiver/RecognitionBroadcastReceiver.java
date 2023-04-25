@@ -24,16 +24,16 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.firebase.firestore.DocumentReference;
 
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.model.TravelBehaviorInfo;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorUtils;
-import org.onebusaway.android.util.PreferenceUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.model.TravelBehaviorInfo;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorUtils;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class RecognitionBroadcastReceiver extends BroadcastReceiver {
 

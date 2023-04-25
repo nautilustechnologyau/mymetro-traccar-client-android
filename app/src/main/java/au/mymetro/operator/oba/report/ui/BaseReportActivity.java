@@ -33,8 +33,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import org.onebusaway.android.R;
-
 import au.mymetro.operator.R;
 
 /**
@@ -119,12 +117,13 @@ public class BaseReportActivity extends AppCompatActivity {
             mInfoHeader.setVisibility(View.VISIBLE);
         }
         // Instructions in body of report
+        /*
         if (mInLineInstructions == null) {
             mInLineInstructions = (FrameLayout) findViewById(R.id.in_line_instructions_container);
         }
         ((ImageView) findViewById(R.id.in_line_instructions_image)).setColorFilter(
                 getResources().getColor(R.color.material_gray));
-        ((TextView) mInLineInstructions.findViewById(R.id.in_line_instructions_text)).setText(text);
+        ((TextView) mInLineInstructions.findViewById(R.id.in_line_instructions_text)).setText(text);*/
         if (mInLineInstructions.getVisibility() != View.VISIBLE) {
             mInLineInstructions.setVisibility(View.VISIBLE);
         }
@@ -144,10 +143,10 @@ public class BaseReportActivity extends AppCompatActivity {
         ((TextView) mInfoHeader.findViewById(R.id.ri_info_text)).setText("");
         mInfoHeader.setVisibility(View.GONE);
 
-        if (mInLineInstructions == null) {
+        /*if (mInLineInstructions == null) {
             mInLineInstructions = (FrameLayout) findViewById(R.id.in_line_instructions_container);
         }
-        ((TextView) mInLineInstructions.findViewById(R.id.in_line_instructions_text)).setText("");
+        ((TextView) mInLineInstructions.findViewById(R.id.in_line_instructions_text)).setText("");*/
         mInLineInstructions.setVisibility(View.GONE);
     }
 }

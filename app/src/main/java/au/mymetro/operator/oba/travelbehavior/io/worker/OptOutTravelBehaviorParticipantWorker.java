@@ -15,23 +15,24 @@
  */
 package au.mymetro.operator.oba.travelbehavior.io.worker;
 
-import org.apache.commons.io.IOUtils;
-import org.onebusaway.android.R;
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.io.ObaConnection;
-import org.onebusaway.android.io.ObaDefaultConnectionFactory;
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.Reader;
-
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.IOException;
+import java.io.Reader;
+
+import au.mymetro.operator.R;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.io.ObaConnection;
+import au.mymetro.operator.oba.io.ObaDefaultConnectionFactory;
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
 
 public class OptOutTravelBehaviorParticipantWorker extends Worker {
 

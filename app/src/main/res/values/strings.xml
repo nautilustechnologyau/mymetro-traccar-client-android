@@ -69,4 +69,6 @@
     <string name="preference_oba_api_key_summary">API Key to Access MyMetro Services</string>
     <string name="preference_oba_api_key_title">MyMetro API Key</string>
     <string name="oba_api_key_invalid">A valid API key is required. Please set a valid API key from the settings.</string>
+
+    <string name="msg_trip_ongoing">The trip you have selected is in progress. Are you sure you want to select this trip?</string>
 </resources>

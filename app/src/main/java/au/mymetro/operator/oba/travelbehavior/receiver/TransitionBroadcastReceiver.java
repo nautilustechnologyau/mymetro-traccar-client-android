@@ -15,25 +15,6 @@
  */
 package au.mymetro.operator.oba.travelbehavior.receiver;
 
-import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.ActivityRecognitionClient;
-import com.google.android.gms.location.ActivityTransitionEvent;
-import com.google.android.gms.location.ActivityTransitionResult;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.firebase.firestore.DocumentReference;
-
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.travelbehavior.constants.TravelBehaviorConstants;
-import org.onebusaway.android.travelbehavior.io.worker.ArrivalsAndDeparturesDataReaderWorker;
-import org.onebusaway.android.travelbehavior.io.worker.DestinationReminderReaderWorker;
-import org.onebusaway.android.travelbehavior.io.worker.TripPlanDataReaderWorker;
-import org.onebusaway.android.travelbehavior.model.TravelBehaviorInfo;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
-import org.onebusaway.android.travelbehavior.utils.TravelBehaviorUtils;
-import org.onebusaway.android.util.PermissionUtils;
-import org.onebusaway.android.util.PreferenceUtils;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -43,14 +24,33 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.util.Log;
 
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityRecognitionClient;
+import com.google.android.gms.location.ActivityTransitionEvent;
+import com.google.android.gms.location.ActivityTransitionResult;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.firebase.firestore.DocumentReference;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
+import au.mymetro.operator.oba.travelbehavior.io.worker.ArrivalsAndDeparturesDataReaderWorker;
+import au.mymetro.operator.oba.travelbehavior.io.worker.DestinationReminderReaderWorker;
+import au.mymetro.operator.oba.travelbehavior.io.worker.TripPlanDataReaderWorker;
+import au.mymetro.operator.oba.travelbehavior.model.TravelBehaviorInfo;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorFirebaseIOUtils;
+import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorUtils;
+import au.mymetro.operator.oba.util.PermissionUtils;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 
 public class TransitionBroadcastReceiver extends BroadcastReceiver {
 

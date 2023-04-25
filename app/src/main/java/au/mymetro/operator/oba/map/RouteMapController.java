@@ -31,21 +31,20 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 
-import org.onebusaway.android.app.Application;
-import org.onebusaway.android.io.ObaApi;
-import org.onebusaway.android.io.elements.ObaRoute;
-import org.onebusaway.android.io.elements.ObaStop;
-import org.onebusaway.android.io.request.ObaStopsForRouteRequest;
-import org.onebusaway.android.io.request.ObaTripsForRouteRequest;
-import org.onebusaway.android.map.googlemapsv2.BaseMapFragment;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import au.mymetro.operator.R;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.io.ObaApi;
+import au.mymetro.operator.oba.io.elements.ObaRoute;
+import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.request.ObaStopsForRouteRequest;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
+import au.mymetro.operator.oba.io.request.ObaTripsForRouteRequest;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
+import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment;
 import au.mymetro.operator.oba.util.LocationUtils;
 import au.mymetro.operator.oba.util.UIUtils;
 

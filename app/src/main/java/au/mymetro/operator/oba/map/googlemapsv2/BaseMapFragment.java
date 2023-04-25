@@ -16,8 +16,8 @@
  */
 package au.mymetro.operator.oba.map.googlemapsv2;
 
-import static org.onebusaway.android.util.PermissionUtils.LOCATION_PERMISSIONS;
-import static org.onebusaway.android.util.PermissionUtils.LOCATION_PERMISSION_REQUEST;
+import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
+import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSION_REQUEST;
 import static au.mymetro.operator.oba.util.UIUtils.canManageDialog;
 
 import android.annotation.SuppressLint;
@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.DialogFragment;
@@ -60,41 +61,34 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.onebusaway.android.BuildConfig;
-import org.onebusaway.android.R;
-import org.onebusaway.android.io.ObaAnalytics;
-import org.onebusaway.android.io.elements.ObaReferences;
-import org.onebusaway.android.io.elements.ObaRegion;
-import org.onebusaway.android.io.elements.ObaRoute;
-import org.onebusaway.android.io.elements.ObaShape;
-import org.onebusaway.android.io.elements.ObaStop;
-import org.onebusaway.android.io.request.ObaTripsForRouteResponse;
-import org.onebusaway.android.map.DirectionsMapController;
-import org.onebusaway.android.map.MapParams;
-import org.onebusaway.android.map.RouteMapController;
-import org.onebusaway.android.map.StopMapController;
-import org.onebusaway.android.map.bike.BikeshareMapController;
-import org.onebusaway.android.map.googlemapsv2.bike.BikeStationOverlay;
-import org.onebusaway.android.ui.HomeActivity;
-import org.onebusaway.android.ui.LayersSpeedDialAdapter;
-import org.onebusaway.android.util.LocationUtils;
-import org.onebusaway.android.util.PermissionUtils;
-import org.onebusaway.android.util.PreferenceUtils;
-import org.opentripplanner.routing.bike_rental.BikeRentalStation;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import au.mymetro.android.ui.SingleLiveEvent;
+import au.mymetro.operator.HomeActivity;
+import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.ObaApi;
+import au.mymetro.operator.oba.io.elements.ObaReferences;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
+import au.mymetro.operator.oba.io.elements.ObaRoute;
+import au.mymetro.operator.oba.io.elements.ObaShape;
+import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.request.ObaResponse;
+import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
 import au.mymetro.operator.oba.map.MapModeController;
+import au.mymetro.operator.oba.map.MapParams;
+import au.mymetro.operator.oba.map.RouteMapController;
+import au.mymetro.operator.oba.map.StopMapController;
 import au.mymetro.operator.oba.region.ObaRegionsTask;
+import au.mymetro.operator.oba.ui.LayersSpeedDialAdapter;
+import au.mymetro.operator.oba.ui.SingleLiveEvent;
 import au.mymetro.operator.oba.util.LocationHelper;
+import au.mymetro.operator.oba.util.LocationUtils;
+import au.mymetro.operator.oba.util.PermissionUtils;
+import au.mymetro.operator.oba.util.PreferenceUtils;
 import au.mymetro.operator.oba.util.UIUtils;
 
 /**
@@ -152,7 +146,7 @@ public class BaseMapFragment extends SupportMapFragment
 
     private VehicleOverlay mVehicleOverlay;
 
-    private BikeStationOverlay mBikeStationOverlay;
+    // private BikeStationOverlay mBikeStationOverlay;
 
     // We only display the out of range dialog once
     private boolean mWarnOutOfRange = true;
@@ -198,7 +192,7 @@ public class BaseMapFragment extends SupportMapFragment
 
     @Override
     public void onActivateLayer(LayerInfo layer) {
-        switch (layer.getLayerlabel()) {
+        /*switch (layer.getLayerlabel()) {
             case "Bikeshare": {
                 for (MapModeController controller : mControllers) {
                     if (controller instanceof BikeshareMapController) {
@@ -210,12 +204,12 @@ public class BaseMapFragment extends SupportMapFragment
                 }
                 break;
             }
-        }
+        }*/
     }
 
     @Override
     public void onDeactivateLayer(LayerInfo layer) {
-        switch (layer.getLayerlabel()) {
+        /*switch (layer.getLayerlabel()) {
             case "Bikeshare": {
                 for (MapModeController controller : mControllers) {
                     if (controller instanceof BikeshareMapController) {
@@ -227,7 +221,7 @@ public class BaseMapFragment extends SupportMapFragment
                 }
                 break;
             }
-        }
+        }*/
     }
 
     public interface OnFocusChangedListener {
@@ -244,7 +238,7 @@ public class BaseMapFragment extends SupportMapFragment
          */
         void onFocusChanged(ObaStop stop, HashMap<String, ObaRoute> routes, Location location);
 
-        void onFocusChanged(BikeRentalStation bikeRentalStation);
+        // void onFocusChanged(BikeRentalStation bikeRentalStation);
     }
 
     public interface OnProgressBarChangedListener {
@@ -327,7 +321,7 @@ public class BaseMapFragment extends SupportMapFragment
     }
 
     @Override
-    public void onMapReady(com.google.android.gms.maps.GoogleMap map) {
+    public void onMapReady(@NonNull com.google.android.gms.maps.GoogleMap map) {
         mMap = map;
 
         MapClickListeners mapClickListeners = new MapClickListeners();
@@ -337,10 +331,10 @@ public class BaseMapFragment extends SupportMapFragment
 
         // for fixed region we may need to set the map camera to the centre
         // this is useful if the user choose not to enable location service
-        if (BuildConfig.USE_FIXED_REGION) {
+        /*if (BuildConfig.USE_FIXED_REGION) {
             LatLng latLng = new LatLng(BuildConfig.FIXED_REGION_MAP_CENTRE_LAT, BuildConfig.FIXED_REGION_MAP_CENTRE_LON);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, BuildConfig.FIXED_REGION_MAP_ZOOM_LEVEL));
-        }
+        }*/
 
         initMap(mLastSavedInstanceState);
     }
@@ -569,13 +563,14 @@ public class BaseMapFragment extends SupportMapFragment
         }
     }
 
+    /*
     public void setupBikeStationOverlay(boolean isInDirectionsMode) {
         Activity activity = getActivity();
         if (mBikeStationOverlay == null && activity != null) {
             mBikeStationOverlay = new BikeStationOverlay(activity, mMap, isInDirectionsMode);
             mBikeStationOverlay.setOnFocusChangeListener(mOnFocusChangedListener);
         }
-    }
+    }*/
 
     protected void showDialog(int id) {
         MapDialogFragment.newInstance(id, this).show(getFragmentManager(), MapDialogFragment.TAG);
@@ -612,22 +607,22 @@ public class BaseMapFragment extends SupportMapFragment
         if (mStopOverlay != null) {
             mStopOverlay.clear(false);
         }
-        BikeshareMapController bikeshareMapController = new BikeshareMapController(this);
-        setupBikeStationOverlay(MapParams.MODE_DIRECTIONS.equals(mode));
+        //BikeshareMapController bikeshareMapController = new BikeshareMapController(this);
+        //setupBikeStationOverlay(MapParams.MODE_DIRECTIONS.equals(mode));
         if (MapParams.MODE_ROUTE.equals(mode)) {
             RouteMapController controller = new RouteMapController(this);
             mControllers.add(controller);
-            bikeshareMapController.setMode(controller.getMode());
+            //bikeshareMapController.setMode(controller.getMode());
         } else if (MapParams.MODE_STOP.equals(mode)) {
             StopMapController controller = new StopMapController(this);
             mControllers.add(controller);
-            bikeshareMapController.setMode(controller.getMode());
-        } else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
+            //bikeshareMapController.setMode(controller.getMode());
+        } /*else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
             DirectionsMapController controller = new DirectionsMapController(this);
             mControllers.add(controller);
             bikeshareMapController.setMode(controller.getMode());
-        }
-        mControllers.add(bikeshareMapController);
+        }*/
+        //mControllers.add(bikeshareMapController);
         for (MapModeController controller : mControllers) {
             controller.setState(args);
             controller.onResume();
@@ -720,7 +715,7 @@ public class BaseMapFragment extends SupportMapFragment
         }
     }
 
-    @Override
+    /*@Override
     public void showBikeStations(List<BikeRentalStation> bikeStations) {
         setupBikeStationOverlay(MapParams.MODE_DIRECTIONS.equals(mMapMode));
         mBikeStationOverlay.addBikeStations(bikeStations);
@@ -731,7 +726,7 @@ public class BaseMapFragment extends SupportMapFragment
         if (mBikeStationOverlay != null) {
             mBikeStationOverlay.clearBikeStations();
         }
-    }
+    }*/
 
     @Override
     public void notifyOutOfRange() {
@@ -1432,9 +1427,9 @@ public class BaseMapFragment extends SupportMapFragment
                 mStopOverlay.removeMarkerClicked(latLng);
             }
 
-            if (mBikeStationOverlay != null) {
+            /*if (mBikeStationOverlay != null) {
                 mBikeStationOverlay.removeMarkerClicked(latLng);
-            }
+            }*/
 
             if (mVehicleOverlay != null) {
                 mVehicleOverlay.removeMarkerClicked(latLng);
@@ -1451,11 +1446,11 @@ public class BaseMapFragment extends SupportMapFragment
                     return true;
                 }
             }
-            if (mBikeStationOverlay != null) {
+            /*if (mBikeStationOverlay != null) {
                 if (mBikeStationOverlay.markerClicked(marker)) {
                     return true;
                 }
-            }
+            }*/
             if (mVehicleOverlay != null) {
                 return mVehicleOverlay.markerClicked(marker);
             }

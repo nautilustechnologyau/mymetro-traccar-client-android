@@ -18,7 +18,9 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <!--
     <string name="app_name">OneBusAway</string>
+    -->
 
     <!-- Navigation Drawer -->
     <string name="navdrawer_item_nearby">Nearby</string>
@@ -749,8 +751,9 @@
     <string name="preference_region_dialog_message"> Your region is currently set to %1$s.
     If we got this wrong, please tap on \'Your Region\' to change it!</string>
     <string name="preference_region_dialog_title">Please check region</string>
-    <string name="report_dialog_stop_header">Please tap on stop on map</string>
-    <string name="report_dialog_trip"> Please select an arrival time.</string>
+    <string name="report_dialog_stop_header">Please tap on a stop on map</string>
+    <string name="report_dialog_trip"> Please select a trip</string>
+    <string name="report_dialog_no_trip"> No trip selected</string>
 
     <!-- report issue screen-->
     <string name="ri_others">Others</string>
@@ -769,7 +772,7 @@
     <string name="ri_user_lastname_hint">Last name</string>
     <string name="ri_user_email_hint">Email</string>
     <string name="ri_user_phone_hint">Phone number</string>
-    <string name="ri_no_trip">No arrival times, please check back later.</string>
+    <string name="ri_no_trip">No trip is schedules for this stop, please check back later or select another stop.</string>
     <string name="ri_anonymous_checkbox">Keep it anonymous</string>
     <string name="ri_submitting_message">Submitting your report…</string>
     <string name="ri_unsuccessful_submit">An error occurred during submission, please try again later.</string>

@@ -37,18 +37,19 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-import org.onebusaway.android.R;
-import org.onebusaway.android.io.elements.ObaArrivalInfo;
-import org.onebusaway.android.io.elements.OccupancyState;
-import org.onebusaway.android.io.elements.Status;
-import org.onebusaway.android.provider.ObaContract;
-import org.onebusaway.android.util.ArrivalInfoUtils;
-import org.onebusaway.android.util.UIUtils;
 import org.onebusaway.util.comparators.AlphanumComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import au.mymetro.operator.R;
+import au.mymetro.operator.oba.io.elements.ObaArrivalInfo;
+import au.mymetro.operator.oba.io.elements.OccupancyState;
+import au.mymetro.operator.oba.io.elements.Status;
+import au.mymetro.operator.oba.provider.ObaContract;
+import au.mymetro.operator.oba.util.ArrivalInfoUtils;
+import au.mymetro.operator.oba.util.UIUtils;
 
 /**
  * Styles of arrival times used by York Region Transit
@@ -76,7 +77,7 @@ public class ArrivalsListAdapterStyleB extends ArrivalsListAdapterBase<CombinedA
      * @param currentTime  current time in milliseconds
      */
     public void setData(ObaArrivalInfo[] arrivals, ArrayList<String> routesFilter,
-            long currentTime) {
+                        long currentTime) {
         if (arrivals != null) {
             ArrayList<ArrivalInfo> list =
                     ArrivalInfoUtils.convertObaArrivalInfo(getContext(),
