@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 repositories {
     maven {
@@ -77,6 +78,13 @@ android {
         variant ->
             def authority = '"' + applicationId.toString() + '.provider' + '"'
             variant.buildConfigField "String", "DATABASE_AUTHORITY", authority
+
+            def buildType = variant.buildType.name // Sets the current build type
+            def apikeyProperties = new Properties()
+            def filename = "./app/secrets-${buildType}.properties"
+            def apikeyPropertiesFile = rootProject.file(filename)
+            apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+            variant.resValue "string", "google_maps_api_key", apikeyProperties['GOOGLE_MAPS_API_KEY']
     }
 
     if (project.hasProperty("secure.properties")
@@ -159,7 +167,7 @@ dependencies {
     implementation ('com.google.firebase:firebase-auth:21.3.0') {
         exclude module: "play-services-safetynet"
     }
-    // implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.google.android.play:core:1.10.3'
     // Google Play Services Maps (only for Google flavor)
@@ -172,7 +180,6 @@ dependencies {
     implementation 'org.onebusaway.util:comparators:1.0.0'
     // For floating action button speed dial
     implementation 'uk.co.markormesher:android-fab:2.2.0'
-
 
 
     // Firebase Analytics
@@ -192,8 +199,6 @@ dependencies {
     implementation 'commons-io:commons-io:2.8.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'edu.usf.cutr.opentripplanner.android:opentripplanner-pojos:1.0.0-SNAPSHOT'
-
-
 
 }
 

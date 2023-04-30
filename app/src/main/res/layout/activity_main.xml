@@ -3,15 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="au.mymetro.operator.HomeActivity">
 
-    <androidx.core.widget.NestedScrollView
+    <!--androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="100dp"
-        android:clipToPadding="false">
+        android:clipToPadding="false"-->
 
         <fragment
             android:id="@+id/nav_host_fragment_activity_main"
@@ -25,9 +26,10 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            app:navGraph="@navigation/mobile_navigation" />
+            app:navGraph="@navigation/mobile_navigation"
+            />
 
-    </androidx.core.widget.NestedScrollView>
+    <!--/androidx.core.widget.NestedScrollView-->
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomBar"
@@ -56,9 +58,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/app_name"
-        app:fabSize="auto"
+        android:enabled="true"
         android:src="@drawable/ic_start"
-        app:layout_anchor="@+id/bottomBar"/>
+        app:fabSize="auto"
+        app:layout_anchor="@+id/bottomBar" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!--

@@ -21,7 +21,6 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -110,9 +109,9 @@ public class BaseReportActivity extends AppCompatActivity {
     protected void addInfoText(String text) {
         // Instructions in header of report
         if (mInfoHeader == null){
-            mInfoHeader = (RelativeLayout) findViewById(R.id.ri_info_header);
+            mInfoHeader = (RelativeLayout) findViewById(R.id.select_stop_header);
         }
-        ((TextView) mInfoHeader.findViewById(R.id.ri_info_text)).setText(text);
+        ((TextView) mInfoHeader.findViewById(R.id.select_stop_info_text)).setText(text);
         if (mInfoHeader.getVisibility() != View.VISIBLE) {
             mInfoHeader.setVisibility(View.VISIBLE);
         }
@@ -131,16 +130,16 @@ public class BaseReportActivity extends AppCompatActivity {
 
     protected  boolean isInfoVisible() {
         if (mInfoHeader == null){
-            mInfoHeader = (RelativeLayout) findViewById(R.id.ri_info_header);
+            mInfoHeader = (RelativeLayout) findViewById(R.id.select_stop_header);
         }
         return mInfoHeader.getVisibility() == View.VISIBLE;
     }
 
     protected void removeInfoText() {
         if (mInfoHeader == null){
-            mInfoHeader = (RelativeLayout) findViewById(R.id.ri_info_header);
+            mInfoHeader = (RelativeLayout) findViewById(R.id.select_stop_header);
         }
-        ((TextView) mInfoHeader.findViewById(R.id.ri_info_text)).setText("");
+        ((TextView) mInfoHeader.findViewById(R.id.select_stop_info_text)).setText("");
         mInfoHeader.setVisibility(View.GONE);
 
         /*if (mInLineInstructions == null) {

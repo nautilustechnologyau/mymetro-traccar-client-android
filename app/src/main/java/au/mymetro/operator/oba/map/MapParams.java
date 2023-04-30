@@ -30,6 +30,8 @@ public class MapParams {
 
     public static final String ROUTE_ID = ".RouteId";
 
+    public static final String TRIP_ID = ".TripId";
+
     public static final String DO_N0T_CENTER_ON_LOCATION = ".DoNotCenterOnLocation";
 
     public static final String CENTER_LAT = ".MapCenterLat";
@@ -52,6 +54,8 @@ public class MapParams {
 
     public static final String SHOW_BIKE = ".ShowBike";
 
+    public static final String SHOW_STOP = ".ShowStop";
+
     public static final String MODE_ROUTE = "RouteMode";
 
     public static final String MODE_STOP = "StopMode";
@@ -60,7 +64,7 @@ public class MapParams {
 
     public static final String ITINERARY = ".Itinerary";
 
-    public static final int DEFAULT_ZOOM = 18;
+    public static final int DEFAULT_ZOOM = 17;
 
     public static final int DEFAULT_MAP_PADDING = 0;
 }

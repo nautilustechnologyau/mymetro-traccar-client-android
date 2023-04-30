@@ -20,12 +20,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.elements.ObaRegion;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class ObaContext {
 

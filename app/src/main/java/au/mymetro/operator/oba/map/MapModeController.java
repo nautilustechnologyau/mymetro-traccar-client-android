@@ -28,6 +28,7 @@ import au.mymetro.operator.oba.io.elements.ObaReferences;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
 
 public interface MapModeController {
@@ -60,7 +61,7 @@ public interface MapModeController {
 
         String getMapMode();
 
-        void setMapMode(String mode, Bundle args);
+        MapModeController setMapMode(String mode, Bundle args);
 
         ObaMapView getMapView();
 
@@ -121,7 +122,7 @@ public interface MapModeController {
          *                 be added to the map
          * @param response response that contains the real-time status info
          */
-        void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response);
+        void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId);
 
         // Remove the vehicles from the map
         void removeVehicleOverlay();
@@ -235,4 +236,16 @@ public interface MapModeController {
      * For maps that can watch themselves for changes in zoom/center, this is after a change
      */
     void notifyMapChanged();
+
+    interface OnRoutesDataReceivedListener {
+        void onOnRoutesDataReceived(ObaStopsForRouteResponse response);
+    }
+
+    interface OnVehicleDataReceivedListener {
+        void onOnVehicleDataReceived(ObaTripsForRouteResponse response);
+    }
+
+    void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener);
+
+    void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener);
 }

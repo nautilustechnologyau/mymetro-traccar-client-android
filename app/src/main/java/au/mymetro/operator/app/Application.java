@@ -31,6 +31,11 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import java.security.MessageDigest;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+
 import au.mymetro.operator.R;
 import au.mymetro.operator.oba.io.ObaAnalytics;
 import au.mymetro.operator.oba.io.ObaApi;
@@ -38,11 +43,6 @@ import au.mymetro.operator.oba.io.elements.ObaRegion;
 import au.mymetro.operator.oba.provider.ObaContract;
 import au.mymetro.operator.oba.util.LocationUtils;
 import au.mymetro.operator.oba.util.PreferenceUtils;
-
-import java.security.MessageDigest;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
 
 public class Application extends MultiDexApplication {
     private static final String TAG = "Application";
@@ -285,8 +285,10 @@ public class Application extends MultiDexApplication {
         if (region != null) {
             // First set it in preferences, then set it in OBA.
             ObaApi.getDefaultContext().setRegion(region);
-            PreferenceUtils
-                    .saveLong(mPrefs, getString(R.string.preference_key_region), region.getId());
+            PreferenceUtils.saveLong(mPrefs, getString(R.string.preference_key_region), region.getId());
+            if (regionChanged) {
+                PreferenceUtils.saveString(mPrefs, getString(R.string.preference_key_oba_api_key), null);
+            }
             //We're using a region, so clear the custom API URL preference
             setCustomApiUrl(null);
             if (regionChanged && region.getOtpBaseUrl() != null) {

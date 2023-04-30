@@ -58,7 +58,7 @@ public class SimpleArrivalListFragment extends Fragment
 
     public interface Callback {
 
-        void onArrivalItemClicked(ObaArrivalInfo obaArrivalInfo, String agencyName, String blockId, View view);
+        void onArrivalItemClicked(ObaArrivalInfo obaArrivalInfo, ArrivalInfo stopInfo, String agencyName, String blockId, View view);
     }
 
     private ObaStop mObaStop;
@@ -72,6 +72,8 @@ public class SimpleArrivalListFragment extends Fragment
     public static final String TAG = "SimpArrivalListFragment";
 
     private static int ARRIVALS_LIST_LOADER = 3;
+
+    private static int MAX_TRIP_DISPLAYED = 5;
 
     public static void show(AppCompatActivity activity, Integer containerViewId,
                             ObaStop stop, ObaArrivalInfo selectedObaArrivalInfo, Callback callback) {
@@ -196,7 +198,13 @@ public class SimpleArrivalListFragment extends Fragment
         ArrayList<ArrivalInfo> arrivalInfos = ArrivalInfoUtils.convertObaArrivalInfo(getActivity(),
                 info, new ArrayList<String>(), currentTime, false);
 
+        int count = 0;
         for (ArrivalInfo stopInfo : arrivalInfos) {
+            count++;
+            if (count > MAX_TRIP_DISPLAYED) {
+                break;
+            }
+
 
             final ObaArrivalInfo arrivalInfo = stopInfo.getInfo();
 
@@ -286,7 +294,7 @@ public class SimpleArrivalListFragment extends Fragment
             view.setOnClickListener(view1 -> {
                 String agencyName = findAgencyNameByRouteId(refs, arrivalInfo.getRouteId());
                 String blockId = findBlockIdByTripId(refs, arrivalInfo.getTripId());
-                mCallback.onArrivalItemClicked(arrivalInfo, agencyName, blockId, view);
+                mCallback.onArrivalItemClicked(arrivalInfo, stopInfo, agencyName, blockId, view);
             });
         }
     }

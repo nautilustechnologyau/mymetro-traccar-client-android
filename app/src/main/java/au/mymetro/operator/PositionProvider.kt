@@ -21,8 +21,8 @@ import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.location.Location
 import android.os.BatteryManager
-import androidx.preference.PreferenceManager
 import android.util.Log
+import androidx.preference.PreferenceManager
 import kotlin.math.abs
 
 abstract class PositionProvider(

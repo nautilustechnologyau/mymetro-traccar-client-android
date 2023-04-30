@@ -33,16 +33,22 @@ import android.widget.TextView;
 import androidx.collection.LruCache;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +61,7 @@ import au.mymetro.operator.oba.io.elements.ObaTripStatus;
 import au.mymetro.operator.oba.io.elements.OccupancyState;
 import au.mymetro.operator.oba.io.elements.Status;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
+import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.ui.TripDetailsActivity;
 import au.mymetro.operator.oba.ui.TripDetailsListFragment;
 import au.mymetro.operator.oba.util.ArrivalInfoUtils;
@@ -78,7 +85,13 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
     private final Activity mActivity;
 
+    private final BaseMapFragment mMapFragment;
+
     private ObaTripsForRouteResponse mLastResponse;
+
+    private ObaTripStatus mLastStatus;
+
+    private ObaRoute mRoute;
 
     private CustomInfoWindowAdapter mCustomInfoWindowAdapter;
 
@@ -123,8 +136,13 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
      */
     private static final float VEHICLE_MARKER_Z_INDEX = 1;
 
-    public VehicleOverlay(Activity activity, GoogleMap map) {
+    private Location mLastKnownLocation;
+
+    private Location mLastVehicleLocation;
+
+    public VehicleOverlay(Activity activity, BaseMapFragment mapFragment, GoogleMap map) {
         mActivity = activity;
+        mMapFragment = mapFragment;
         mMap = map;
         loadIcons();
         // Set adapter for custom info window that appears when tapping on vehicle markers
@@ -150,13 +168,13 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
      *                 shown on the map.
      * @param response response that contains the real-time status info
      */
-    public void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response) {
+    public void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId) {
         // Make sure that the MarkerData has been initialized
         setupMarkerData();
         // Cache the response, so when a marker is tapped we can look up route names from routeIds, etc.
         mLastResponse = response;
         // Show the markers on the map
-        mMarkerData.populate(routeIds, response);
+        mMarkerData.populate(routeIds, response, tripId);
     }
 
     public synchronized int size() {
@@ -579,6 +597,16 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
     }
 
+    public void onLocationChanged(Location l) {
+        if (l != null) {
+            mLastKnownLocation = l;
+        }
+        if (mMarkerData != null) {
+            mMarkerData.updateCurrentVehicleMarker(l);
+            mMarkerData.updateCameraLocation(l, null);
+        }
+    }
+
     /**
      * Data structures to track what vehicles are currently shown on the map
      */
@@ -602,6 +630,8 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
         private static final int INITIAL_HASHMAP_SIZE = 5;
 
+        private static final String CURRENT_VEHICLE_ID = "Current Vehicle";
+
         MarkerData() {
             mVehicles = new HashMap<>(INITIAL_HASHMAP_SIZE);
             mVehicleMarkers = new HashMap<>(INITIAL_HASHMAP_SIZE);
@@ -617,10 +647,23 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
          *                 as well - we'll only show markers for the routeIds in this HashSet.
          * @param response response that contains the real-time status info
          */
-        synchronized void populate(HashSet<String> routeIds, ObaTripsForRouteResponse response) {
+        synchronized void populate(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId) {
             int added = 0;
             int updated = 0;
-            ObaTripDetails[] trips = response.getTrips();
+
+            List<ObaTripDetails> trips = new ArrayList<>();
+            if (tripId != null) {
+                if (response.getTrips() != null && response.getTrips().length > 0) {
+                    for (ObaTripDetails trip : response.getTrips()) {
+                        if (tripId.equals(trip.getId())) {
+                            trips.add(trip);
+                            mRoute = response.getRoute(response.getTrip(trip.getId()).getRouteId());
+                        }
+                    }
+                }
+            } else {
+                trips.addAll(Arrays.asList(response.getTrips()));
+            }
 
             // Keep track of the activeTripIds that should be shown on the map, so we don't need
             // to iterate again later for this same info
@@ -658,6 +701,20 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                     }
                 }
             }
+
+            if (tripId != null && !trips.isEmpty()) {
+                ObaTripStatus status = trips.get(0).getStatus();
+                if (status != null) {
+                    // double direction = MathUtils.toDirection(status.getOrientation());
+                    // updateCameraBearing((float) direction);
+                    //updateCameraLocation(response, status);
+                    Location l = status.getLastKnownLocation();
+                    if (l == null) {
+                        l = status.getPosition();
+                    }
+                    updateCameraLocation(null, l);
+                }
+            }
             // Remove markers for any previously added tripIds that aren't in the current response
             int removed = removeInactiveMarkers(activeTripIds);
 
@@ -673,6 +730,41 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                     mVehicleUncoloredIcons.size(),
                     mVehicleUncoloredIcons.hitCount(),
                     mVehicleUncoloredIcons.missCount()));
+        }
+
+        public void updateCurrentVehicleMarker(Location l) {
+            if (l == null) {
+                return;
+            }
+
+            Marker m = mVehicleMarkers.get(CURRENT_VEHICLE_ID);
+            if (m == null) {
+                m = mMap.addMarker(new MarkerOptions()
+                        .position(MapHelpV2.makeLatLng(l))
+                        .icon(getCurrentVehicleIcon(l))
+                );
+                ProprietaryMapHelpV2.setZIndex(m, VEHICLE_MARKER_Z_INDEX);
+                mVehicleMarkers.put(CURRENT_VEHICLE_ID, m);
+                mVehicles.put(m, null);
+            } else {
+                boolean showInfo = m.isInfoWindowShown();
+                m.setIcon(getCurrentVehicleIcon(l));
+                // Update Hashmap with newest status - needed to show info when tapping on marker
+                mVehicles.put(m, null);
+                // Update vehicle position
+                Location markerLoc = MapHelpV2.makeLocation(m.getPosition());
+                // If its a small distance, animate the movement
+                if (l.distanceTo(markerLoc) < MAX_VEHICLE_ANIMATION_DISTANCE) {
+                    AnimationUtil.animateMarkerTo(m, MapHelpV2.makeLatLng(l));
+                } else {
+                    // Just snap the marker to the new location - large animations look weird
+                    m.setPosition(MapHelpV2.makeLatLng(l));
+                }
+                // If the info window was shown, make sure its open (changing the icon could have closed it)
+                if (showInfo) {
+                    m.showInfoWindow();
+                }
+            }
         }
 
         /**
@@ -746,6 +838,9 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                 while (iterator.hasNext()) {
                     Map.Entry<String, Marker> entry = iterator.next();
                     String tripId = entry.getKey();
+                    if (CURRENT_VEHICLE_ID.equals(tripId)) {
+                        continue;
+                    }
                     Marker m = entry.getValue();
                     if (!activeTripIds.contains(tripId)) {
                         // Remove the marker from map and data structures
@@ -806,6 +901,26 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
             return BitmapDescriptorFactory.fromBitmap(b);
         }
 
+        /**
+         * Returns an icon for the vehicle that should be shown on the map
+         *
+         * @return an icon for the vehicle that should be shown on the map
+         */
+        private BitmapDescriptor getCurrentVehicleIcon(Location location) {
+            int vehicleType = 0;
+            if (mRoute != null) {
+                vehicleType = mRoute.getType();
+            }
+
+            int colorResource = R.color.quantum_googgreen;
+
+            double direction = MathUtils.toDirection(location.getBearing());
+            int halfWind = MathUtils.getHalfWindIndex((float) direction, NUM_DIRECTIONS - 1);
+
+            Bitmap b = getBitmap(vehicleType, colorResource, halfWind);
+            return BitmapDescriptorFactory.fromBitmap(b);
+        }
+
         synchronized ObaTripStatus getStatusFromMarker(Marker marker) {
             if (marker == null || mVehicles == null) {
                 return null;
@@ -839,6 +954,58 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
         synchronized int size() {
             return mVehicleMarkers.size();
+        }
+
+        private void updateCameraLocation(Location currentLocation, Location vehicleLocation) {
+            if (vehicleLocation != null) {
+                mLastVehicleLocation = vehicleLocation;
+            }
+
+            if (currentLocation == null) {
+                currentLocation = mLastKnownLocation;
+            }
+
+            if (currentLocation == null) {
+                return;
+            }
+
+            if (vehicleLocation == null) {
+                vehicleLocation = mLastVehicleLocation;
+            }
+
+            if (vehicleLocation != null) {
+                LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+                LatLng curLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                LatLng vehicleLatLng = new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude());
+                boundsBuilder.include(curLatLng);
+                boundsBuilder.include(vehicleLatLng);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 10));
+
+                CameraPosition.Builder builder = new CameraPosition.Builder();
+                builder.target(MapHelpV2.makeLatLng(currentLocation));
+                builder.zoom(MapParams.DEFAULT_ZOOM);
+                builder.bearing(currentLocation.getBearing());
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+            } else {
+                CameraPosition.Builder builder = new CameraPosition.Builder();
+                builder.target(MapHelpV2.makeLatLng(currentLocation));
+                // Use default zoom level
+                builder.zoom(MapParams.DEFAULT_ZOOM);
+                builder.bearing(currentLocation.getBearing());
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
+            }
+
+        }
+        public void updateCameraBearing(float bearing) {
+            if (mMap == null) {
+                return;
+            }
+
+            CameraPosition camPos = CameraPosition
+                    .builder(mMap.getCameraPosition())
+                    .bearing(bearing)
+                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
         }
     }
 

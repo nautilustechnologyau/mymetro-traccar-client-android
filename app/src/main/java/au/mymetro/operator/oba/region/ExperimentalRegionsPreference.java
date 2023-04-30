@@ -15,7 +15,6 @@
  */
 package au.mymetro.operator.oba.region;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
@@ -23,6 +22,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.CheckBoxPreference;
 import android.util.AttributeSet;
+
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
@@ -82,7 +85,7 @@ public class ExperimentalRegionsPreference extends CheckBoxPreference {
             Warn the user before enabling, since experimental regions
             may not have real-time info or may be unavailable.
             */
-            AlertDialog dialog = new AlertDialog.Builder(getContext())//, R.style.CustomAlertDialog)
+            androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(getContext())
                     .setMessage(R.string.preferences_experimental_regions_enable_warning)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
@@ -105,7 +108,7 @@ public class ExperimentalRegionsPreference extends CheckBoxPreference {
             if (Application.get().getCurrentRegion() != null &&
                     Application.get().getCurrentRegion().getExperimental()) {
                 // If the user is currently using an experimental region, warn that it won't be available
-                AlertDialog dialog = new AlertDialog.Builder(getContext())//, R.style.CustomAlertDialog)
+                AlertDialog dialog = new MaterialAlertDialogBuilder(getContext())//, R.style.CustomAlertDialog)
                         .setMessage(R.string.preferences_experimental_regions_disable_warning)
                         .setPositiveButton(android.R.string.ok,
                                 new DialogInterface.OnClickListener() {

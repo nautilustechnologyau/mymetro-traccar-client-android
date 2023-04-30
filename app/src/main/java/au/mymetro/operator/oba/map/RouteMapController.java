@@ -40,6 +40,7 @@ import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.ObaApi;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.elements.ObaTripDetails;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteRequest;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteRequest;
@@ -59,6 +60,10 @@ public class RouteMapController implements MapModeController {
     private final Callback mFragment;
 
     private String mRouteId;
+
+    private String mTripId;
+
+    private boolean mShowStop;
 
     private boolean mZoomToRoute;
 
@@ -82,6 +87,12 @@ public class RouteMapController implements MapModeController {
 
     private long mLastUpdatedTimeVehicles;
 
+    private ObaStopsForRouteResponse mStopsForRoutesResponse;
+
+    private OnRoutesDataReceivedListener mOnRoutesDataReceivedListener;
+
+    private OnVehicleDataReceivedListener mOnVehicleDataReceivedListener;
+
     public RouteMapController(Callback callback) {
         mFragment = callback;
         mLineOverlayColor = mFragment.getActivity()
@@ -100,6 +111,12 @@ public class RouteMapController implements MapModeController {
             throw new IllegalArgumentException("args cannot be null");
         }
         String routeId = args.getString(MapParams.ROUTE_ID);
+        String tripId = args.getString(MapParams.TRIP_ID);
+
+        mShowStop = args.getBoolean(MapParams.SHOW_STOP, true);
+        if (!mShowStop) {
+            mFragment.getMapView().removeStopOverlay(true);
+        }
 
         // If the previous map zoom isn't the default, then zoom to that level as a start
         float mapZoom = args.getFloat(MapParams.ZOOM, MapParams.DEFAULT_ZOOM);
@@ -117,6 +134,7 @@ public class RouteMapController implements MapModeController {
 
             // Set up the new route
             mRouteId = routeId;
+            mTripId = tripId;
             mRoutePopup.showLoading();
             mFragment.showProgress(true);
             //mFragment.getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
@@ -215,6 +233,8 @@ public class RouteMapController implements MapModeController {
         outState.putString(MapParams.ROUTE_ID, mRouteId);
         outState.putBoolean(MapParams.ZOOM_TO_ROUTE, mZoomToRoute);
         outState.putBoolean(MapParams.ZOOM_INCLUDE_CLOSEST_VEHICLE, mZoomIncludeClosestVehicle);
+        outState.putBoolean(MapParams.SHOW_STOP, true);
+        outState.putString(MapParams.TRIP_ID, mTripId);
 
         Location centerLocation = mFragment.getMapView().getMapCenterAsLocation();
         outState.putDouble(MapParams.CENTER_LAT, centerLocation.getLatitude());
@@ -260,6 +280,16 @@ public class RouteMapController implements MapModeController {
     @Override
     public void notifyMapChanged() {
         // Don't care
+    }
+
+    @Override
+    public void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener) {
+        mOnRoutesDataReceivedListener = listener;
+    }
+
+    @Override
+    public void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener) {
+        mOnVehicleDataReceivedListener = listener;
     }
 
     //
@@ -427,6 +457,8 @@ public class RouteMapController implements MapModeController {
         public void onLoadFinished(Loader<ObaStopsForRouteResponse> loader,
                 ObaStopsForRouteResponse response) {
 
+            mStopsForRoutesResponse = response;
+
             ObaMapView obaMapView = mFragment.getMapView();
 
             if (response == null || response.getCode() != ObaApi.OBA_OK) {
@@ -446,8 +478,14 @@ public class RouteMapController implements MapModeController {
 
             // Set the stops for this route
             List<ObaStop> stops = response.getStops();
-            mFragment.showStops(stops, response);
-            mFragment.showProgress(false);
+
+            if (mShowStop && mTripId == null) {
+                mFragment.showStops(stops, response);
+            } else {
+                mFragment.showStops(null, response);
+            }
+
+            mFragment.showProgress(true);
 
             if (mZoomToRoute) {
                 obaMapView.zoomToRoute();
@@ -456,6 +494,10 @@ public class RouteMapController implements MapModeController {
             //
             // wait to zoom till we have the right response
             obaMapView.postInvalidate();
+
+            if (mOnRoutesDataReceivedListener != null) {
+                mOnRoutesDataReceivedListener.onOnRoutesDataReceived(response);
+            }
         }
 
         @Override
@@ -532,7 +574,27 @@ public class RouteMapController implements MapModeController {
             routes.clear();
             routes.add(mRouteId);
 
-            obaMapView.updateVehicles(routes, response);
+
+            if (mTripId != null && mStopsForRoutesResponse != null && mShowStop) {
+                ObaTripDetails trip = null;
+                for (ObaTripDetails tripDetails : response.getTrips()) {
+                    if (mTripId.equals(tripDetails.getId())) {
+                        trip = tripDetails;
+                        break;
+                    }
+                }
+
+                if (trip != null) {
+                    String stopId = trip.getStatus().getNextStop();
+                    String[] stopIds = {stopId};
+                    List<ObaStop> stops = response.getStops(stopIds);
+                    if (stops != null) {
+                        mFragment.showStops(stops, response);
+                    }
+                }
+            }
+
+            obaMapView.updateVehicles(routes, response, mTripId);
 
             if (mZoomIncludeClosestVehicle) {
                 obaMapView.zoomIncludeClosestVehicle(routes, response);
@@ -546,6 +608,10 @@ public class RouteMapController implements MapModeController {
 
             // Post an update
             mVehicleRefreshHandler.postDelayed(mVehicleRefresh, VEHICLE_REFRESH_PERIOD);
+
+            if (mOnVehicleDataReceivedListener != null) {
+                mOnVehicleDataReceivedListener.onOnVehicleDataReceived(response);
+            }
         }
 
         @Override

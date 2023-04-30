@@ -17,7 +17,6 @@
 package au.mymetro.operator.oba.region;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,22 +26,25 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
-
-import au.mymetro.operator.R;
-import au.mymetro.operator.app.Application;
-import au.mymetro.operator.oba.io.ObaAnalytics;
-import au.mymetro.operator.oba.util.LocationUtils;
-import au.mymetro.operator.oba.util.UIUtils;
-import au.mymetro.operator.oba.io.elements.ObaRegion;
-import au.mymetro.operator.oba.util.RegionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import au.mymetro.operator.R;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.io.ObaAnalytics;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
+import au.mymetro.operator.oba.util.LocationUtils;
+import au.mymetro.operator.oba.util.RegionUtils;
+import au.mymetro.operator.oba.util.UIUtils;
 
 /**
  * AsyncTask used to refresh region info from the Regions REST API.
@@ -218,7 +220,7 @@ public class ObaRegionsTask extends AsyncTask<Void, Integer, ArrayList<ObaRegion
         final CharSequence[] items = serverNames
                 .toArray(new CharSequence[serverNames.size()]);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext); //, R.style.CustomAlertDialog);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext); //, R.style.CustomAlertDialog);
         builder.setTitle(mContext.getString(R.string.region_choose_region));
         builder.setCancelable(false);
         builder.setItems(items, new DialogInterface.OnClickListener() {

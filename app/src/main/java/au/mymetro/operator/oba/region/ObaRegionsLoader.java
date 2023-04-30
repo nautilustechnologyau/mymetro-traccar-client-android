@@ -20,10 +20,10 @@ import android.content.Context;
 
 import androidx.loader.content.AsyncTaskLoader;
 
+import java.util.ArrayList;
+
 import au.mymetro.operator.oba.io.elements.ObaRegion;
 import au.mymetro.operator.oba.util.RegionUtils;
-
-import java.util.ArrayList;
 
 public class ObaRegionsLoader extends AsyncTaskLoader<ArrayList<ObaRegion>> {
     //private static final String TAG = "ObaRegionsLoader";

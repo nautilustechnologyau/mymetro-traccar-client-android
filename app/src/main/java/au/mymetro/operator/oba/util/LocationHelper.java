@@ -35,11 +35,11 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
-import au.mymetro.operator.app.Application;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import au.mymetro.operator.app.Application;
 
 /**
  * A helper class that keeps listeners updated with the best location available from

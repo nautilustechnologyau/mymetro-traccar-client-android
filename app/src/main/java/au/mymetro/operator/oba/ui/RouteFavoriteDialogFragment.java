@@ -16,7 +16,6 @@
 
 package au.mymetro.operator.oba.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -25,6 +24,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import au.mymetro.operator.R;
 import au.mymetro.operator.oba.provider.ObaContract;
@@ -176,7 +177,7 @@ public class RouteFavoriteDialogFragment extends DialogFragment {
         values.put(ObaContract.Routes.SHORTNAME, routeShortName);
         values.put(ObaContract.Routes.LONGNAME, routeLongName);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.CustomAlertDialog);
 
         // Default to the first element in the list, which is "This stop"
         mSelectedItem = SELECTION_THIS_STOP;

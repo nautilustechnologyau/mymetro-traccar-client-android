@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!--
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -53,12 +56,14 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/apiv2_key"/>
+            android:value="@string/google_maps_api_key"/>
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTask" />
+            android:exported="false" />
         <activity
             android:name=".StatusActivity"
             android:exported="false" />
@@ -76,6 +81,9 @@
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".oba.ui.TripDetailsActivity"
+            android:exported="false" />
 
         <service
             android:name=".TrackingService"
@@ -107,7 +115,7 @@
             <!-- resource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"></meta-data>
+                android:resource="@xml/provider_paths"/>
         </provider>
     </application>
 

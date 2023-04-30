@@ -17,11 +17,11 @@ package au.mymetro.operator
 
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.util.SparseArray
-import android.os.PowerManager.WakeLock
 import android.content.Intent
-import androidx.core.content.ContextCompat
 import android.os.PowerManager
+import android.os.PowerManager.WakeLock
+import android.util.SparseArray
+import androidx.core.content.ContextCompat
 
 abstract class WakefulBroadcastReceiver : BroadcastReceiver() {
 

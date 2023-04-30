@@ -17,7 +17,6 @@ package au.mymetro.operator
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
@@ -39,6 +38,10 @@ class TrackingService : Service() {
 
     private var wakeLock: WakeLock? = null
     private var trackingController: TrackingController? = null
+    private var tripId: String = ""
+    private var routeId: String = ""
+    private var blockId: String = ""
+
 
     class HideNotificationService : Service() {
         override fun onBind(intent: Intent): IBinder? {
@@ -70,8 +73,12 @@ class TrackingService : Service() {
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, javaClass.name)
                 wakeLock?.acquire()
             }
-            trackingController = TrackingController(this)
-            trackingController?.start()
+
+            /*Log.d(TAG, "Starting tracking controller with tripId: " + tripId)
+            Log.d(TAG, "Starting tracking controller with routeId: " + routeId)
+            Log.d(TAG, "Starting tracking controller with blockId: " + blockId)
+            trackingController = TrackingController(this, tripId, routeId, blockId)
+            trackingController?.start()*/
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -83,9 +90,22 @@ class TrackingService : Service() {
         return null
     }
 
-    @TargetApi(Build.VERSION_CODES.ECLAIR)
+    // @TargetApi(Build.VERSION_CODES.ECLAIR)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Log.d(TAG, "Starting tracking service with intent: " + intent)
+        tripId = intent?.extras?.getString("tripId", "")!!
+        Log.d(TAG, "Starting tracking service with tripId: " + tripId)
+        routeId = intent.extras?.getString("routeId", "")!!
+        Log.d(TAG, "Starting tracking service with routeId: " + routeId)
+        blockId = intent.extras?.getString("blockId", "")!!
+        Log.d(TAG, "Starting tracking service with blockId: " + blockId)
         WakefulBroadcastReceiver.completeWakefulIntent(intent)
+
+        if (trackingController == null) {
+            trackingController = TrackingController(this, tripId, routeId, blockId)
+            trackingController?.start()
+        }
+
         return START_STICKY
     }
 
@@ -116,7 +136,7 @@ class TrackingService : Service() {
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
             val intent: Intent
             if (!BuildConfig.HIDDEN_APP) {
-                intent = Intent(context, MainActivity::class.java)
+                intent = Intent(context, HomeActivity::class.java)
                 builder
                     .setContentTitle(context.getString(R.string.settings_status_on_summary))
                     .setTicker(context.getString(R.string.settings_status_on_summary))

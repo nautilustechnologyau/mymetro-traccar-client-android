@@ -15,12 +15,12 @@
  */
 package au.mymetro.operator
 
-import androidx.appcompat.app.AppCompatActivity
-import android.widget.ArrayAdapter
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
 import java.text.DateFormat
 import java.util.*
 

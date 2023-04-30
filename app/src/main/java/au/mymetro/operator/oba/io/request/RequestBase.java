@@ -21,14 +21,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-import au.mymetro.operator.oba.io.ObaApi;
-import au.mymetro.operator.oba.io.ObaConnection;
-import au.mymetro.operator.oba.io.ObaContext;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+
+import au.mymetro.operator.oba.io.ObaApi;
+import au.mymetro.operator.oba.io.ObaConnection;
+import au.mymetro.operator.oba.io.ObaContext;
 
 /**
  * The base class for Oba requests.

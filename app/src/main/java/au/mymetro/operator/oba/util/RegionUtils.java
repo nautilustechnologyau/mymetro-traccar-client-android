@@ -25,17 +25,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
 
-import au.mymetro.operator.R;
-import au.mymetro.operator.app.Application;
-import au.mymetro.operator.oba.io.ObaContext;
-import au.mymetro.operator.oba.io.request.ObaCurrentTimeRequest;
-import au.mymetro.operator.oba.io.request.ObaCurrentTimeResponse;
-import au.mymetro.operator.oba.io.request.ObaRegionsRequest;
-import au.mymetro.operator.oba.io.request.ObaRegionsResponse;
-import au.mymetro.operator.oba.io.elements.ObaRegion;
-import au.mymetro.operator.oba.io.elements.ObaRegionElement;
-import au.mymetro.operator.oba.provider.ObaContract;
-
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -44,6 +33,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
+import au.mymetro.operator.R;
+import au.mymetro.operator.app.Application;
+import au.mymetro.operator.oba.io.ObaContext;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
+import au.mymetro.operator.oba.io.elements.ObaRegionElement;
+import au.mymetro.operator.oba.io.request.ObaCurrentTimeRequest;
+import au.mymetro.operator.oba.io.request.ObaCurrentTimeResponse;
+import au.mymetro.operator.oba.io.request.ObaRegionsRequest;
+import au.mymetro.operator.oba.io.request.ObaRegionsResponse;
+import au.mymetro.operator.oba.provider.ObaContract;
 
 /**
  * A class containing utility methods related to handling multiple regions in OneBusAway

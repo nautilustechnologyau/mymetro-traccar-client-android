@@ -64,6 +64,9 @@ import androidx.core.util.Pair;
 import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
+
 import org.onebusaway.util.comparators.AlphanumComparator;
 
 import java.util.ArrayList;
@@ -163,7 +166,7 @@ public final class UIUtils {
     }
 
     public static void showObaApiKeyInputDialog(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         builder.setTitle(context.getString(R.string.oba_api_key_dialog_title,
                 Application.get().getCurrentRegion().getName()));
 
@@ -176,7 +179,7 @@ public final class UIUtils {
         // Set up the buttons
         builder.setPositiveButton(R.string.oba_api_key_dialog_ok, null);
 
-        final AlertDialog dialog = builder.create();
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
 
         ApiKeyCheckerTask checkerTask = new ApiKeyCheckerTask();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -1336,7 +1339,7 @@ public final class UIUtils {
      * @return an AlertDialog with the given title and message
      */
     public static androidx.appcompat.app.AlertDialog buildAlertDialog(Context context, String title, String message) {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomAlertDialog);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         builder.setTitle(title);
         builder.setMessage(message);
         return builder.create();
@@ -1459,5 +1462,16 @@ public final class UIUtils {
             default:
                 return R.string.map_generic_error;
         }
+    }
+
+    public static void popupSnackbarForApiKey(Activity context) {
+        Snackbar snackbar =
+                Snackbar.make(
+                        context.findViewById(R.id.home_layout),
+                        R.string.oba_api_key_invalid,
+                        Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("ENTER", view -> UIUtils.showObaApiKeyInputDialog(context));
+        // snackbar.setActionTextColor(context.getResources().getColor(R.color.theme_primary));
+        snackbar.show();
     }
 }

@@ -59,6 +59,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
@@ -78,6 +79,7 @@ import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.request.ObaResponse;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
+import au.mymetro.operator.oba.map.DirectionsMapController;
 import au.mymetro.operator.oba.map.MapModeController;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.map.RouteMapController;
@@ -121,7 +123,7 @@ public class BaseMapFragment extends SupportMapFragment
     //
     // Location Services and Maps API v2 constants
     //
-    public static final float CAMERA_DEFAULT_ZOOM = 16.0f;
+    public static final float CAMERA_DEFAULT_ZOOM = 18.0f;
 
     public static final float DEFAULT_MAP_PADDING_DP = 20.0f;
 
@@ -176,11 +178,13 @@ public class BaseMapFragment extends SupportMapFragment
     OnProgressBarChangedListener mOnProgressBarChangedListener;
 
     // Listen to location permission request results
-    OnLocationPermissionResultListener mOnLocationPermissionResultListener;
+    static OnLocationPermissionResultListener mOnLocationPermissionResultListener;
 
     LocationHelper mLocationHelper;
 
-    Bundle mLastSavedInstanceState;
+    Bundle mLastSavedInstanceState = new Bundle();
+
+    //Bundle mMapInfo = new Bundle();
 
     private boolean mUserDeniedPermission = false;
 
@@ -189,6 +193,8 @@ public class BaseMapFragment extends SupportMapFragment
     private AlertDialog locationPermissionDialog;
 
     public SingleLiveEvent<Marker> markerClickEvent = new SingleLiveEvent<>();
+
+    private Marker mCurrLocationMarker;
 
     @Override
     public void onActivateLayer(LayerInfo layer) {
@@ -271,6 +277,14 @@ public class BaseMapFragment extends SupportMapFragment
         return new BaseMapFragment();
     }
 
+    public static BaseMapFragment newInstance(Bundle state) {
+        BaseMapFragment instance = newInstance();
+        if (state != null) {
+            instance.mLastSavedInstanceState.putAll(state);
+        }
+        return instance;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -284,7 +298,9 @@ public class BaseMapFragment extends SupportMapFragment
 
         if (MapHelpV2.isMapsInstalled(getActivity())) {
             // Save the savedInstanceState
-            mLastSavedInstanceState = savedInstanceState;
+            if (savedInstanceState != null) {
+                mLastSavedInstanceState.putAll(savedInstanceState);
+            }
             // Register for an async callback when the map is ready
             getMapAsync(this);
         } else {
@@ -352,9 +368,12 @@ public class BaseMapFragment extends SupportMapFragment
         // Listener for camera changes
         mMap.setOnCameraChangeListener(this);
         // Hide MyLocation button on map, since we have our own button
-        uiSettings.setMyLocationButtonEnabled(false);
+        uiSettings.setMyLocationButtonEnabled(true);
         // Hide Toolbar
-        uiSettings.setMapToolbarEnabled(false);
+        uiSettings.setMapToolbarEnabled(true);
+        uiSettings.setCompassEnabled(true);
+        uiSettings.setZoomControlsEnabled(true);
+        uiSettings.setZoomGesturesEnabled(true);
         // Instantiate class that holds generic markers to be added by outside classes
         mSimpleMarkerOverlay = new SimpleMarkerOverlay(mMap);
 
@@ -558,7 +577,7 @@ public class BaseMapFragment extends SupportMapFragment
     public void setupVehicleOverlay() {
         Activity a = getActivity();
         if (mVehicleOverlay == null && a != null) {
-            mVehicleOverlay = new VehicleOverlay(a, mMap);
+            mVehicleOverlay = new VehicleOverlay(a, this, mMap);
             mVehicleOverlay.setController(this);
         }
     }
@@ -588,13 +607,13 @@ public class BaseMapFragment extends SupportMapFragment
     }
 
     @Override
-    public void setMapMode(String mode, Bundle args) {
+    public MapModeController setMapMode(String mode, Bundle args) {
         String oldMode = getMapMode();
         if (oldMode != null && oldMode.equals(mode)) {
             for (MapModeController controller : mControllers) {
                 controller.setState(args);
             }
-            return;
+            return null;
         }
         if (mControllers != null) {
             for (MapModeController controller : mControllers) {
@@ -610,24 +629,54 @@ public class BaseMapFragment extends SupportMapFragment
         //BikeshareMapController bikeshareMapController = new BikeshareMapController(this);
         //setupBikeStationOverlay(MapParams.MODE_DIRECTIONS.equals(mode));
         if (MapParams.MODE_ROUTE.equals(mode)) {
+            removeMapController(MapParams.MODE_ROUTE);
             RouteMapController controller = new RouteMapController(this);
             mControllers.add(controller);
             //bikeshareMapController.setMode(controller.getMode());
         } else if (MapParams.MODE_STOP.equals(mode)) {
+            removeMapController(MapParams.MODE_STOP);
             StopMapController controller = new StopMapController(this);
             mControllers.add(controller);
             //bikeshareMapController.setMode(controller.getMode());
-        } /*else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
+        } else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
+            removeMapController(MapParams.MODE_DIRECTIONS);
             DirectionsMapController controller = new DirectionsMapController(this);
             mControllers.add(controller);
-            bikeshareMapController.setMode(controller.getMode());
-        }*/
+            // bikeshareMapController.setMode(controller.getMode());
+        }
         //mControllers.add(bikeshareMapController);
         for (MapModeController controller : mControllers) {
             controller.setState(args);
             controller.onResume();
         }
         mMapMode = mode;
+
+        return mControllers.isEmpty() ? null : mControllers.get(0);
+    }
+
+    private void removeMapController(String mapMode) {
+        if (mControllers == null) {
+            return;
+        }
+
+        for (MapModeController controller : mControllers) {
+            if (controller.getMode().equals(mapMode)) {
+                mControllers.remove(controller);
+            }
+        }
+    }
+
+    public MapModeController getMapController(String mapMode) {
+        if (mControllers == null) {
+            return null;
+        }
+        for (MapModeController controller : mControllers) {
+            if (controller.getMode().equals(mapMode)) {
+                return controller;
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -779,7 +828,7 @@ public class BaseMapFragment extends SupportMapFragment
         mOnProgressBarChangedListener = onProgressBarChangedListener;
     }
 
-    public void setOnLocationPermissionResultListener(OnLocationPermissionResultListener onLocationPermissionResultListener) {
+    public static void setOnLocationPermissionResultListener(OnLocationPermissionResultListener onLocationPermissionResultListener) {
         mOnLocationPermissionResultListener = onLocationPermissionResultListener;
     }
 
@@ -856,6 +905,14 @@ public class BaseMapFragment extends SupportMapFragment
         return true;
     }
 
+    public void setMyLocation() {
+        GoogleApiClient apiClient = null;
+        if (mLocationHelper != null) {
+            apiClient = mLocationHelper.getGoogleApiClient();
+        }
+        Location lastLocation = Application.getLastKnownLocation(getActivity(), apiClient);
+        setMyLocation(lastLocation, true, true);
+    }
     private void setMyLocation(Location l, boolean useDefaultZoom, boolean animateToLocation) {
         if (mMap != null) {
             // Move camera to current location
@@ -1076,10 +1133,10 @@ public class BaseMapFragment extends SupportMapFragment
      * @param response response that contains the real-time status info
      */
     @Override
-    public void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response) {
+    public void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId) {
         setupVehicleOverlay();
         if (mVehicleOverlay != null) {
-            mVehicleOverlay.updateVehicles(routeIds, response);
+            mVehicleOverlay.updateVehicles(routeIds, response, tripId);
         }
     }
 
@@ -1240,10 +1297,33 @@ public class BaseMapFragment extends SupportMapFragment
     }
 
     public void onLocationChanged(Location l) {
+        if (l == null) {
+            return;
+        }
+
+        LatLng latLng = new LatLng(l.getLatitude(), l.getLongitude());
+
         if (mListener != null) {
             // Show real-time location on map
             mListener.onLocationChanged(l);
         }
+
+        if (mVehicleOverlay != null) {
+            mVehicleOverlay.onLocationChanged(l);
+        }
+
+        /*if (mMap != null) {
+            if (mCurrLocationMarker != null) {
+                mCurrLocationMarker.setPosition(latLng);
+            } else {
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(latLng);
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                mCurrLocationMarker = mMap.addMarker(markerOptions);
+            }
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, MapParams.DEFAULT_ZOOM));
+        }*/
     }
 
     @Override
@@ -1316,7 +1396,7 @@ public class BaseMapFragment extends SupportMapFragment
             Drawable icon = getResources().getDrawable(android.R.drawable.ic_dialog_map);
             DrawableCompat.setTint(icon, getResources().getColor(R.color.theme_primary));
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity())
                     .setTitle(R.string.main_outofrange_title)
                     .setIcon(icon)
                     .setCancelable(false)
@@ -1354,7 +1434,7 @@ public class BaseMapFragment extends SupportMapFragment
             Drawable icon = getResources().getDrawable(android.R.drawable.ic_dialog_map);
             DrawableCompat.setTint(icon, getResources().getColor(R.color.theme_primary));
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity())
                     .setTitle(R.string.main_nolocation_title)
                     .setIcon(icon)
                     .setCancelable(false)
@@ -1391,7 +1471,7 @@ public class BaseMapFragment extends SupportMapFragment
         if (locationPermissionDialog != null && locationPermissionDialog.isShowing()) {
             return;
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog)
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity())
                 .setTitle(R.string.location_permissions_title)
                 .setMessage(R.string.location_permissions_message)
                 .setCancelable(false)

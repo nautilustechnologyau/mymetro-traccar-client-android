@@ -17,9 +17,9 @@ package au.mymetro.operator.oba.io.elements;
 
 import android.location.Location;
 
-import au.mymetro.operator.oba.util.LocationUtils;
-
 import java.io.Serializable;
+
+import au.mymetro.operator.oba.util.LocationUtils;
 
 public interface ObaTripStatus {
 

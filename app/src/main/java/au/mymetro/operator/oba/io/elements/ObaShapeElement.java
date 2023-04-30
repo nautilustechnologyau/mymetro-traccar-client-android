@@ -17,10 +17,10 @@ package au.mymetro.operator.oba.io.elements;
 
 import android.location.Location;
 
-import au.mymetro.operator.oba.util.LocationUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import au.mymetro.operator.oba.util.LocationUtils;
 
 public final class ObaShapeElement implements ObaShape {
 

@@ -25,7 +25,7 @@ class DialLaunchReceiver : BroadcastReceiver() {
         val phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER)
         if (phoneNumber == LAUNCHER_NUMBER) {
             resultData = null
-            val appIntent = Intent(context, MainActivity::class.java)
+            val appIntent = Intent(context, HomeActivity::class.java)
             appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(appIntent)
         }

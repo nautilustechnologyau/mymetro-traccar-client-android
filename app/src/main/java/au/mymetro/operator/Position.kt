@@ -21,19 +21,22 @@ import android.os.Build
 import java.util.*
 
 data class Position(
-    val id: Long = 0,
-    val deviceId: String,
-    val time: Date,
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
-    val altitude: Double = 0.0,
-    val speed: Double = 0.0,
-    val course: Double = 0.0,
-    val accuracy: Double = 0.0,
-    val battery: Double = 0.0,
-    val charging: Boolean = false,
-    val mock: Boolean = false,
+        val id: Long = 0,
+        val deviceId: String,
+        val time: Date,
+        val latitude: Double = 0.0,
+        val longitude: Double = 0.0,
+        val altitude: Double = 0.0,
+        val speed: Double = 0.0,
+        val course: Double = 0.0,
+        val accuracy: Double = 0.0,
+        val battery: Double = 0.0,
+        val charging: Boolean = false,
+        val mock: Boolean = false,
 ) {
+    var tripId: String = ""
+    var routeId: String = ""
+    var blockId: String = ""
 
     constructor(deviceId: String, location: Location, battery: BatteryStatus) : this(
         deviceId = deviceId,
@@ -57,7 +60,7 @@ data class Position(
             location.isFromMockProvider
         } else {
             false
-        },
+        }
     )
 }
 

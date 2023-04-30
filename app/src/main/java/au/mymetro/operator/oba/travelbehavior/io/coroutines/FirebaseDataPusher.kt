@@ -19,10 +19,10 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import au.mymetro.operator.R
 import au.mymetro.operator.app.Application
 import au.mymetro.operator.oba.travelbehavior.utils.TravelBehaviorUtils
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.firestore.FirebaseFirestore
 
 const val TAG = "FirebaseDataPusher"
@@ -99,7 +99,7 @@ class FirebaseDataPusher {
     }
 
     private fun showAlertDialog(context: Context, @StringRes title: Int, @StringRes summary: Int) {
-        val dialog = AlertDialog.Builder(context, R.style.CustomAlertDialog)
+        val dialog = MaterialAlertDialogBuilder(context, R.style.CustomAlertDialog)
         dialog.apply {
             setTitle(title)
             setMessage(

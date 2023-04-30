@@ -5,8 +5,20 @@
         <item name="colorPrimaryVariant">#0F9D58</item>
         <item name="colorOnPrimary">#000</item>
     </style>
-
-    <style name="CustomAlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+    <!--ThemeOverlay.MaterialComponents.Dialog.Alert-->
+    <style name="CustomAlertDialog" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="android:windowBackground">@drawable/popup_background</item>
+    </style>
+
+    <!-- customised card view for trip details -->
+    <style name="TripExtDetailsCardView" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.MaterialCardView.Cut</item>
+    </style>
+    <style name="ShapeAppearanceOverlay.MaterialCardView.Cut" parent="">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSizeTopRight">0dp</item>
+        <item name="cornerSizeTopLeft">0dp</item>
+        <item name="cornerSizeBottomRight">16dp</item>
+        <item name="cornerSizeBottomLeft">16dp</item>
     </style>
 </resources>

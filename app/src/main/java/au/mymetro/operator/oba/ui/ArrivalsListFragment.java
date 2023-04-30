@@ -19,8 +19,6 @@
 package au.mymetro.operator.oba.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ContentQueryMap;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -48,12 +46,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 import androidx.fragment.app.DialogFragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
@@ -121,7 +121,7 @@ public class ArrivalsListFragment extends ListFragment
      */
     public static final String EXTERNAL_HEADER = ".ExternalHeader";
 
-    private static final long RefreshPeriod = 60 * 1000;
+    private static final long RefreshPeriod = 15 * 1000;
 
     private static int TRIPS_FOR_STOP_LOADER = 1;
 
@@ -709,7 +709,7 @@ public class ArrivalsListFragment extends ListFragment
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.CustomAlertDialog);
         builder.setTitle(R.string.stop_info_item_options_title);
 
         final String routeId = arrivalInfo.getInfo().getRouteId();
@@ -809,7 +809,7 @@ public class ArrivalsListFragment extends ListFragment
                 }
             }
         });
-        AlertDialog dialog = builder.create();
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.setOwnerActivity(getActivity());
         dialog.show();
     }
@@ -1176,7 +1176,7 @@ public class ArrivalsListFragment extends ListFragment
             mListener.onSortBySelected();
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.CustomAlertDialog);
         builder.setTitle(R.string.menu_option_sort_by);
 
         int currentArrivalInfoStyle = BuildFlavorUtils.getArrivalInfoStyleFromPreferences();
@@ -1344,7 +1344,7 @@ public class ArrivalsListFragment extends ListFragment
         private boolean[] mChecks;
 
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public AlertDialog onCreateDialog(Bundle savedInstanceState) {
             Bundle args = getArguments();
             String[] items = args.getStringArray(ITEMS);
             mChecks = args.getBooleanArray(CHECKS);
@@ -1352,7 +1352,7 @@ public class ArrivalsListFragment extends ListFragment
                 mChecks = args.getBooleanArray(CHECKS);
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog);
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
             return builder.setTitle(R.string.stop_info_filter_title)
                     .setMultiChoiceItems(items, mChecks, this)
                     .setPositiveButton(R.string.stop_info_save, this)
@@ -1740,8 +1740,8 @@ public class ArrivalsListFragment extends ListFragment
      *
      * @return the dialog that will be shown to the user to explain the occupancy feature
      */
-    private Dialog createOccupancyDialog() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getContext());
+    private androidx.appcompat.app.AlertDialog createOccupancyDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
         builder.setTitle(R.string.menu_title_about_occupancy);
 
         LayoutInflater inflater = LayoutInflater.from(getContext());

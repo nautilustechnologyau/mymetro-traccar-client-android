@@ -231,4 +231,12 @@ public abstract class BaseMapController implements MapModeController,
         Log.d(TAG, "Map changed (called by MapView)");
         refresh();
     }
+
+    @Override
+    public void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener) {
+    }
+
+    @Override
+    public void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener) {
+    }
 }

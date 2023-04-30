@@ -15,14 +15,14 @@
  */
 package au.mymetro.operator
 
-import androidx.multidex.MultiDexApplication
 import android.annotation.TargetApi
+import android.app.Activity
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Notification
 import android.graphics.Color
 import android.os.Build
-import android.app.Activity
+import androidx.multidex.MultiDexApplication
 
 open class MainApplication : MultiDexApplication() {
 

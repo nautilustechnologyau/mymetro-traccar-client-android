@@ -16,19 +16,22 @@
 package au.mymetro.operator
 
 import android.content.Context
-import au.mymetro.operator.ProtocolFormatter.formatRequest
-import au.mymetro.operator.RequestManager.sendRequestAsync
-import au.mymetro.operator.PositionProvider.PositionListener
-import au.mymetro.operator.NetworkManager.NetworkHandler
 import android.os.Handler
 import android.os.Looper
-import androidx.preference.PreferenceManager
 import android.util.Log
+import androidx.preference.PreferenceManager
 import au.mymetro.operator.DatabaseHelper.DatabaseHandler
+import au.mymetro.operator.NetworkManager.NetworkHandler
+import au.mymetro.operator.PositionProvider.PositionListener
+import au.mymetro.operator.ProtocolFormatter.formatRequest
 import au.mymetro.operator.RequestManager.RequestHandler
+import au.mymetro.operator.RequestManager.sendRequestAsync
 import au.mymetro.operator.ui.notifications.NotificationsFragment
 
-class TrackingController(private val context: Context) : PositionListener, NetworkHandler {
+class TrackingController(private val context: Context,
+                         private val tripId: String,
+                         private val routeId: String,
+                         private val blockId: String) : PositionListener, NetworkHandler {
 
     private val handler = Handler(Looper.getMainLooper())
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -67,6 +70,9 @@ class TrackingController(private val context: Context) : PositionListener, Netwo
     override fun onPositionUpdate(position: Position) {
         //StatusActivity.addMessage(context.getString(R.string.status_location_update))
         NotificationsFragment.addMessage(context.getString(R.string.status_location_update))
+        position.tripId = tripId
+        position.routeId = routeId
+        position.blockId = blockId
         if (buffer) {
             write(position)
         } else {

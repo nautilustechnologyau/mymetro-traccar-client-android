@@ -82,6 +82,11 @@ public class ArrivalInfoUtils {
         return result;
     }
 
+    public static ArrivalInfo convertObaArrivalInfo(Context context, ObaArrivalInfo arrivalInfo,
+                                                               boolean includeArrivalDepartureInStatusLabel) {
+        return new ArrivalInfo(context, arrivalInfo, System.currentTimeMillis(), includeArrivalDepartureInStatusLabel);
+    }
+
     /**
      * Returns true if this ETA should be added based on the user preference for adding negative
      * arrival times, and false if it should not

@@ -67,7 +67,10 @@ class DatabaseHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAM
                     "accuracy REAL," +
                     "battery REAL," +
                     "charging INTEGER," +
-                    "mock INTEGER)"
+                    "mock INTEGER," +
+                    "tripId TEXT," +
+                    "routeId TEXT," +
+                    "blockId TEXT)"
         )
     }
 
@@ -94,6 +97,9 @@ class DatabaseHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAM
         values.put("battery", position.battery)
         values.put("charging", if (position.charging) 1 else 0)
         values.put("mock", if (position.mock) 1 else 0)
+        values.put("tripId", position.tripId)
+        values.put("routeId", position.routeId)
+        values.put("blockId", position.blockId)
         db.insertOrThrow("position", null, values)
     }
 
@@ -110,7 +116,7 @@ class DatabaseHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAM
         db.rawQuery("SELECT * FROM position ORDER BY id LIMIT 1", null).use { cursor ->
             if (cursor.count > 0) {
                 cursor.moveToFirst()
-                return Position(
+                val position = Position(
                     id = cursor.getLong(cursor.getColumnIndex("id")),
                     deviceId = cursor.getString(cursor.getColumnIndex("deviceId")),
                     time = Date(cursor.getLong(cursor.getColumnIndex("time"))),
@@ -124,6 +130,11 @@ class DatabaseHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAM
                     charging = cursor.getInt(cursor.getColumnIndex("charging")) > 0,
                     mock = cursor.getInt(cursor.getColumnIndex("mock")) > 0,
                 )
+
+                position.tripId = cursor.getString(cursor.getColumnIndex("tripId"))
+                position.routeId = cursor.getString(cursor.getColumnIndex("routeId"))
+                position.blockId = cursor.getString(cursor.getColumnIndex("blockId"))
+                return position
             }
         }
         return null
@@ -153,7 +164,7 @@ class DatabaseHelper(context: Context?) : SQLiteOpenHelper(context, DATABASE_NAM
 
     companion object {
         const val DATABASE_VERSION = 4
-        const val DATABASE_NAME = "traccar.db"
+        const val DATABASE_NAME = "mymetro-operator.db"
     }
 
 }

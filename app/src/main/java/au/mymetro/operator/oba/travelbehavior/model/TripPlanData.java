@@ -15,9 +15,9 @@
  */
 package au.mymetro.operator.oba.travelbehavior.model;
 
-import org.opentripplanner.api.model.TripPlan;
-
 import android.location.Location;
+
+import org.opentripplanner.api.model.TripPlan;
 
 public class TripPlanData {
     public TravelBehaviorInfo.LocationInfo locationInfo;

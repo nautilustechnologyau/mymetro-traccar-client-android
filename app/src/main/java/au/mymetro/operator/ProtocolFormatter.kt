@@ -31,8 +31,9 @@ object ProtocolFormatter {
             .appendQueryParameter("altitude", position.altitude.toString())
             .appendQueryParameter("accuracy", position.accuracy.toString())
             .appendQueryParameter("batt", position.battery.toString())
-            .appendQueryParameter("driverUniqueId", "TEST123")
-            .appendQueryParameter("tripId", "MRT61001S")
+            .appendQueryParameter("tripId", position.tripId)
+            .appendQueryParameter("routeId", position.routeId)
+            .appendQueryParameter("blockId", position.blockId)
 
         if (position.charging) {
             builder.appendQueryParameter("charge", position.charging.toString())

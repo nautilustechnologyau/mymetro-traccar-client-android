@@ -29,10 +29,10 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.concurrent.TimeUnit;
+
 import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.elements.ObaRegion;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Utilities to help obtain and process location data

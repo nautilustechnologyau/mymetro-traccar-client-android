@@ -15,7 +15,6 @@
  */
 package au.mymetro.operator.oba.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -47,6 +46,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -480,7 +481,7 @@ public class TripInfoActivity extends AppCompatActivity {
                     mChecks = args.getBooleanArray(CHECKS);
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog);
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.CustomAlertDialog);
                 return builder.setTitle(R.string.trip_info_reminder_repeat)
                         .setMultiChoiceItems(R.array.reminder_days, mChecks, this)
                         .setPositiveButton(R.string.trip_info_save, this)
@@ -522,7 +523,7 @@ public class TripInfoActivity extends AppCompatActivity {
                 Bundle args = getArguments();
                 final Uri tripUri = args.getParcelable("uri");
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.CustomAlertDialog);
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity(), R.style.CustomAlertDialog);
                 builder
                         .setMessage(R.string.trip_info_delete_trip)
                         .setTitle(R.string.trip_info_delete)

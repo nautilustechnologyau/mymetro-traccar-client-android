@@ -23,14 +23,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
-import androidx.appcompat.app.AlertDialog
 import androidx.preference.PreferenceManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.judemanutd.autostarter.AutoStartPermissionHelper
 
 class BatteryOptimizationHelper {
 
     private fun showDialog(context: Context, onSuccess: () -> Unit) {
-        val builder = AlertDialog.Builder(context)
+        val builder = MaterialAlertDialogBuilder(context)
         builder.setMessage(context.getString(R.string.request_exception))
         builder.setPositiveButton(android.R.string.ok) { _, _ -> onSuccess() }
         builder.setNegativeButton(android.R.string.cancel, null)
