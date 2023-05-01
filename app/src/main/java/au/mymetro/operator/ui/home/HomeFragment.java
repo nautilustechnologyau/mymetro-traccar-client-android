@@ -43,6 +43,7 @@ import au.mymetro.operator.oba.util.UIUtils;
 
 public class HomeFragment extends Fragment
         implements BaseMapFragment.OnFocusChangedListener,
+        BaseMapFragment.LocationChangedListener,
         SimpleArrivalListFragment.Callback,
         MapModeController.OnRoutesDataReceivedListener,
         MapModeController.OnVehicleDataReceivedListener {
@@ -166,11 +167,25 @@ public class HomeFragment extends Fragment
     }
 
     @Override
-    public void onOnRoutesDataReceived(ObaStopsForRouteResponse response) {
+    public void onLocationChanged(Location location) {
+        if (!MapParams.MODE_ROUTE.equals(homeViewModel.getMapMode().getValue())) {
+            return;
+        }
+
+        if (location == null) {
+            return;
+        }
+
+        double speed = location.getSpeed();
+        binding.tripInfoSpeed.setText(String.format("%f kmh", speed));
     }
 
     @Override
-    public void onOnVehicleDataReceived(ObaTripsForRouteResponse response) {
+    public void onRoutesDataReceived(ObaStopsForRouteResponse response) {
+    }
+
+    @Override
+    public void onVehicleDataReceived(ObaTripsForRouteResponse response) {
         Log.d(TAG, "Vehicle data received: " + response);
         if (response == null) {
             return;
@@ -328,6 +343,7 @@ public class HomeFragment extends Fragment
         if (mapMode == null || mapMode.equals(MapParams.MODE_STOP)) {
             binding.selectStopHeader.setVisibility(View.VISIBLE);
             binding.tripInfoHeader.setVisibility(View.GONE);
+            binding.tripInfoFabsPanel.setVisibility(View.GONE);
 
             if (stop == null) {
                 binding.selectStopInfoText.setText(R.string.report_dialog_stop_header);
@@ -345,6 +361,7 @@ public class HomeFragment extends Fragment
         } else {
             binding.selectStopHeader.setVisibility(View.GONE);
             binding.tripInfoHeader.setVisibility(View.VISIBLE);
+            binding.tripInfoFabsPanel.setVisibility(View.VISIBLE);
 
             /*binding.tripInfoRoute.setText(routeName);
             binding.tripInfoHeadsign.setText(headsign);

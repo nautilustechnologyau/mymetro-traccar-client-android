@@ -413,7 +413,7 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     private void onServiceStatus(Boolean status) {
         if (!status) {
-            stopTrackingService();
+            onClickFAB();
         }
     }
 

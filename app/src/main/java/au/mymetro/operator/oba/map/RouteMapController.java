@@ -43,6 +43,8 @@ import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.elements.ObaTripDetails;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteRequest;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsRequest;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteRequest;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
 import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment;
@@ -85,11 +87,21 @@ public class RouteMapController implements MapModeController {
 
     private VehicleLoaderListener mVehicleLoaderListener;
 
+    private Loader<ObaTripDetailsResponse> mTripDetailsLoader;
+
+    private TripDetailsLoaderListener mTripDetailsLoaderListener;
+
     private long mLastUpdatedTimeVehicles;
+
+    private long mLastUpdatedTimeTripDetails;
 
     private ObaStopsForRouteResponse mStopsForRoutesResponse;
 
+    private ObaTripDetailsResponse mTripDetailsResponse;
+
     private OnRoutesDataReceivedListener mOnRoutesDataReceivedListener;
+
+    private OnTripDetailsDataReceivedListener mOnTripDetailsDataReceivedListener;
 
     private OnVehicleDataReceivedListener mOnVehicleDataReceivedListener;
 
@@ -103,6 +115,7 @@ public class RouteMapController implements MapModeController {
         mRoutePopup = new RoutePopup();
         mRouteLoaderListener = new RouteLoaderListener();
         mVehicleLoaderListener = new VehicleLoaderListener();
+        mTripDetailsLoaderListener = new TripDetailsLoaderListener();
     }
 
     @Override
@@ -137,6 +150,7 @@ public class RouteMapController implements MapModeController {
             mTripId = tripId;
             mRoutePopup.showLoading();
             mFragment.showProgress(true);
+
             //mFragment.getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
             mRouteLoader = mRouteLoaderListener.onCreateLoader(ROUTES_LOADER, null);
             mRouteLoader.registerListener(0, mRouteLoaderListener);
@@ -160,7 +174,9 @@ public class RouteMapController implements MapModeController {
         mRouteLoader.reset();
         mVehiclesLoader.stopLoading();
         mVehiclesLoader.reset();
+        mTripDetailsLoader.reset();
         mVehicleRefreshHandler.removeCallbacks(mVehicleRefresh);
+        mTripDetailsRefreshHandler.removeCallbacks(mTripDetailsRefresh);
 
         // Clear the existing route and vehicle overlays
         mFragment.getMapView().removeRouteOverlay();
@@ -180,12 +196,14 @@ public class RouteMapController implements MapModeController {
         mRoutePopup.hide();
         mFragment.getMapView().removeRouteOverlay();
         mVehicleRefreshHandler.removeCallbacks(mVehicleRefresh);
+        mTripDetailsRefreshHandler.removeCallbacks(mTripDetailsRefresh);
         mFragment.getMapView().removeVehicleOverlay();
     }
 
     @Override
     public void onPause() {
         mVehicleRefreshHandler.removeCallbacks(mVehicleRefresh);
+        mTripDetailsRefreshHandler.removeCallbacks(mTripDetailsRefresh);
     }
 
     /**
@@ -205,6 +223,11 @@ public class RouteMapController implements MapModeController {
 
     @Override
     public void onResume() {
+        scheduleVehicleRefresh();
+        scheduleTripDetailsRefresh();
+    }
+
+    private void scheduleVehicleRefresh() {
         // Make sure we schedule a future update for vehicles
         mVehicleRefreshHandler.removeCallbacks(mVehicleRefresh);
 
@@ -226,6 +249,30 @@ public class RouteMapController implements MapModeController {
             refreshPeriod = VEHICLE_REFRESH_PERIOD - elapsedTimeMillis;
         }
         mVehicleRefreshHandler.postDelayed(mVehicleRefresh, refreshPeriod);
+    }
+
+    private void scheduleTripDetailsRefresh() {
+        // Make sure we schedule a future update for vehicles
+        mTripDetailsRefreshHandler.removeCallbacks(mVehicleRefresh);
+
+        if (mLastUpdatedTimeTripDetails == 0) {
+            // We haven't loaded any vehicles yet - schedule the refresh for the full period and defer
+            // to the loader to reschedule when load is complete
+            mTripDetailsRefreshHandler.postDelayed(mTripDetailsRefresh, TRIP_REFRESH_PERIOD);
+            return;
+        }
+
+        long elapsedTimeMillis = TimeUnit.NANOSECONDS.toMillis(UIUtils.getCurrentTimeForComparison()
+                - mLastUpdatedTimeTripDetails);
+        long refreshPeriod;
+        if (elapsedTimeMillis > TRIP_REFRESH_PERIOD) {
+            // Schedule an immediate update, if we're past the normal period after a load
+            refreshPeriod = 100;
+        } else {
+            // Schedule an update so a total of VEHICLE_REFRESH_PERIOD has elapsed since the last update
+            refreshPeriod = TRIP_REFRESH_PERIOD - elapsedTimeMillis;
+        }
+        mTripDetailsRefreshHandler.postDelayed(mTripDetailsRefresh, refreshPeriod);
     }
 
     @Override
@@ -290,6 +337,11 @@ public class RouteMapController implements MapModeController {
     @Override
     public void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener) {
         mOnVehicleDataReceivedListener = listener;
+    }
+
+    @Override
+    public void setOnTripDetailsDataReceivedListener(OnTripDetailsDataReceivedListener listener) {
+        mOnTripDetailsDataReceivedListener = listener;
     }
 
     //
@@ -384,22 +436,41 @@ public class RouteMapController implements MapModeController {
         }
     }
 
-    private static final long VEHICLE_REFRESH_PERIOD = TimeUnit.SECONDS.toMillis(10);
+    private static final long VEHICLE_REFRESH_PERIOD = TimeUnit.SECONDS.toMillis(15);
+
+    private static final long TRIP_REFRESH_PERIOD = TimeUnit.SECONDS.toMillis(15);
 
     private final Handler mVehicleRefreshHandler = new Handler();
 
+    private final Handler mTripDetailsRefreshHandler = new Handler();
+
     private final Runnable mVehicleRefresh = new Runnable() {
         public void run() {
-            refresh();
+            refreshVehicles();
+        }
+    };
+
+    private final Runnable mTripDetailsRefresh = new Runnable() {
+        public void run() {
+            refreshTripDetails();
         }
     };
 
     /**
      * Refresh vehicle data from the OBA server
      */
-    private void refresh() {
+    private void refreshVehicles() {
         if (mVehiclesLoader != null) {
             mVehiclesLoader.onContentChanged();
+        }
+    }
+
+    /**
+     * Refresh vehicle data from the OBA server
+     */
+    private void refreshTripDetails() {
+        if (mTripDetailsLoader != null) {
+            mTripDetailsLoader.onContentChanged();
         }
     }
 
@@ -496,7 +567,7 @@ public class RouteMapController implements MapModeController {
             obaMapView.postInvalidate();
 
             if (mOnRoutesDataReceivedListener != null) {
-                mOnRoutesDataReceivedListener.onOnRoutesDataReceived(response);
+                mOnRoutesDataReceivedListener.onRoutesDataReceived(response);
             }
         }
 
@@ -610,7 +681,7 @@ public class RouteMapController implements MapModeController {
             mVehicleRefreshHandler.postDelayed(mVehicleRefresh, VEHICLE_REFRESH_PERIOD);
 
             if (mOnVehicleDataReceivedListener != null) {
-                mOnVehicleDataReceivedListener.onOnVehicleDataReceived(response);
+                mOnVehicleDataReceivedListener.onVehicleDataReceived(response);
             }
         }
 
@@ -626,5 +697,92 @@ public class RouteMapController implements MapModeController {
         }
     }
 
+    private static class TripDetailsLoader extends AsyncTaskLoader<ObaTripDetailsResponse> {
+
+        private final String mTripId;
+
+        public TripDetailsLoader(Context context, String tripId) {
+            super(context);
+            mTripId = tripId;
+        }
+
+        @Override
+        public ObaTripDetailsResponse loadInBackground() {
+            if (Application.get().getCurrentRegion() == null &&
+                    TextUtils.isEmpty(Application.get().getCustomApiUrl())) {
+                //We don't have region info or manually entered API to know what server to contact
+                Log.d(TAG, "Trying to load stops for route from server " +
+                        "without OBA REST API endpoint, aborting...");
+                return null;
+            }
+            //Make OBA REST API call to the server and return result
+            return new ObaTripDetailsRequest.Builder(getContext(), mTripId)
+                    .setIncludeStatus(true)
+                    .setIncludeTrip(true)
+                    .setIncludeSchedule(true)
+                    .build()
+                    .call();
+        }
+
+        @Override
+        public void deliverResult(ObaTripDetailsResponse data) {
+            //mResponse = data;
+            super.deliverResult(data);
+        }
+
+        @Override
+        public void onStartLoading() {
+            forceLoad();
+        }
+    }
+
+    class TripDetailsLoaderListener implements LoaderManager.LoaderCallbacks<ObaTripDetailsResponse>,
+            Loader.OnLoadCompleteListener<ObaTripDetailsResponse> {
+
+        @Override
+        public Loader<ObaTripDetailsResponse> onCreateLoader(int id,
+                                                             Bundle args) {
+            return new TripDetailsLoader(mFragment.getActivity(), mTripId);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<ObaTripDetailsResponse> loader,
+                                   ObaTripDetailsResponse response) {
+
+            mTripDetailsResponse = response;
+            response.getStatus();
+
+                    //ObaMapView obaMapView = mFragment.getMapView();
+
+            if (response == null || response.getCode() != ObaApi.OBA_OK) {
+                BaseMapFragment.showMapError(response);
+                return;
+            }
+
+            mLastUpdatedTimeTripDetails = UIUtils.getCurrentTimeForComparison();
+
+            // Clear any pending refreshes
+            mTripDetailsRefreshHandler.removeCallbacks(mTripDetailsRefresh);
+
+            // Post an update
+            mTripDetailsRefreshHandler.postDelayed(mTripDetailsRefresh, TRIP_REFRESH_PERIOD);
+
+            if (mOnTripDetailsDataReceivedListener != null) {
+                mOnTripDetailsDataReceivedListener.onTripDetailsDataReceived(response);
+            }
+        }
+
+        @Override
+        public void onLoaderReset(Loader<ObaTripDetailsResponse> loader) {
+            mFragment.getMapView().removeRouteOverlay();
+            mFragment.getMapView().removeVehicleOverlay();
+        }
+
+        @Override
+        public void onLoadComplete(Loader<ObaTripDetailsResponse> loader,
+                                   ObaTripDetailsResponse response) {
+            onLoadFinished(loader, response);
+        }
+    }
 
 }

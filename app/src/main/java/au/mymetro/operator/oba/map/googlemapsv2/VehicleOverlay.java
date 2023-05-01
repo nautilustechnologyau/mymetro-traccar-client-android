@@ -129,7 +129,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
      * If a vehicle moves less than this distance (in meters), it will be animated, otherwise it
      * will just disappear and then re-appear
      */
-    private static final double MAX_VEHICLE_ANIMATION_DISTANCE = 400;
+    private static final double MAX_VEHICLE_ANIMATION_DISTANCE = 500;
 
     /**
      * z-index used to show vehicle markers on top of stop markers (default marker z-index is 0)

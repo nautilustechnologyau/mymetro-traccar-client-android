@@ -5,3 +5,7 @@ local.properties
 build/
 .DS_Store
 google-services.json
+/app/mymetro.debug.keystore
+/app/secrets-debug.properties
+/app/secrets-release.properties
+/app/secure.properties

@@ -29,6 +29,7 @@ import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
 
 public interface MapModeController {
@@ -238,14 +239,20 @@ public interface MapModeController {
     void notifyMapChanged();
 
     interface OnRoutesDataReceivedListener {
-        void onOnRoutesDataReceived(ObaStopsForRouteResponse response);
+        void onRoutesDataReceived(ObaStopsForRouteResponse response);
     }
 
     interface OnVehicleDataReceivedListener {
-        void onOnVehicleDataReceived(ObaTripsForRouteResponse response);
+        void onVehicleDataReceived(ObaTripsForRouteResponse response);
+    }
+
+    interface OnTripDetailsDataReceivedListener {
+        void onTripDetailsDataReceived(ObaTripDetailsResponse response);
     }
 
     void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener);
 
     void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener);
+
+    void setOnTripDetailsDataReceivedListener(OnTripDetailsDataReceivedListener listener);
 }

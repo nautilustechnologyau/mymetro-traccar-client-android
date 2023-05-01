@@ -174,6 +174,9 @@ public class BaseMapFragment extends SupportMapFragment
     // Listen to map tap events
     OnFocusChangedListener mOnFocusChangedListener;
 
+    // Listen to location change event
+    private LocationChangedListener mLocationChangedListener;
+
     // Listen to map loading/progress bar events
     OnProgressBarChangedListener mOnProgressBarChangedListener;
 
@@ -262,6 +265,10 @@ public class BaseMapFragment extends SupportMapFragment
          *                        progress bar should be hidden.
          */
         void onProgressBarChanged(boolean showProgressBar);
+    }
+
+    public interface LocationChangedListener {
+        void onLocationChanged(Location location);
     }
 
     public interface OnLocationPermissionResultListener {
@@ -823,6 +830,10 @@ public class BaseMapFragment extends SupportMapFragment
         mOnFocusChangedListener = onFocusChangedListener;
     }
 
+    public void setLocationChangedListener(LocationChangedListener listener) {
+        mLocationChangedListener = listener;
+    }
+
     public void setOnProgressBarChangedListener(
             OnProgressBarChangedListener onProgressBarChangedListener) {
         mOnProgressBarChangedListener = onProgressBarChangedListener;
@@ -1310,6 +1321,10 @@ public class BaseMapFragment extends SupportMapFragment
 
         if (mVehicleOverlay != null) {
             mVehicleOverlay.onLocationChanged(l);
+        }
+
+        if (mLocationChangedListener != null) {
+            mLocationChangedListener.onLocationChanged(l);
         }
 
         /*if (mMap != null) {
