@@ -31,6 +31,7 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +40,11 @@ import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.ObaApi;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
+import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
-import au.mymetro.operator.oba.io.elements.ObaTripDetails;
+import au.mymetro.operator.oba.io.elements.ObaStopGroup;
+import au.mymetro.operator.oba.io.elements.ObaStopGrouping;
+import au.mymetro.operator.oba.io.elements.ObaTrip;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteRequest;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsRequest;
@@ -99,11 +103,13 @@ public class RouteMapController implements MapModeController {
 
     private ObaTripDetailsResponse mTripDetailsResponse;
 
-    private OnRoutesDataReceivedListener mOnRoutesDataReceivedListener;
+    private boolean mStopsPopulated = false;
 
-    private OnTripDetailsDataReceivedListener mOnTripDetailsDataReceivedListener;
+    private RoutesDataReceivedListener mRoutesDataReceivedListener;
 
-    private OnVehicleDataReceivedListener mOnVehicleDataReceivedListener;
+    private TripDetailsDataReceivedListener mTripDetailsDataReceivedListener;
+
+    private VehicleDataReceivedListener mVehicleDataReceivedListener;
 
     public RouteMapController(Callback callback) {
         mFragment = callback;
@@ -158,7 +164,11 @@ public class RouteMapController implements MapModeController {
 
             mVehiclesLoader = mVehicleLoaderListener.onCreateLoader(VEHICLES_LOADER, null);
             mVehiclesLoader.registerListener(0, mVehicleLoaderListener);
-            mVehiclesLoader.startLoading();
+            //mVehiclesLoader.startLoading();
+
+            mTripDetailsLoader = mTripDetailsLoaderListener.onCreateLoader(VEHICLES_LOADER, null);
+            mTripDetailsLoader.registerListener(0, mTripDetailsLoaderListener);
+            //mTripDetailsLoader.startLoading();
         } else {
             // We are returning to the route view with the route already set, so show the header
             mRoutePopup.show();
@@ -223,7 +233,7 @@ public class RouteMapController implements MapModeController {
 
     @Override
     public void onResume() {
-        scheduleVehicleRefresh();
+        // scheduleVehicleRefresh();
         scheduleTripDetailsRefresh();
     }
 
@@ -330,18 +340,22 @@ public class RouteMapController implements MapModeController {
     }
 
     @Override
-    public void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener) {
-        mOnRoutesDataReceivedListener = listener;
+    public void setRoutesDataReceivedListener(RoutesDataReceivedListener listener) {
+        mRoutesDataReceivedListener = listener;
     }
 
     @Override
-    public void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener) {
-        mOnVehicleDataReceivedListener = listener;
+    public void setVehicleDataReceivedListener(VehicleDataReceivedListener listener) {
+        mVehicleDataReceivedListener = listener;
     }
 
     @Override
-    public void setOnTripDetailsDataReceivedListener(OnTripDetailsDataReceivedListener listener) {
-        mOnTripDetailsDataReceivedListener = listener;
+    public void setTripDetailsDataReceivedListener(TripDetailsDataReceivedListener listener) {
+        mTripDetailsDataReceivedListener = listener;
+    }
+
+    @Override
+    public void setStopDataReceivedListener(StopDataReceivedListener listener) {
     }
 
     //
@@ -528,18 +542,23 @@ public class RouteMapController implements MapModeController {
         public void onLoadFinished(Loader<ObaStopsForRouteResponse> loader,
                 ObaStopsForRouteResponse response) {
 
-            mStopsForRoutesResponse = response;
-
-            ObaMapView obaMapView = mFragment.getMapView();
-
             if (response == null || response.getCode() != ObaApi.OBA_OK) {
                 BaseMapFragment.showMapError(response);
                 return;
             }
 
+            mStopsForRoutesResponse = response;
+
+            ObaMapView obaMapView = mFragment.getMapView();
+
             ObaRoute route = response.getRoute(response.getRouteId());
 
             mRoutePopup.show(route, response.getAgency(route.getAgencyId()).getName());
+
+            mFragment.getMapView().removeVehicleOverlay();
+            mFragment.getMapView().removeRouteOverlay();
+            //mFragment.getMapView().removeStopOverlay(true);
+
 
             if (route.getColor() != null) {
                 mLineOverlayColor = route.getColor();
@@ -550,11 +569,8 @@ public class RouteMapController implements MapModeController {
             // Set the stops for this route
             List<ObaStop> stops = response.getStops();
 
-            if (mShowStop && mTripId == null) {
-                mFragment.showStops(stops, response);
-            } else {
-                mFragment.showStops(null, response);
-            }
+            //mFragment.showStops(stops, response);
+            //mFragment.getMapView().removeStopOverlay(true);
 
             mFragment.showProgress(true);
 
@@ -562,13 +578,18 @@ public class RouteMapController implements MapModeController {
                 obaMapView.zoomToRoute();
                 mZoomToRoute = false;
             }
+
             //
             // wait to zoom till we have the right response
             obaMapView.postInvalidate();
 
-            if (mOnRoutesDataReceivedListener != null) {
-                mOnRoutesDataReceivedListener.onRoutesDataReceived(response);
+            if (mRoutesDataReceivedListener != null) {
+                mRoutesDataReceivedListener.onRoutesDataReceived(response);
             }
+
+            mTripDetailsLoader.startLoading();
+
+            // mVehiclesLoader.startLoading();
         }
 
         @Override
@@ -635,16 +656,15 @@ public class RouteMapController implements MapModeController {
         public void onLoadFinished(Loader<ObaTripsForRouteResponse> loader,
                 ObaTripsForRouteResponse response) {
 
-            ObaMapView obaMapView = mFragment.getMapView();
-
             if (response == null || response.getCode() != ObaApi.OBA_OK) {
                 BaseMapFragment.showMapError(response);
                 return;
             }
 
-            routes.clear();
-            routes.add(mRouteId);
+            ObaMapView obaMapView = mFragment.getMapView();
 
+            /*routes.clear();
+            routes.add(mRouteId);
 
             if (mTripId != null && mStopsForRoutesResponse != null && mShowStop) {
                 ObaTripDetails trip = null;
@@ -663,12 +683,90 @@ public class RouteMapController implements MapModeController {
                         mFragment.showStops(stops, response);
                     }
                 }
+            }*/
+
+            ///////
+
+            // ObaMapView obaMapView = mFragment.getMapView();
+
+            if (mStopsForRoutesResponse != null) {
+                ObaRoute route = mStopsForRoutesResponse.getRoute(mRouteId);
+
+                if (route.getColor() != null) {
+                    mLineOverlayColor = route.getColor();
+                }
+
+                ObaShape[] shapes = null;
+                String[] stopIds = null;
+                if (mTripId != null) {
+                    ObaTrip trip = response.getTrip(mTripId);
+                    if (trip != null) {
+                        ObaStopGrouping[] stopGroupings = mStopsForRoutesResponse.getStopGroupings();
+                        if (stopGroupings != null && stopGroupings.length > 0) {
+                            for (ObaStopGrouping stopGrouping : stopGroupings) {
+                                if (shapes != null || stopIds != null) {
+                                    break;
+                                }
+                                ObaStopGroup[] stopGroups = stopGrouping.getStopGroups();
+                                if (stopGroups != null && stopGroups.length > 0) {
+                                    for (int i = 0; i < stopGroups.length; i++) {
+                                        ObaStopGroup stopGroup = stopGroups[i];
+                                        if (String.valueOf(trip.getDirectionId()).equals(stopGroup.getId())) {
+                                            shapes = stopGroup.getShapes();
+                                            stopIds = stopGroup.getStopIds();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (shapes != null) {
+                        obaMapView.setRouteOverlay(mLineOverlayColor, shapes);
+                    } else {
+                        obaMapView.setRouteOverlay(mLineOverlayColor, mStopsForRoutesResponse.getShapes());
+                    }
+                } else {
+                    obaMapView.setRouteOverlay(mLineOverlayColor, mStopsForRoutesResponse.getShapes());
+                }
+
+                // Set the stops for this route
+
+                List<ObaStop> stops = new ArrayList<>();
+
+                if (stopIds != null) {
+                    for (String stopId : stopIds) {
+                        ObaStop stop = mStopsForRoutesResponse.getStop(stopId);
+                        if (stop != null) {
+                            stops.add(stop);
+                        }
+                    }
+                } else {
+                    stops = mStopsForRoutesResponse.getStops();
+                }
+
+                mFragment.showStops(stops, response);
+
+                mFragment.showProgress(true);
+
+                if (mZoomToRoute) {
+                    obaMapView.zoomToRoute();
+                    mZoomToRoute = false;
+                }
+                //
+                // wait to zoom till we have the right response
+                obaMapView.postInvalidate();
             }
 
-            obaMapView.updateVehicles(routes, response, mTripId);
+            mVehicleRefreshHandler.removeCallbacks(mVehicleRefresh);
 
-            if (mZoomIncludeClosestVehicle) {
-                obaMapView.zoomIncludeClosestVehicle(routes, response);
+            //////
+
+            // obaMapView.updateVehicles(routes, response, mTripId);
+
+            /*if (mZoomIncludeClosestVehicle) {
+                // obaMapView.zoomIncludeClosestVehicle(routes, response);
                 mZoomIncludeClosestVehicle = false;
             }
 
@@ -678,16 +776,17 @@ public class RouteMapController implements MapModeController {
             mVehicleRefreshHandler.removeCallbacks(mVehicleRefresh);
 
             // Post an update
-            mVehicleRefreshHandler.postDelayed(mVehicleRefresh, VEHICLE_REFRESH_PERIOD);
+            // mVehicleRefreshHandler.postDelayed(mVehicleRefresh, VEHICLE_REFRESH_PERIOD);
 
             if (mOnVehicleDataReceivedListener != null) {
                 mOnVehicleDataReceivedListener.onVehicleDataReceived(response);
-            }
+            }*/
         }
 
         @Override
         public void onLoaderReset(Loader<ObaTripsForRouteResponse> loader) {
             mFragment.getMapView().removeVehicleOverlay();
+            mFragment.getMapView().removeRouteOverlay();
         }
 
         @Override
@@ -750,13 +849,25 @@ public class RouteMapController implements MapModeController {
                                    ObaTripDetailsResponse response) {
 
             mTripDetailsResponse = response;
-            response.getStatus();
-
-                    //ObaMapView obaMapView = mFragment.getMapView();
 
             if (response == null || response.getCode() != ObaApi.OBA_OK) {
                 BaseMapFragment.showMapError(response);
                 return;
+            }
+
+            if (!mStopsPopulated) {
+                mFragment.getMapView().removeStopOverlay(true);
+                mFragment.showStops(response.getStops(), response);
+                mStopsPopulated = true;
+            }
+
+            ObaMapView obaMapView = mFragment.getMapView();
+            obaMapView.updateVehicles(null);
+            //obaMapView.setupVehicleOverlay();
+
+            if (mZoomIncludeClosestVehicle) {
+                obaMapView.zoomIncludeClosestVehicle(response);
+                mZoomIncludeClosestVehicle = false;
             }
 
             mLastUpdatedTimeTripDetails = UIUtils.getCurrentTimeForComparison();
@@ -764,12 +875,14 @@ public class RouteMapController implements MapModeController {
             // Clear any pending refreshes
             mTripDetailsRefreshHandler.removeCallbacks(mTripDetailsRefresh);
 
-            // Post an update
-            mTripDetailsRefreshHandler.postDelayed(mTripDetailsRefresh, TRIP_REFRESH_PERIOD);
 
-            if (mOnTripDetailsDataReceivedListener != null) {
-                mOnTripDetailsDataReceivedListener.onTripDetailsDataReceived(response);
+            if (mTripDetailsDataReceivedListener != null) {
+                mTripDetailsDataReceivedListener.onTripDetailsDataReceived(response);
             }
+
+            // Post an update
+            // mTripDetailsRefreshHandler.postDelayed(mTripDetailsRefresh, TRIP_REFRESH_PERIOD);
+
         }
 
         @Override

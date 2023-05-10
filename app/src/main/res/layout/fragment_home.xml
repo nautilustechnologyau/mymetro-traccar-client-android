@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
@@ -27,15 +28,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp">
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:padding="16dp">
+                    android:padding="2dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -59,8 +61,8 @@
                             android:fontFamily="sans-serif-condensed"
                             android:gravity="center"
                             android:text="H20"
-                            android:textColor="@color/primary_dark"
                             android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/primary_dark"
                             android:textSize="32sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -86,13 +88,26 @@
 
                         <TextView
                             android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginEnd="4dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:gravity="end|top"
+                            android:text="next\nstop"
+                            android:textAlignment="textEnd"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textSize="16sp" />
+                        <TextView
+                            android:id="@+id/trip_info_next_stop_distance"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="end"
                             android:layout_marginTop="4dp"
                             android:layout_marginEnd="4dp"
                             android:fontFamily="sans-serif-condensed"
-                            android:gravity="end|bottom"
-                            android:text="next\nstop"
+                            android:gravity="end"
+                            android:text="200m"
                             android:textAlignment="textEnd"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textSize="16sp" />
@@ -101,7 +116,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:gravity="center"
+                        android:gravity="top"
                         android:orientation="vertical">
 
                         <LinearLayout
@@ -146,17 +161,53 @@
                                     android:textAppearance="?android:attr/textAppearanceMedium"
                                     android:textSize="20sp" />
 
-                                <TextView
-                                    android:id="@+id/trip_info_next_stop_direction"
+                                <LinearLayout
                                     android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_gravity="top"
-                                    android:ellipsize="end"
-                                    android:fontFamily="sans-serif-condensed"
-                                    android:singleLine="true"
-                                    android:text="Southbound"
-                                    android:textAppearance="?android:attr/textAppearanceMedium"
-                                    android:textSize="16sp" />
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="left"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/trip_info_next_stop_direction"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="top"
+                                        android:ellipsize="end"
+                                        android:fontFamily="sans-serif-condensed"
+                                        android:singleLine="true"
+                                        android:text="Southbound"
+                                        android:textAppearance="?android:attr/textAppearanceMedium"
+                                        android:textSize="16sp"
+                                        android:visibility="gone"/>
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="sans-serif-condensed"
+                                        android:gravity="center"
+                                        android:text="Scheduled:"
+                                        android:layout_marginEnd="4dp"
+                                        android:textAppearance="?android:attr/textAppearanceMedium"
+                                        android:textSize="18sp" />
+
+                                        <TextView
+                                            android:id="@+id/trip_info_arrival_time"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:fontFamily="sans-serif-condensed"
+                                            android:gravity="start"
+                                            android:text="12:37 PM"
+                                            android:textAppearance="?android:attr/textAppearanceMedium"
+                                            android:textSize="20sp"
+                                            android:textStyle="bold" />
+                                    <include
+                                        android:id="@+id/status"
+                                        layout="@layout/arrivals_list_tv_template_style_a_status_small"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center|end"
+                                        android:layout_marginStart="4dp" />
+
+                                </LinearLayout>
                             </LinearLayout>
 
                         </LinearLayout>
@@ -165,111 +216,74 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/trip_ext_info_card"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center|center_horizontal">
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_margin="4dp"
-                    android:orientation="horizontal">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/trip_ext_info_card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|center_horizontal"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="2dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
-                        android:layout_margin="4dp"
-                        android:orientation="vertical">
+                        android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-condensed"
-                            android:gravity="center"
-                            android:text="Arrives In"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textSize="16sp" />
+
+
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="horizontal">
+                            android:layout_gravity="top"
+                            android:orientation="vertical"
+                            android:visibility="visible">
 
-                            <TextView
-                                android:id="@+id/trip_info_eta_min"
+                            <ImageView
+                                android:id="@+id/vehicle_speed"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-condensed"
-                                android:gravity="center"
-                                android:text="1"
-                                android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="20sp"
-                                android:textStyle="bold" />
+                                android:layout_gravity="top"
+                                android:layout_marginTop="-12dp"
+                                android:src="@drawable/ic_speed"
+                                android:tint="@color/primary_dark" />
 
                             <TextView
+                                android:id="@+id/trip_info_speed"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:layout_marginEnd="4dp"
-                                android:fontFamily="sans-serif-condensed"
+                                android:layout_marginTop="-16dp"
                                 android:gravity="center"
-                                android:text="min"
-                                android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp" />
-
-                            <TextView
-                                android:id="@+id/trip_info_eta_sec"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="sans-serif-condensed"
-                                android:gravity="center"
-                                android:text="15"
-                                android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="20sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:fontFamily="sans-serif-condensed"
-                                android:gravity="center"
-                                android:text="sec"
-                                android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp" />
+                                android:text="0 kmh"
+                                android:textAlignment="center" />
                         </LinearLayout>
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="top"
-                        android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|end"
+                    android:orientation="vertical">
 
-                        <ImageView
-                            android:id="@+id/vehicle_speed"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="-12dp"
-                            android:layout_gravity="top"
-                            android:tint="@color/primary_dark"
-                            android:src="@drawable/ic_speed" />
-
-                        <TextView
-                            android:id="@+id/trip_info_speed"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="-16dp"
-                            android:gravity="center"
-                            android:text="0 kmh"
-                            android:textAlignment="center" />
-                    </LinearLayout>
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/trip_schedule_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginEnd="8dp"
+                        android:clickable="true"
+                        android:src="@drawable/ic_icon_trip" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 
@@ -355,25 +369,14 @@
         </com.google.android.material.card.MaterialCardView>
     </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/select_stop_header">
-
-        <RelativeLayout
-            android:id="@+id/map_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </RelativeLayout>
-
-    <RelativeLayout
+    <!--RelativeLayout
         android:id="@+id/trip_info_fabs_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="top|end"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="@id/trip_info_header"
-        app:layout_constraintTop_toBottomOf="@+id/trip_info_header">
+        app:layout_constraintEnd_toEndOf="@id/trip_info_card"
+        app:layout_constraintTop_toBottomOf="@+id/trip_info_card">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -395,9 +398,22 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:clickable="true"
+                android:visibility="gone"
                 android:src="@drawable/ic_action_location_map" />
         </LinearLayout>
+    </RelativeLayout-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/select_stop_header">
+
+        <RelativeLayout
+            android:id="@+id/map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </RelativeLayout>
+
 
     <RelativeLayout
         android:id="@+id/bottomSheet"

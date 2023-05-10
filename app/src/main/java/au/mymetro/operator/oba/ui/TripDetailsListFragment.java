@@ -187,8 +187,8 @@ public class TripDetailsListFragment extends ListFragment {
         // We have a menu item to show in action bar.
         setHasOptionsMenu(true);
 
-        getListView().setOnItemClickListener(mClickListener);
-        getListView().setOnItemLongClickListener(mLongClickListener);
+        // getListView().setOnItemClickListener(mClickListener);
+        // getListView().setOnItemLongClickListener(mLongClickListener);
 
         // Get saved routeId if it exists - avoids potential NPE in onOptionsItemSelected() (#515)
         if (savedInstanceState != null) {

@@ -6,8 +6,11 @@ import static au.mymetro.operator.MainFragment.KEY_STATUS;
 import static au.mymetro.operator.MainFragment.KEY_URL;
 import static au.mymetro.operator.oba.util.PermissionUtils.BACKGROUND_LOCATION_PERMISSION_REQUEST;
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
+import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSION_REQUEST;
+import static au.mymetro.operator.oba.util.UIUtils.canManageDialog;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -25,6 +28,8 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -32,6 +37,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
@@ -63,9 +69,12 @@ import au.mymetro.operator.oba.util.LocationUtils;
 import au.mymetro.operator.oba.util.PermissionUtils;
 import au.mymetro.operator.oba.util.PreferenceUtils;
 import au.mymetro.operator.oba.util.UIUtils;
+import au.mymetro.operator.ui.home.HomeFragment;
 import au.mymetro.operator.ui.home.HomeViewModel;
 
-public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Callback, BaseMapFragment.OnLocationPermissionResultListener {
+public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Callback,
+        BaseMapFragment.OnLocationPermissionResultListener,
+        ApiKeyCheckerTask.ApiKeyCheckerTaskListener {
 
     public interface SlidingPanelController {
 
@@ -127,6 +136,12 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     private BaseMapFragment mMapFragment;
 
     private HomeViewModel homeViewModel;
+
+    private AlertDialog locationPermissionDialog;
+
+    private HomeFragment mHomeFragment;
+
+    private NavController mNavController;
 
     /**
      * GoogleApiClient being used for Location Services
@@ -264,7 +279,7 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
         //setupPermissions(this);
 
-        BaseMapFragment.setOnLocationPermissionResultListener(this);
+        // BaseMapFragment.setOnLocationPermissionResultListener(this);
 
         //new TravelBehaviorManager(this, getApplicationContext()).
         //        registerTravelBehaviorParticipant();
@@ -273,6 +288,8 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         //    PreferenceUtils.saveString(getString(R.string.preference_key_region),
         //            Application.get().getCurrentRegion().getName());
         //}
+
+        requestPermissionAndInit();
 
         if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
             // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
@@ -284,7 +301,7 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             UIUtils.showObaApiKeyInputDialog(this);
         }*/
 
-        //setupMapFragment(savedInstanceState);
+        // setupMapFragment(savedInstanceState);
 
         // setupLocationHelper(savedInstanceState);
 
@@ -296,7 +313,8 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     // Register the permissions callback, which handles the user's response to the
     // system permissions dialog. Save the return value, an instance of
     // ActivityResultLauncher, as an instance variable.
-    private ActivityResultLauncher<String> locationRequestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+    private ActivityResultLauncher<String> locationRequestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
         if (mInitialStartup) {
             // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
             // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
@@ -323,9 +341,22 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     public void onStart() {
         super.onStart();
         // requestPermissionsIfRequired(true, false);
-        //if (mRequestingPermissions) {
-        //    mRequestingPermissions = new BatteryOptimizationHelper().requestException(this);
-        //}
+
+        /*if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
+            // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
+            // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
+            checkRegionStatus();
+        }*/
+
+        if (!isApiKeyValid()) {
+            UIUtils.showObaApiKeyInputDialog(this, this);
+        }
+
+        if (!mInitialStartup) {
+            if (mRequestingPermissions) {
+                mRequestingPermissions = new BatteryOptimizationHelper().requestException(this);
+            }
+        }
 
         if (mGoogleApiClient != null && !mGoogleApiClient.isConnected()) {
             mGoogleApiClient.connect();
@@ -333,8 +364,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
         Boolean isTalkBackEnabled = am.isTouchExplorationEnabled();
         ObaAnalytics.setAccessibility(mFirebaseAnalytics, isTalkBackEnabled);
-
-
     }
 
     @Override
@@ -425,6 +454,17 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         }
     }
 
+    private void setupHomeFragment() {
+        if (mHomeFragment == null) {
+            NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
+            mHomeFragment = (HomeFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+        }
+        if (mHomeFragment != null) {
+            mHomeFragment.setupMapFragment();
+            mHomeFragment.updateFragmentHeader();
+        }
+    }
+
     private static boolean isTrackingOn() {
         return mServiceStarted;
     }
@@ -446,9 +486,21 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
                 R.id.navigation_settings,
                 R.id.navigation_notifications,
                 R.id.navigation_info).build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(mBinding.navView, navController);
+        mNavController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        NavigationUI.setupActionBarWithNavController(this, mNavController, appBarConfiguration);
+        NavigationUI.setupWithNavController(mBinding.navView, mNavController);
+
+        /*navController.addOnDestinationChangedListener((navController1, navDestination, bundle) -> {
+            if (navDestination.getId() == R.id.navigation_home) {
+
+            }
+        });*/
+
+        /*mNavController.addOnDestinationChangedListener((navController, navDestination, bundle) -> {
+            if (navDestination.getId() == R.id.navigation_home) {
+                //navDestination.
+            }
+        });*/
     }
 
     private void setupStartStopButtonState() {
@@ -483,24 +535,25 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         boolean permission = requestPermissionsIfRequired(checkPermission, initialPermission);
 
         if (permission) {
-            Intent intent = new Intent(this, TrackingService.class);
-            Bundle bundle = new Bundle();
-            // bundle.putString();
-            bundle.putString("tripId", homeViewModel.getTripId().getValue());
-            bundle.putString("routeId", homeViewModel.getRouteId().getValue());
-            bundle.putString("blockId", homeViewModel.getBlockId().getValue());
-            intent.putExtras(bundle);
+            if (isTraccarEnabled()) {
+                Intent intent = new Intent(this, TrackingService.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("tripId", homeViewModel.getTripId().getValue());
+                bundle.putString("routeId", homeViewModel.getRouteId().getValue());
+                bundle.putString("blockId", homeViewModel.getBlockId().getValue());
+                intent.putExtras(bundle);
+                ContextCompat.startForegroundService(this, intent);
 
-            Log.d(TAG, "Starting tracking service with tripId=" + homeViewModel.getTripId().getValue());
-            ContextCompat.startForegroundService(this, intent);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    mAlarmManager.setInexactRepeating(
+                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            ALARM_MANAGER_INTERVAL, ALARM_MANAGER_INTERVAL, mAlarmIntent
+                    );
+                }
+            }
+
             homeViewModel.setMapMode(MapParams.MODE_ROUTE);
             mServiceStarted = true;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                mAlarmManager.setInexactRepeating(
-                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        ALARM_MANAGER_INTERVAL, ALARM_MANAGER_INTERVAL, mAlarmIntent
-                );
-            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                     && ContextCompat.checkSelfPermission(this,
@@ -514,10 +567,14 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     }
 
     private void stopTrackingService() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            mAlarmManager.cancel(mAlarmIntent);
+        if (isTraccarEnabled()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                mAlarmManager.cancel(mAlarmIntent);
+            }
+
+            stopService(new Intent(this, TrackingService.class));
         }
-        stopService(new Intent(this, TrackingService.class));
+
         homeViewModel.setMapMode(MapParams.MODE_STOP);
         mServiceStarted = false;
     }
@@ -569,6 +626,11 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     @Override
     public void onRegionTaskFinished(boolean currentRegionChanged) {
+        if (!UIUtils.canManageDialog(this)) {
+            return;
+        }
+
+        //ObaRegionsTask.
         // Show "What's New" (which might need refreshed Regions API contents)
         //boolean update = autoShowWhatsNew();
 
@@ -577,15 +639,15 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         //    redrawNavigationDrawerFragment();
         //}
 
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentByTag(BaseMapFragment.TAG);
+
+        /*Fragment fragment = fm.findFragmentByTag(BaseMapFragment.TAG);
         if (fragment != null) {
             mMapFragment = (BaseMapFragment) fragment;
             mMapFragment.setMyLocation();
-        }
+        }*/
 
         if (!currentRegionChanged && Application.get().getCurrentRegion() != null && !isApiKeyValid()) {
-            UIUtils.showObaApiKeyInputDialog(this);
+            UIUtils.showObaApiKeyInputDialog(this, this);
         }
         //    PreferenceUtils.saveString(getString(R.string.preference_key_region),
         //            Application.get().getCurrentRegion().getName());
@@ -601,13 +663,20 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
                     Toast.LENGTH_LONG
             ).show();
 
-            UIUtils.showObaApiKeyInputDialog(this);
+            UIUtils.showObaApiKeyInputDialog(this, this);
 
             PreferenceUtils.saveString(KEY_URL, Application.get().getCurrentRegion().getTraccarBaseUrl());
-
-
         }
+
+        //FragmentManager fm = getSupportFragmentManager();
+        //HomeFragment homeFragment = (HomeFragment)fm.findFragmentByTag(HomeFragment.TAG);
+        //setupHomeFragment();
+        /*if (mHomeFragment != null) {
+            mHomeFragment.setupMapFragment();
+            mHomeFragment.updateFragmentHeader();
+        }*/
         // updateLayersFab();
+        setupHomeFragment();
     }
 
     private void setupGooglePlayServices() {
@@ -626,9 +695,9 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
      */
     private void checkRegionStatus() {
         //First check for custom API URL set by user via Preferences, since if that is set we don't need region info from the REST API
-        if (!TextUtils.isEmpty(Application.get().getCustomApiUrl())) {
-            return;
-        }
+        //if (!TextUtils.isEmpty(Application.get().getCustomApiUrl())) {
+        //    return;
+        //}
 
         // Check if region is hard-coded for this build flavor
         /*if (BuildConfig.USE_FIXED_REGION) {
@@ -770,4 +839,96 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         }
     }
 
+    private void requestPermissionAndInit() {
+        if (!PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
+            showLocationPermissionDialog();
+        }
+    }
+
+    /**
+     * Shows the dialog to explain why location permissions are needed.  If this provided activity
+     * can't manage dialogs then this method is a no-op.
+     * <p>
+     * NOTE - this dialog can't be managed under the old dialog framework as the method
+     * ActivityCompat.shouldShowRequestPermissionRationale() always returns false.
+     */
+    private void showLocationPermissionDialog() {
+        if (!canManageDialog(this)) {
+            return;
+        }
+        if (locationPermissionDialog != null && locationPermissionDialog.isShowing()) {
+            return;
+        }
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.location_permissions_title)
+                .setMessage(R.string.location_permissions_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.ok,
+                        (dialog, which) -> {
+                            PreferenceUtils.setUserDeniedLocationPermissions(false);
+                            // Request permissions from the user
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                requestPermissions(LOCATION_PERMISSIONS, LOCATION_PERMISSION_REQUEST);
+                            }
+                        }
+                )
+                .setNegativeButton(R.string.no_thanks,
+                        (dialog, which) -> {
+                            PreferenceUtils.setUserDeniedLocationPermissions(true);
+                            onLocationPermissionResult(PackageManager.PERMISSION_DENIED);
+                        }
+                );
+        locationPermissionDialog = builder.create();
+        locationPermissionDialog.show();
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, String[] permissions, int[] grantResults) {
+        // super.onRequestPermissionsResult();
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        int result = PackageManager.PERMISSION_DENIED;
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //mUserDeniedPermission = false;
+                // Show the location on the map
+                /*if (mHomeFragment != null) {
+                    mHomeFragment.setMyLocationEnabled();
+                }*/
+
+                // Make sure location helper is registered
+                //mLocationHelper.registerListener(this);
+                result = PackageManager.PERMISSION_GRANTED;
+            } else {
+                //mUserDeniedPermission = true;
+            }
+        } else if (HomeActivity.BATTERY_OPTIMIZATIONS_PERMISSION_REQUEST == requestCode) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                UIUtils.openBatteryIgnoreIntent(this);
+            }
+        }
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            onLocationPermissionResult(result);
+        }
+    }
+
+    private boolean isTraccarEnabled() {
+        String traccarUrl = PreferenceUtils.getString(KEY_URL);
+        return traccarUrl != null && !traccarUrl.isEmpty();
+    }
+
+    @Override
+    public void onApiCheckerTaskComplete(@Nullable Boolean valid) {
+        if (Boolean.TRUE.equals(valid)) {
+            if (mHomeFragment != null) {
+                mHomeFragment.refreshMapData();
+            }
+        } else {
+            UIUtils.popupSnackbarForApiKey(this, this);
+            // UIUtils.showObaApiKeyInputDialog(this, this);
+        }
+    }
 }

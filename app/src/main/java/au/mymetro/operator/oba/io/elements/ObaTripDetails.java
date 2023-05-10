@@ -16,6 +16,8 @@
 package au.mymetro.operator.oba.io.elements;
 
 
+import java.util.List;
+
 public interface ObaTripDetails extends ObaElement {
 
     /**

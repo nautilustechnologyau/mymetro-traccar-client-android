@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2010-2015 Paul Watts (paulcwatts@gmail.com), Benjamin Du (bendu@me.com)
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2010-2015 Paul Watts (paulcwatts@gmail.com), Benjamin Du (bendu@me.com)
     and individual contributors.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +14,31 @@
     limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/material_background"
+    android:orientation="vertical">
 
-    <include layout="@layout/trip_details_head"/>
-    <include layout="@layout/loading"/>
+    <include layout="@layout/trip_details_head" />
+
+    <include layout="@layout/loading" />
 
     <FrameLayout
-            android:id="@+id/listContainer"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-        <ListView android:id="@android:id/list"
-                  style="@style/HeaderList"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"/>
+        android:id="@+id/listContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-        <TextView android:id="@+id/internalEmpty"
-                  style="@style/ListHintText"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"/>
+        <ListView
+            android:id="@android:id/list"
+            style="@style/HeaderList"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:clickable="false"/>
+
+        <TextView
+            android:id="@+id/internalEmpty"
+            style="@style/ListHintText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
     </FrameLayout>
 </LinearLayout>

@@ -21,13 +21,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 
-import java.util.HashSet;
 import java.util.List;
 
 import au.mymetro.operator.oba.io.elements.ObaReferences;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.request.ObaStopsForLocationResponse;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
@@ -119,11 +119,9 @@ public interface MapModeController {
          * Updates markers for the provided routeIds from the status info from the given
          * ObaTripsForRouteResponse
          *
-         * @param routeIds markers representing real-time positions for the provided routeIds will
-         *                 be added to the map
          * @param response response that contains the real-time status info
          */
-        void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId);
+        void updateVehicles(ObaTripDetailsResponse response);
 
         // Remove the vehicles from the map
         void removeVehicleOverlay();
@@ -136,12 +134,8 @@ public interface MapModeController {
 
         /**
          * Zoom to include the closest vehicle from the response within the map view
-         *
-         * @param routeIds markers representing real-time positions for the provided routeIds will
-         *                 be
-         *                 checked for proximity to the location (all other routes are ignored)
          */
-        void zoomIncludeClosestVehicle(HashSet<String> routeIds, ObaTripsForRouteResponse response);
+        void zoomIncludeClosestVehicle(ObaTripDetailsResponse response);
 
         // Post invalidate
         void postInvalidate();
@@ -199,6 +193,8 @@ public interface MapModeController {
          *               if the existing padding should be used
          */
         void setPadding(Integer left, Integer top, Integer right, Integer bottom);
+
+        void setupVehicleOverlay();
     }
 
     String getMode();
@@ -238,21 +234,27 @@ public interface MapModeController {
      */
     void notifyMapChanged();
 
-    interface OnRoutesDataReceivedListener {
+    interface RoutesDataReceivedListener {
         void onRoutesDataReceived(ObaStopsForRouteResponse response);
     }
 
-    interface OnVehicleDataReceivedListener {
+    interface VehicleDataReceivedListener {
         void onVehicleDataReceived(ObaTripsForRouteResponse response);
     }
 
-    interface OnTripDetailsDataReceivedListener {
+    interface TripDetailsDataReceivedListener {
         void onTripDetailsDataReceived(ObaTripDetailsResponse response);
     }
 
-    void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener);
+    interface StopDataReceivedListener {
+        void onStopDataReceived(ObaStopsForLocationResponse response);
+    }
 
-    void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener);
+    void setRoutesDataReceivedListener(RoutesDataReceivedListener listener);
 
-    void setOnTripDetailsDataReceivedListener(OnTripDetailsDataReceivedListener listener);
+    void setVehicleDataReceivedListener(VehicleDataReceivedListener listener);
+
+    void setTripDetailsDataReceivedListener(TripDetailsDataReceivedListener listener);
+
+    void setStopDataReceivedListener(StopDataReceivedListener listener);
 }

@@ -625,7 +625,7 @@ public class StopOverlay implements MarkerListeners {
     }
 
 
-    private void doFocusChange(ObaStop stop) {
+    public void doFocusChange(ObaStop stop) {
         mMarkerData.setFocus(stop);
         HashMap<String, ObaRoute> routes = mMarkerData.getCachedRoutes();
 

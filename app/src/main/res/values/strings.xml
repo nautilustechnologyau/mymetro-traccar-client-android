@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">MyMetro Operator</string>
-    <string name="app_logo">MyMetro Operator</string>
+    <string name="app_name">MyMetro Onboard</string>
+    <string name="app_logo">MyMetro Onboard</string>
     <string name="shortcut_start">Start service</string>
     <string name="shortcut_stop">Stop service</string>
     <string name="shortcut_sos">Send SOS</string>
@@ -24,8 +24,9 @@
     <string name="request_exception">To continuously collect location data please turn off battery optimization for the app.</string>
     <string name="request_background">To continuously collect location data please enable \"%s\" permission.</string>
     <string name="request_background_option">Allow all the time</string>
-    <string name="title_activity_main">MyMetro Operator</string>
-    <string name="title_home">Dashboard</string>
+    <string name="title_activity_main">MyMetro Onboard</string>
+    <string name="title_home">MyMetro Onboard</string>
+    <string name="title_no_region">No Region</string>
     <string name="title_settings">Settings</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_info">Info</string>

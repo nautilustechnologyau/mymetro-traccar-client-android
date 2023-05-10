@@ -45,6 +45,8 @@ public final class ObaStopGroup {
         }
     }
 
+    private final String id;
+
     private final String[] stopIds;
 
     private final ObaShapeElement[] polylines;
@@ -57,9 +59,14 @@ public final class ObaStopGroup {
      * Constructor.
      */
     ObaStopGroup() {
+        id = "";
         stopIds = new String[]{};
         polylines = ObaShapeElement.EMPTY_ARRAY;
         name = StopGroupName.EMPTY_OBJECT;
+    }
+
+    public String getId() {
+        return id;
     }
 
     /**

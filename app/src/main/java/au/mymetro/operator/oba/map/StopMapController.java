@@ -145,6 +145,8 @@ public class StopMapController extends BaseMapController implements
 
     private MapWatcher mMapWatcher;
 
+    private StopDataReceivedListener mStopDataReceivedListener;
+
     /**
      * GoogleApiClient being used for Location Services
      */
@@ -169,6 +171,11 @@ public class StopMapController extends BaseMapController implements
     @Override
     public void onHidden(boolean hidden) {
         // No op for this controller
+    }
+
+    @Override
+    public void setStopDataReceivedListener(StopDataReceivedListener listener) {
+        mStopDataReceivedListener = listener;
     }
 
     @Override
@@ -243,6 +250,10 @@ public class StopMapController extends BaseMapController implements
 
         List<ObaStop> stops = Arrays.asList(response.getStops());
         mCallback.showStops(stops, response);
+
+        if (mStopDataReceivedListener != null) {
+            mStopDataReceivedListener.onStopDataReceived(response);
+        }
     }
 
     @Override

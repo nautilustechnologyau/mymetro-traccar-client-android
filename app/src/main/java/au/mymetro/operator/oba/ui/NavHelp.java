@@ -19,7 +19,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
 import au.mymetro.operator.HomeActivity;
+import au.mymetro.operator.R;
 
 final public class NavHelp {
 
@@ -54,5 +58,14 @@ final public class NavHelp {
             intent.putExtra(ShowcaseViewUtils.TUTORIAL_WELCOME, true);
         }*/
         context.startActivity(intent);
+    }
+
+    /**
+     * Go back to the HomeActivity
+     */
+    public static void goHome(Activity context) {
+        NavController navController = Navigation.findNavController(context, R.id.nav_host_fragment_activity_main);
+        navController.navigateUp();
+        navController.navigate(R.id.navigation_home);
     }
 }

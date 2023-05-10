@@ -64,7 +64,6 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -78,7 +77,7 @@ import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.request.ObaResponse;
-import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.map.DirectionsMapController;
 import au.mymetro.operator.oba.map.MapModeController;
 import au.mymetro.operator.oba.map.MapParams;
@@ -148,8 +147,6 @@ public class BaseMapFragment extends SupportMapFragment
 
     private VehicleOverlay mVehicleOverlay;
 
-    // private BikeStationOverlay mBikeStationOverlay;
-
     // We only display the out of range dialog once
     private boolean mWarnOutOfRange = true;
 
@@ -199,38 +196,14 @@ public class BaseMapFragment extends SupportMapFragment
 
     private Marker mCurrLocationMarker;
 
+    private MapInitCompletedListener mMapInitCompletedListener;
+
     @Override
     public void onActivateLayer(LayerInfo layer) {
-        /*switch (layer.getLayerlabel()) {
-            case "Bikeshare": {
-                for (MapModeController controller : mControllers) {
-                    if (controller instanceof BikeshareMapController) {
-                        ((BikeshareMapController) controller).showBikes(true);
-                        ObaAnalytics.reportUiEvent(mFirebaseAnalytics,
-                                getString(R.string.analytics_layer_bikeshare),
-                                getString(R.string.analytics_label_bikeshare_activated));
-                    }
-                }
-                break;
-            }
-        }*/
     }
 
     @Override
     public void onDeactivateLayer(LayerInfo layer) {
-        /*switch (layer.getLayerlabel()) {
-            case "Bikeshare": {
-                for (MapModeController controller : mControllers) {
-                    if (controller instanceof BikeshareMapController) {
-                        ((BikeshareMapController) controller).showBikes(false);
-                        ObaAnalytics.reportUiEvent(mFirebaseAnalytics,
-                                getString(R.string.analytics_layer_bikeshare),
-                                getString(R.string.analytics_label_bikeshare_deactivated));
-                    }
-                }
-                break;
-            }
-        }*/
     }
 
     public interface OnFocusChangedListener {
@@ -245,9 +218,7 @@ public class BaseMapFragment extends SupportMapFragment
          *                 routeId
          * @param location the user touch location on the map
          */
-        void onFocusChanged(ObaStop stop, HashMap<String, ObaRoute> routes, Location location);
-
-        // void onFocusChanged(BikeRentalStation bikeRentalStation);
+        void onStopFocusChanged(ObaStop stop, HashMap<String, ObaRoute> routes, Location location);
     }
 
     public interface OnProgressBarChangedListener {
@@ -278,6 +249,10 @@ public class BaseMapFragment extends SupportMapFragment
          * @param grantResult The grant results for the location permission which is either PackageManager.PERMISSION_GRANTED or PackageManager.PERMISSION_DENIED. Never null.
          */
         void onLocationPermissionResult(int grantResult);
+    }
+
+    public interface MapInitCompletedListener {
+        void onMapInitCompleted(MapModeController controller);
     }
 
     public static BaseMapFragment newInstance() {
@@ -343,6 +318,7 @@ public class BaseMapFragment extends SupportMapFragment
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull com.google.android.gms.maps.GoogleMap map) {
         mMap = map;
@@ -351,6 +327,9 @@ public class BaseMapFragment extends SupportMapFragment
 
         mMap.setOnMarkerClickListener(mapClickListeners);
         mMap.setOnMapClickListener(mapClickListeners);
+        if (PermissionUtils.hasGrantedAtLeastOnePermission(requireActivity(), LOCATION_PERMISSIONS)) {
+            mMap.setMyLocationEnabled(true);
+        }
 
         // for fixed region we may need to set the map camera to the centre
         // this is useful if the user choose not to enable location service
@@ -364,12 +343,14 @@ public class BaseMapFragment extends SupportMapFragment
 
     private void initMap(Bundle savedInstanceState) {
         UiSettings uiSettings = mMap.getUiSettings();
-        mUserDeniedPermission = PreferenceUtils.userDeniedLocationPermission();
+
+        /*mUserDeniedPermission = PreferenceUtils.userDeniedLocationPermission();
 
         if (!mUserDeniedPermission) {
             requestPermissionAndInit(getActivity());
-        }
+        }*/
 
+        requestPermissionAndInit(getActivity());
         // Set location source
         mMap.setLocationSource(this);
         // Listener for camera changes
@@ -429,8 +410,16 @@ public class BaseMapFragment extends SupportMapFragment
             mLocationHelper.registerListener(this);
         } else {
             // Explain permission to user
-            showLocationPermissionDialog();
+            // showLocationPermissionDialog();
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    public void setMyLocationEnabled() {
+        // Show the location on the map
+        mMap.setMyLocationEnabled(true);
+        // Make sure location helper is registered
+        mLocationHelper.registerListener(this);
     }
 
     @SuppressLint("MissingPermission")
@@ -589,15 +578,6 @@ public class BaseMapFragment extends SupportMapFragment
         }
     }
 
-    /*
-    public void setupBikeStationOverlay(boolean isInDirectionsMode) {
-        Activity activity = getActivity();
-        if (mBikeStationOverlay == null && activity != null) {
-            mBikeStationOverlay = new BikeStationOverlay(activity, mMap, isInDirectionsMode);
-            mBikeStationOverlay.setOnFocusChangeListener(mOnFocusChangedListener);
-        }
-    }*/
-
     protected void showDialog(int id) {
         MapDialogFragment.newInstance(id, this).show(getFragmentManager(), MapDialogFragment.TAG);
     }
@@ -633,31 +613,30 @@ public class BaseMapFragment extends SupportMapFragment
         if (mStopOverlay != null) {
             mStopOverlay.clear(false);
         }
-        //BikeshareMapController bikeshareMapController = new BikeshareMapController(this);
-        //setupBikeStationOverlay(MapParams.MODE_DIRECTIONS.equals(mode));
+
         if (MapParams.MODE_ROUTE.equals(mode)) {
             removeMapController(MapParams.MODE_ROUTE);
             RouteMapController controller = new RouteMapController(this);
             mControllers.add(controller);
-            //bikeshareMapController.setMode(controller.getMode());
         } else if (MapParams.MODE_STOP.equals(mode)) {
             removeMapController(MapParams.MODE_STOP);
             StopMapController controller = new StopMapController(this);
             mControllers.add(controller);
-            //bikeshareMapController.setMode(controller.getMode());
         } else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
             removeMapController(MapParams.MODE_DIRECTIONS);
             DirectionsMapController controller = new DirectionsMapController(this);
             mControllers.add(controller);
-            // bikeshareMapController.setMode(controller.getMode());
         }
-        //mControllers.add(bikeshareMapController);
+
         for (MapModeController controller : mControllers) {
             controller.setState(args);
             controller.onResume();
         }
         mMapMode = mode;
 
+        if (mMapInitCompletedListener != null) {
+            mMapInitCompletedListener.onMapInitCompleted(mControllers.get(0));
+        }
         return mControllers.isEmpty() ? null : mControllers.get(0);
     }
 
@@ -771,19 +750,6 @@ public class BaseMapFragment extends SupportMapFragment
         }
     }
 
-    /*@Override
-    public void showBikeStations(List<BikeRentalStation> bikeStations) {
-        setupBikeStationOverlay(MapParams.MODE_DIRECTIONS.equals(mMapMode));
-        mBikeStationOverlay.addBikeStations(bikeStations);
-    }
-
-    @Override
-    public void clearBikeStations() {
-        if (mBikeStationOverlay != null) {
-            mBikeStationOverlay.clearBikeStations();
-        }
-    }*/
-
     @Override
     public void notifyOutOfRange() {
         //Before we trigger the out of range warning, make sure we have region info
@@ -839,6 +805,10 @@ public class BaseMapFragment extends SupportMapFragment
         mOnProgressBarChangedListener = onProgressBarChangedListener;
     }
 
+    public void setMapInitCompletedListener(MapInitCompletedListener listener) {
+        mMapInitCompletedListener = listener;
+    }
+
     public static void setOnLocationPermissionResultListener(OnLocationPermissionResultListener onLocationPermissionResultListener) {
         mOnLocationPermissionResultListener = onLocationPermissionResultListener;
     }
@@ -863,10 +833,16 @@ public class BaseMapFragment extends SupportMapFragment
 
                 // Pass overlay focus event up to listeners for this fragment
                 if (mOnFocusChangedListener != null) {
-                    mOnFocusChangedListener.onFocusChanged(stop, routes, location);
+                    mOnFocusChangedListener.onStopFocusChanged(stop, routes, location);
                 }
             }
         });
+    }
+
+    public void doFocusChange(ObaStop stop) {
+        if (mStopOverlay != null) {
+            mStopOverlay.doFocusChange(stop);
+        }
     }
 
     /**
@@ -1139,15 +1115,13 @@ public class BaseMapFragment extends SupportMapFragment
      * Updates markers for the provided routeIds from the status info from the given
      * ObaTripsForRouteResponse
      *
-     * @param routeIds markers representing real-time positions for the provided routeIds will be
-     *                 added to the map
      * @param response response that contains the real-time status info
      */
     @Override
-    public void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId) {
+    public void updateVehicles(ObaTripDetailsResponse response) {
         setupVehicleOverlay();
         if (mVehicleOverlay != null) {
-            mVehicleOverlay.updateVehicles(routeIds, response, tripId);
+            mVehicleOverlay.updateVehicles(response);
         }
     }
 
@@ -1218,24 +1192,22 @@ public class BaseMapFragment extends SupportMapFragment
     /**
      * Zoom to include the current map bounds plus the location of the nearest vehicle
      *
-     * @param routeIds markers representing real-time positions for the provided routeIds will be
-     *                 checked for proximity to the location (all other routes are ignored)
      * @param response trips-for-route API response, which includes real-time vehicle locations in
      *                 status
      */
     @Override
-    public void zoomIncludeClosestVehicle(HashSet<String> routeIds,
-                                          ObaTripsForRouteResponse response) {
+    public void zoomIncludeClosestVehicle(ObaTripDetailsResponse response) {
         if (mMap == null) {
             return;
         }
         LatLng closestVehicleLocation = MapHelpV2
-                .getClosestVehicle(response, routeIds, getMapCenterAsLocation());
+                .getClosestVehicle(response, getMapCenterAsLocation());
 
         LatLngBounds visibleBounds = mMap.getProjection().getVisibleRegion().latLngBounds;
 
         if (closestVehicleLocation == null || visibleBounds.contains(closestVehicleLocation)) {
             // Closest vehicle is already in view or is null - don't change camera
+            setMyLocation();
             return;
         }
 
@@ -1285,6 +1257,14 @@ public class BaseMapFragment extends SupportMapFragment
         }
     }
 
+    public ObaStop getFocusStop() {
+        if (mStopOverlay != null) {
+            return mStopOverlay.getFocus();
+        }
+
+        return null;
+    }
+
     @Override
     public void onCameraChange(CameraPosition cameraPosition) {
         Log.d(TAG, "onCameraChange");
@@ -1309,6 +1289,12 @@ public class BaseMapFragment extends SupportMapFragment
 
     public void onLocationChanged(Location l) {
         if (l == null) {
+            /*Location lastLocation = Application.getLastKnownLocation(getActivity(), mLocationHelper.getGoogleApiClient());
+            if (lastLocation != null) {
+                l = lastLocation;
+            } else {
+                return;
+            }*/
             return;
         }
 
@@ -1326,19 +1312,6 @@ public class BaseMapFragment extends SupportMapFragment
         if (mLocationChangedListener != null) {
             mLocationChangedListener.onLocationChanged(l);
         }
-
-        /*if (mMap != null) {
-            if (mCurrLocationMarker != null) {
-                mCurrLocationMarker.setPosition(latLng);
-            } else {
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                mCurrLocationMarker = mMap.addMarker(markerOptions);
-            }
-
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, MapParams.DEFAULT_ZOOM));
-        }*/
     }
 
     @Override
@@ -1433,6 +1406,7 @@ public class BaseMapFragment extends SupportMapFragment
                                 }
                             }
                     );
+
             return builder.create();
         }
 
@@ -1510,6 +1484,14 @@ public class BaseMapFragment extends SupportMapFragment
         locationPermissionDialog.show();
     }
 
+    public void refreshData() {
+        if (mControllers != null) {
+            for (MapModeController controller : mControllers) {
+                controller.notifyMapChanged();
+            }
+        }
+    }
+
     /**
      * Class responsible for listening to the clicks on the map or markers and propagating these
      * clicks to the overlays visible on the map.
@@ -1522,14 +1504,9 @@ public class BaseMapFragment extends SupportMapFragment
                 mStopOverlay.removeMarkerClicked(latLng);
             }
 
-            /*if (mBikeStationOverlay != null) {
-                mBikeStationOverlay.removeMarkerClicked(latLng);
-            }*/
-
             if (mVehicleOverlay != null) {
                 mVehicleOverlay.removeMarkerClicked(latLng);
             }
-
         }
 
         @Override
@@ -1541,11 +1518,6 @@ public class BaseMapFragment extends SupportMapFragment
                     return true;
                 }
             }
-            /*if (mBikeStationOverlay != null) {
-                if (mBikeStationOverlay.markerClicked(marker)) {
-                    return true;
-                }
-            }*/
             if (mVehicleOverlay != null) {
                 return mVehicleOverlay.markerClicked(marker);
             }

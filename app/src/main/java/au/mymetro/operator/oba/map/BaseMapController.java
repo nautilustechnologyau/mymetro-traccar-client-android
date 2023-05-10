@@ -233,10 +233,18 @@ public abstract class BaseMapController implements MapModeController,
     }
 
     @Override
-    public void setOnRoutesDataReceivedListener(OnRoutesDataReceivedListener listener) {
+    public void setRoutesDataReceivedListener(RoutesDataReceivedListener listener) {
     }
 
     @Override
-    public void setOnVehicleDataReceivedListener(OnVehicleDataReceivedListener listener) {
+    public void setVehicleDataReceivedListener(VehicleDataReceivedListener listener) {
+    }
+
+    @Override
+    public void setTripDetailsDataReceivedListener(TripDetailsDataReceivedListener listener) {
+    }
+
+    @Override
+    public void setStopDataReceivedListener(StopDataReceivedListener listener) {
     }
 }

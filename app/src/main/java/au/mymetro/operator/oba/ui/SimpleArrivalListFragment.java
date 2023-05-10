@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -57,8 +58,8 @@ public class SimpleArrivalListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<ObaArrivalInfoResponse> {
 
     public interface Callback {
-
         void onArrivalItemClicked(ObaArrivalInfo obaArrivalInfo, ArrivalInfo stopInfo, String agencyName, String blockId, View view);
+        void onArrivalDataReceived(ObaArrivalInfoResponse response);
     }
 
     private ObaStop mObaStop;
@@ -99,7 +100,7 @@ public class SimpleArrivalListFragment extends Fragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mObaStop != null) {
             outState.putString(MapParams.STOP_ID, mObaStop.getId());
@@ -133,7 +134,7 @@ public class SimpleArrivalListFragment extends Fragment
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        LoaderManager mgr = getActivity().getSupportLoaderManager();
+        LoaderManager mgr = LoaderManager.getInstance(this);
 
         mgr.initLoader(ARRIVALS_LIST_LOADER, getArguments(), this).forceLoad();
     }
@@ -173,14 +174,24 @@ public class SimpleArrivalListFragment extends Fragment
             if (info.length > 0) {
                 loadArrivalList(info, data.getRefs(), data.getCurrentTime());
             } else {
-                showErrorText();
+                clearViews();
             }
+        }
+
+        if (mCallback != null) {
+            mCallback.onArrivalDataReceived(data);
         }
     }
 
-    private void showErrorText() {
-        String text = getResources().getString(R.string.ri_no_trip);
-        ((TextView)getActivity().findViewById(R.id.simple_arrival_info_text)).setText(text);
+    private void clearViews() {
+        LinearLayout contentLayout = (LinearLayout) getActivity().
+                findViewById(R.id.simple_arrival_content);
+        if (contentLayout == null) {
+            contentLayout.removeAllViews();
+        }
+
+        //String text = getResources().getString(R.string.ri_no_trip);
+        //((TextView)getActivity().findViewById(R.id.simple_arrival_info_text)).setText(text);
     }
 
     public void setInfoVisibility(int visibility) {
@@ -194,6 +205,10 @@ public class SimpleArrivalListFragment extends Fragment
             return;
         }
         contentLayout.removeAllViews();
+
+        if (info == null || refs == null) {
+            return;
+        }
 
         ArrayList<ArrivalInfo> arrivalInfos = ArrivalInfoUtils.convertObaArrivalInfo(getActivity(),
                 info, new ArrayList<String>(), currentTime, false);
@@ -214,7 +229,7 @@ public class SimpleArrivalListFragment extends Fragment
 
             if (mSelectedArrivalInfo != null && mSelectedArrivalInfo.getTripId().equalsIgnoreCase(arrivalInfo.getTripId())) {
                 view.setBackgroundColor(getResources().getColor(R.color.theme_accent));
-                setInfoVisibility(View.GONE);
+                // setInfoVisibility(View.GONE);
             }
 
             TextView route = (TextView) view.findViewById(R.id.route);
@@ -294,7 +309,10 @@ public class SimpleArrivalListFragment extends Fragment
             view.setOnClickListener(view1 -> {
                 String agencyName = findAgencyNameByRouteId(refs, arrivalInfo.getRouteId());
                 String blockId = findBlockIdByTripId(refs, arrivalInfo.getTripId());
-                mCallback.onArrivalItemClicked(arrivalInfo, stopInfo, agencyName, blockId, view);
+
+                if (mCallback != null) {
+                    mCallback.onArrivalItemClicked(arrivalInfo, stopInfo, agencyName, blockId, view);
+                }
             });
         }
     }

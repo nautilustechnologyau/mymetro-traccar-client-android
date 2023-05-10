@@ -32,6 +32,8 @@ public final class ObaTripSchedule {
 
         private final long departureTime;
 
+        private final double distanceAlongTrip;
+
         private final String historicalOccupancy;
 
         private final String predictedOccupancy;
@@ -41,6 +43,7 @@ public final class ObaTripSchedule {
             stopHeadsign = "";
             arrivalTime = 0;
             departureTime = 0;
+            distanceAlongTrip = 0;
             historicalOccupancy = "";
             predictedOccupancy = "";
         }
@@ -73,6 +76,10 @@ public final class ObaTripSchedule {
          */
         public long getDepartureTime() {
             return departureTime;
+        }
+
+        public double getDistanceAlongTrip() {
+            return distanceAlongTrip;
         }
 
         /**

@@ -502,7 +502,7 @@ public class Application extends MultiDexApplication {
                 PRIMARY_CHANNEL, getString(R.string.channel_default), NotificationManager.IMPORTANCE_LOW
         );
         channel.setLightColor(Color.BLUE);
-        channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         ((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(channel);
     }
 

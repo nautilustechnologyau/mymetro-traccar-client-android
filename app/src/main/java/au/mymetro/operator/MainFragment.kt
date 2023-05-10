@@ -29,15 +29,21 @@ import android.webkit.URLUtil
 import android.widget.EditText
 import android.widget.Toast
 import androidx.preference.*
+import au.mymetro.operator.ApiKeyCheckerTask.ApiKeyCheckerTaskListener
 import au.mymetro.operator.app.Application
 import au.mymetro.operator.oba.io.ObaAnalytics
+import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment
 import au.mymetro.operator.oba.region.ObaRegionsTask
 import au.mymetro.operator.oba.ui.NavHelp
 import au.mymetro.operator.oba.ui.RegionsActivity
+import au.mymetro.operator.oba.util.UIUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import java.util.*
 
-class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener, ObaRegionsTask.Callback {
+class MainFragment : PreferenceFragmentCompat(),
+        OnSharedPreferenceChangeListener,
+        ObaRegionsTask.Callback,
+        ApiKeyCheckerTaskListener {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var alarmManager: AlarmManager
@@ -45,6 +51,15 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
     private var requestingPermissions: Boolean = false
     private var mAutoSelectInitialValue: Boolean = true
     private lateinit var mFirebaseAnalytics: FirebaseAnalytics
+    private lateinit var mRegionChangeListener: RegionPreferenceChangeListener
+
+    interface RegionPreferenceChangeListener {
+        fun onRegionPreferenceChanged(currentRegionChanged: Boolean)
+    }
+
+    fun setRegionPreferenceChangeListener(listener: RegionPreferenceChangeListener) {
+        mRegionChangeListener = listener
+    }
 
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -78,7 +93,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
         apiKeyPreference?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            ApiKeyCheckerTask().execute(activity, newValue as String?)
+            ApiKeyCheckerTask().execute(activity, activity, newValue as String?)
             true
         }
 
@@ -92,6 +107,13 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         }
 
         val regionClickListener = Preference.OnPreferenceClickListener { _ ->
+            /*sharedPreferences.edit().putBoolean(getString(R.string.preference_key_auto_select_region), false).apply()
+
+            Application.get().currentRegion = null
+            val callbacks: MutableList<ObaRegionsTask.Callback> = ArrayList()
+            callbacks.add(this)
+            val task = ObaRegionsTask(activity, callbacks, false, true)
+            task.execute()*/
             RegionsActivity.start(activity)
             true
         }
@@ -100,6 +122,18 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         findPreference<Preference>(KEY_ANGLE)?.onPreferenceChangeListener = numberValidationListener
 
         findPreference<Preference>(getString(R.string.preference_key_region))?.onPreferenceClickListener = regionClickListener
+        findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener {
+                    preference, newValue ->
+                    findPreference<Preference>(getString(R.string.preference_key_region))?.isEnabled = !(newValue as Boolean)
+                    if (newValue as Boolean) {
+                        val callbacks: MutableList<ObaRegionsTask.Callback> = ArrayList()
+                        callbacks.add(this)
+                        val task = ObaRegionsTask(activity, callbacks, false, true)
+                        task.execute()
+                    }
+                    true
+                }
 
         /*alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val originalIntent = Intent(activity, AutostartReceiver::class.java)
@@ -204,7 +238,12 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         findPreference<Preference>(KEY_WAKELOCK)?.isEnabled = enabled
         // findPreference<Preference>(KEY_VEHICLE)?.isEnabled = enabled
         findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled = enabled
-        findPreference<Preference>(getString(R.string.preference_key_region))?.isEnabled = enabled
+
+        if (enabled) {
+            findPreference<Preference>(getString(R.string.preference_key_region))?.isEnabled = !sharedPreferences.getBoolean(getString(R.string.preference_key_auto_select_region), true);
+        } else {
+            findPreference<Preference>(getString(R.string.preference_key_region))?.isEnabled = false
+        }
         findPreference<Preference>(getString(R.string.preference_key_oba_api_key))?.isEnabled = enabled
         findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled = enabled
     }
@@ -258,6 +297,7 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
         findPreference<Preference>(KEY_DEVICE)?.summary = sharedPreferences.getString(KEY_DEVICE, null)
 
         mAutoSelectInitialValue = findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled ?: true
+        findPreference<Preference>(getString(R.string.preference_key_region))?.isEnabled = !sharedPreferences.getBoolean(getString(R.string.preference_key_auto_select_region), true)
 
         // disable and hide the status preference
         val preference = findPreference<Preference>(KEY_STATUS)
@@ -413,8 +453,30 @@ class MainFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListene
             // Update the preference summary to show the newly selected region
             changePreferenceSummary(getString(R.string.preference_key_region))
 
+            UIUtils.showObaApiKeyInputDialog(activity, this)
+
             // Since the current region was updated as a result of enabling/disabling experimental servers, go home
-            NavHelp.goHome(activity, false)
+            // NavHelp.goHome(activity, false)
+        }
+
+        /*if (mRegionChangeListener != null) {
+            mRegionChangeListener.onRegionPreferenceChanged(currentRegionChanged)
+        }*/
+    }
+
+    override fun onApiCheckerTaskComplete(valid: Boolean?) {
+        if (java.lang.Boolean.TRUE == valid) {
+            /*val fm = activity!!.supportFragmentManager
+            val fragment = fm.findFragmentByTag(BaseMapFragment.TAG)
+
+            if (fragment != null) {
+                val mMapFragment = fragment as BaseMapFragment
+                mMapFragment.zoomToRegion()
+                mMapFragment.refreshData()
+            }*/
+        } else {
+            UIUtils.popupSnackbarForApiKey(activity, this)
+            // UIUtils.showObaApiKeyInputDialog(activity, this)
         }
     }
 

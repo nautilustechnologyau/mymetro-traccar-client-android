@@ -43,12 +43,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -56,11 +53,10 @@ import au.mymetro.operator.R;
 import au.mymetro.operator.app.Application;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaTrip;
-import au.mymetro.operator.oba.io.elements.ObaTripDetails;
 import au.mymetro.operator.oba.io.elements.ObaTripStatus;
 import au.mymetro.operator.oba.io.elements.OccupancyState;
 import au.mymetro.operator.oba.io.elements.Status;
-import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.ui.TripDetailsActivity;
 import au.mymetro.operator.oba.ui.TripDetailsListFragment;
@@ -87,7 +83,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
     private final BaseMapFragment mMapFragment;
 
-    private ObaTripsForRouteResponse mLastResponse;
+    private ObaTripDetailsResponse mLastResponse;
 
     private ObaTripStatus mLastStatus;
 
@@ -124,6 +120,8 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
     private static LruCache<String, Bitmap> mVehicleColoredIconCache;
     // Colored versions of vehicle_icons
+
+    private static Bitmap mCurrentVehicleBitmap;
 
     /**
      * If a vehicle moves less than this distance (in meters), it will be animated, otherwise it
@@ -163,18 +161,15 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
      * Updates vehicles for the provided routeIds from the status info from the given
      * ObaTripsForRouteResponse
      *
-     * @param routeIds routeIds for which to add vehicle markers to the map.  If a vehicle is
-     *                 running a route that is not contained in this list, the vehicle won't be
-     *                 shown on the map.
      * @param response response that contains the real-time status info
      */
-    public void updateVehicles(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId) {
+    public void updateVehicles(ObaTripDetailsResponse response) {
         // Make sure that the MarkerData has been initialized
         setupMarkerData();
         // Cache the response, so when a marker is tapped we can look up route names from routeIds, etc.
         mLastResponse = response;
         // Show the markers on the map
-        mMarkerData.populate(routeIds, response, tripId);
+        mMarkerData.populate(response);
     }
 
     public synchronized int size() {
@@ -639,19 +634,17 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
         /**
          * Updates markers for the provided routeIds from the status info from the given
-         * ObaTripsForRouteResponse
-         *
-         * @param routeIds markers representing real-time positions for the provided routeIds will
-         *                 be
-         *                 added to the map.  The response may contain status info for other routes
-         *                 as well - we'll only show markers for the routeIds in this HashSet.
-         * @param response response that contains the real-time status info
+         * ObaTripDetailsResponse
          */
-        synchronized void populate(HashSet<String> routeIds, ObaTripsForRouteResponse response, String tripId) {
+        synchronized void populate(ObaTripDetailsResponse response) {
+            if (response == null) {
+                return;
+            }
+
             int added = 0;
             int updated = 0;
 
-            List<ObaTripDetails> trips = new ArrayList<>();
+            /*List<ObaTripDetails> trips = new ArrayList<>();
             if (tripId != null) {
                 if (response.getTrips() != null && response.getTrips().length > 0) {
                     for (ObaTripDetails trip : response.getTrips()) {
@@ -663,14 +656,19 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                 }
             } else {
                 trips.addAll(Arrays.asList(response.getTrips()));
-            }
+            }*/
+
+            mRoute = response.getRoute(response.getTrip(response.getId()).getRouteId());
+            mLastResponse = response;
+            mLastStatus = response.getStatus();
+            //trips.add(response)
 
             // Keep track of the activeTripIds that should be shown on the map, so we don't need
             // to iterate again later for this same info
             HashSet<String> activeTripIds = new HashSet<>();
 
             // Add or move markers for vehicles included in response
-            for (ObaTripDetails trip : trips) {
+            /*for (ObaTripDetails trip : trips) {
                 ObaTripStatus status = trip.getStatus();
                 if (status != null) {
                     // Check if this vehicle is running a route we're interested in and isn't CANCELED
@@ -700,9 +698,45 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                         activeTripIds.add(status.getActiveTripId());
                     }
                 }
+            }*/
+
+            ObaTripStatus status = response.getStatus();
+            if (status != null) {
+                // Check if this vehicle is running a route we're interested in and isn't CANCELED
+                String activeRoute = response.getTrip(status.getActiveTripId()).getRouteId();
+                if (!Status.CANCELED.equals(status.getStatus())) {
+                    Location l = status.getLastKnownLocation();
+                    boolean isRealtime = false;
+
+                    if (l != null) {
+                        // If a potentially extrapolated location isn't available, use last position
+                        isRealtime = true;
+                    } else {
+                        l = status.getPosition();
+                        isRealtime = status.isPredicted();
+                    }
+
+                    Marker m = mVehicleMarkers.get(status.getActiveTripId());
+
+                    if (m == null) {
+                        // New activeTripId
+                        addMarkerToMap(l, isRealtime, response);
+                        added++;
+                    } else {
+                        updateMarker(m, l, isRealtime, response);
+                        updated++;
+                    }
+                    activeTripIds.add(status.getActiveTripId());
+                }
+
+                Location l = status.getLastKnownLocation();
+                if (l == null) {
+                    l = status.getPosition();
+                }
+                updateCameraLocation(null, l);
             }
 
-            if (tripId != null && !trips.isEmpty()) {
+            /*if (tripId != null && !trips.isEmpty()) {
                 ObaTripStatus status = trips.get(0).getStatus();
                 if (status != null) {
                     // double direction = MathUtils.toDirection(status.getOrientation());
@@ -714,7 +748,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                     }
                     updateCameraLocation(null, l);
                 }
-            }
+            }*/
             // Remove markers for any previously added tripIds that aren't in the current response
             int removed = removeInactiveMarkers(activeTripIds);
 
@@ -772,16 +806,15 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
          *
          * @param l          Location to add the marker at
          * @param isRealtime true if the marker shown indicate real-time info, false if it should indicate schedule
-         * @param status     the vehicles status to add to the map
          * @param response   the response which contained the provided status
          */
-        private void addMarkerToMap(Location l, boolean isRealtime, ObaTripStatus status,
-                                    ObaTripsForRouteResponse response) {
-
+        private void addMarkerToMap(Location l, boolean isRealtime,
+                                    ObaTripDetailsResponse response) {
+            ObaTripStatus status = response.getStatus();
             Marker m = mMap.addMarker(new MarkerOptions()
                     .position(MapHelpV2.makeLatLng(l))
                     .title(status.getVehicleId())
-                    .icon(getVehicleIcon(isRealtime, status, response))
+                    .icon(getVehicleIcon(isRealtime, response))
             );
             ProprietaryMapHelpV2.setZIndex(m, VEHICLE_MARKER_Z_INDEX);
             mVehicleMarkers.put(status.getActiveTripId(), m);
@@ -795,13 +828,13 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
          * @param l          Location to add the marker at
          * @param isRealtime true if the marker shown indicate real-time info, false if it should
          *                   indicate schedule
-         * @param status     real-time status of the vehicle
          * @param response   response containing the provided status
          */
-        private void updateMarker(Marker m, Location l, boolean isRealtime, ObaTripStatus status,
-                                  ObaTripsForRouteResponse response) {
+        private void updateMarker(Marker m, Location l, boolean isRealtime,
+                                  ObaTripDetailsResponse response) {
+            ObaTripStatus status = response.getStatus();
             boolean showInfo = m.isInfoWindowShown();
-            m.setIcon(getVehicleIcon(isRealtime, status, response));
+            m.setIcon(getVehicleIcon(isRealtime, response));
             // Update Hashmap with newest status - needed to show info when tapping on marker
             mVehicles.put(m, status);
             // Update vehicle position
@@ -875,12 +908,11 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
          *
          * @param isRealtime true if the marker shown indicate real-time info, false if it should
          *                   indicate schedule
-         * @param status     the vehicles status to add to the map
          * @param response   the response which contained the provided status
          * @return an icon for the vehicle that should be shown on the map
          */
-        private BitmapDescriptor getVehicleIcon(boolean isRealtime, ObaTripStatus status,
-                                                ObaTripsForRouteResponse response) {
+        private BitmapDescriptor getVehicleIcon(boolean isRealtime, ObaTripDetailsResponse response) {
+            ObaTripStatus status = response.getStatus();
             String routeId = response.getTrip(status.getActiveTripId()).getRouteId();
             ObaRoute route = response.getRoute(routeId);
             int vehicleType = route.getType();
@@ -907,7 +939,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
          * @return an icon for the vehicle that should be shown on the map
          */
         private BitmapDescriptor getCurrentVehicleIcon(Location location) {
-            int vehicleType = 0;
+            /*int vehicleType = 0;
             if (mRoute != null) {
                 vehicleType = mRoute.getType();
             }
@@ -916,9 +948,17 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
 
             double direction = MathUtils.toDirection(location.getBearing());
             int halfWind = MathUtils.getHalfWindIndex((float) direction, NUM_DIRECTIONS - 1);
-
             Bitmap b = getBitmap(vehicleType, colorResource, halfWind);
-            return BitmapDescriptorFactory.fromBitmap(b);
+            return BitmapDescriptorFactory.fromBitmap(b);*/
+
+            if (mCurrentVehicleBitmap == null) {
+                Resources r = Application.get().getResources();
+                Bitmap bitmap = BitmapFactory.decodeResource(r, R.drawable.ic_compass);
+                int color = ContextCompat.getColor(mActivity, R.color.quantum_googblue);
+                mCurrentVehicleBitmap = UIUtils.colorBitmap(bitmap, color);
+            }
+
+            return BitmapDescriptorFactory.fromBitmap(mCurrentVehicleBitmap);
         }
 
         synchronized ObaTripStatus getStatusFromMarker(Marker marker) {
@@ -973,7 +1013,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                 vehicleLocation = mLastVehicleLocation;
             }
 
-            if (vehicleLocation != null) {
+            /*if (vehicleLocation != null) {
                 LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
                 LatLng curLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                 LatLng vehicleLatLng = new LatLng(vehicleLocation.getLatitude(), vehicleLocation.getLongitude());
@@ -984,6 +1024,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                 CameraPosition.Builder builder = new CameraPosition.Builder();
                 builder.target(MapHelpV2.makeLatLng(currentLocation));
                 builder.zoom(MapParams.DEFAULT_ZOOM);
+                builder.tilt(30);
                 builder.bearing(currentLocation.getBearing());
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
             } else {
@@ -991,9 +1032,18 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
                 builder.target(MapHelpV2.makeLatLng(currentLocation));
                 // Use default zoom level
                 builder.zoom(MapParams.DEFAULT_ZOOM);
+                builder.tilt(30);
                 builder.bearing(currentLocation.getBearing());
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
-            }
+            }*/
+
+            CameraPosition.Builder builder = new CameraPosition.Builder();
+            builder.target(MapHelpV2.makeLatLng(currentLocation));
+            // Use default zoom level
+            builder.zoom(MapParams.DEFAULT_ZOOM);
+            // builder.tilt(30);
+            builder.bearing(currentLocation.getBearing());
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(builder.build()));
 
         }
         public void updateCameraBearing(float bearing) {

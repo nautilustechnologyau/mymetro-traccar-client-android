@@ -1,5 +1,7 @@
 package au.mymetro.operator.ui.info;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,13 +24,13 @@ public class InfoFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        //InfoViewModel infoViewModel =
-        //        new ViewModelProvider(this).get(InfoViewModel.class);
+        setHasOptionsMenu(false);
 
         binding = FragmentInfoBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        return root;
+
+        updateAboutText();
+
+        return binding.getRoot();
     }
 
     @Override
@@ -50,5 +52,31 @@ public class InfoFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void updateAboutText() {
+        String versionString = "";
+        int versionCode = 0;
+        try {
+            PackageInfo info = requireActivity().getPackageManager().getPackageInfo(requireActivity().getPackageName(), 0);
+            versionString = info.versionName;
+            versionCode = info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        StringBuilder builder = new StringBuilder();
+        // Version info
+        builder.append("v")
+                .append(versionString)
+                .append(" (")
+                .append(versionCode)
+                .append(")\n\n");
+
+        // Majority of content from string resource
+        builder.append(getString(R.string.about_text));
+        builder.append("\n\n");
+
+        binding.aboutText.setText(builder.toString());
     }
 }

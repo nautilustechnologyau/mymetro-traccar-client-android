@@ -29,7 +29,8 @@
         android:layout_gravity="center"
         android:foreground="?attr/selectableItemBackground"
         card_view:cardCornerRadius="4dp"
-        card_view:cardUseCompatPadding="true">
+        card_view:cardUseCompatPadding="true"
+        android:visibility="gone">
     <!--
     <FrameLayout
             android:id="@+id/simple_arrival_info_frame"
@@ -52,7 +53,8 @@
                 style="@style/MaterialItem"
                 android:textSize="15sp"
                 android:id="@+id/simple_arrival_info_text"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:visibility="gone"/>
 
     </androidx.cardview.widget.CardView>
 

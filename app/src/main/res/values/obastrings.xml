@@ -24,15 +24,12 @@
 
     <!-- Navigation Drawer -->
     <string name="navdrawer_item_nearby">Nearby</string>
-    <string name="navdrawer_item_starred_stops">Starred stops</string>
     <string name="navdrawer_item_my_reminders">My reminders</string>
     <string name="navdrawer_item_settings">Settings</string>
     <string name="navdrawer_item_help">Help</string>
     <string name="navdrawer_item_send_feedback">Send feedback</string>
     <string name="navdrawer_item_open_source">Visit us on GitHub</string>
-    <string name="navdrawer_item_plan_trip">Plan a trip (beta)</string>
     <string name="navdrawer_item_pay_fare">Pay my fare</string>
-    <string name="navdrawer_item_region">Your region</string>
 
     <!-- Permissions -->
     <string name="trip_service_perm_label">start the trip service</string>
@@ -105,27 +102,8 @@
     <string name="map_option_search">Search</string>
     <string name="main_help_title">Help</string>
     <string name="main_help_whatsnew_title">What\'s New?</string>
-    <string name="main_help_whatsnew">&#8226;\u0020
-        <b>Real-time occupancy for WMATA</b>
-        - See how many passengers are on supported vehicles in real-time for the Washington, D.C. region.\n&#8226;\u0020
-        <b>Options to hide all alerts</b>
-        - New menu option to hide all alerts for a stop in one tap, and a new Settings option to hide all alerts by default.\n&#8226;\u0020
-        <b>Italian translation</b>
-        - Thanks Eleonora Fabbri!\n&#8226;\u0020
-        <b>Bug fixes and improvements</b>
-        - See https://bit.ly/oba-android-releases
-    </string>
     <string name="main_help_close">Close</string>
     <string name="main_help_legend_title">Legend</string>
-    <string name="main_help_legend_ontime">Green means \"On time\"</string>
-    <string name="main_help_legend_late">Blue means \"Running late\"</string>
-    <string name="main_help_legend_early">Red means \"Running early\"</string>
-    <string name="main_help_legend_scheduled">Gray means \"Scheduled arrival\" - We don\'t know
-        where the bus is now, but the schedule says there is an upcoming arrival
-    </string>
-    <string name="main_help_legend_canceled">Gray with strikethrough means the trip has been
-        canceled - this bus is NOT coming
-    </string>
     <string name="main_nolocation_title">Location not enabled</string>
     <string name="main_nolocation">OneBusAway would like your location, do you want to enable it
         now?
@@ -361,7 +339,6 @@
     <string name="route_info_context_showonmap">Show on map</string>
     <string name="route_info_goto_url">View schedule</string>
     <string name="route_info_no_shape_data">Sorry, map information isn\'t available for this route</string>
-    <string name="route_info_favorite">Favorite route</string>
 
     <!-- My stops/routes -->
     <string name="my_recent_title">Recent</string>
@@ -375,15 +352,12 @@
         the arrivals screen by tapping on the star next to the stop name.
     </string>
     <string name="my_no_recent_routes">You have no recent routes.</string>
-    <string name="my_no_starred_routes">You have no starred routes.\n\nYou can add a star to a route on
-        the arrivals screen by tapping on the star next to the route name.</string>
     <string name="route_favorite_options_title_star">Star Route \"%s\" for:</string>
     <string name="route_favorite_options_title_unstar">Remove star from \"%s\" for:</string>
 
     <string name="my_option_clear_recent_stops">Clear recent stops</string>
     <string name="my_option_clear_recent_routes">Clear recent routes</string>
     <string name="my_option_clear_starred_stops">Remove all starred stops</string>
-    <string name="my_option_clear_starred_routes">Remove all starred routes</string>
     <string name="my_option_clear_confirm">There\'s no going back! Go ahead?</string>
     <string name="my_option_clear_confirm_title">Sure about this?</string>
 
@@ -435,7 +409,6 @@
     <string name="recent_stops_shortcut">Recent Stops</string>
     <string name="recent_routes_shortcut">Recent Routes</string>
     <string name="starred_stops_shortcut">Starred Stops</string>
-    <string name="starred_routes_shortcut">Starred Routes</string>
     <string name="route_name">Route %s</string>
 
     <!--  Trip info -->
@@ -511,7 +484,6 @@
     <!-- Report problem -->
     <string name="report_problem_comment_hint">Problem description (optional)</string>
     <string name="report_problem_send">Send</string>
-    <string name="report_problem_hint">Your reports help OneBusAway find and fix problems!</string>
     <string name="report_problem_error">Unable to send the report. Try again?</string>
     <string name="report_problem_invalid_argument">Please choose a problem category.</string>
     <!-- TODO: Modes -->
@@ -565,9 +537,6 @@
     <string name="region_region_found">Found %1$s region</string>
 
     <!--  Bug report -->
-    <string name="bug_report_subject">OneBusAway Android: Feedback</string>
-    <string name="bug_report_subject_trip_plan">OneBusAway Android: Trip Plan Feedback</string>
-    <string name="bug_report_subject_trip_plan_fail">OneBusAway Android: Trip Plan Failed Feedback</string>
     <string name="bug_report_body">Complaints, kudos, or bug reports are welcome!\n\n\nApp Version:
         %1$s\nModel: %2$s\nOS Version: %3$s / %4$d\nGoogle Play Services App: %5$s\n
         Google Play Services Library: %6$d\nRegion/API: %7$s (%8$s)\nLoc: %9$s\n\n
@@ -660,7 +629,6 @@
     <string name="preferences_left_hand_mode_summary">Flips placement of some buttons to the left side of the screen
     </string>
 
-    <string name="preferences_arrival_info_style_options_a">OneBusAway classic</string>
     <string name="preferences_arrival_info_style_options_b">Cards</string>
 
     <string name="preferences_otp_api_servername_title">OpenTripPlanner API Server</string>
@@ -676,14 +644,12 @@
     <string name="preferences_save_title">Save to storage</string>
     <string name="preferences_save_summary">Saves your starred and recent stops and routes</string>
     <string name="preferences_restore_title">Restore from storage</string>
-    <string name="preferences_restore_summary">Restores from previous save. After selecting this option you\'ll be asked to pick a file. Please select \"db.backup\" or \"OneBusAway.backup\", which will be in a folder \"OBABackups\", likely on your SD card or under your \"Documents\" folder.</string>
 
     <string name="preferences_db_saved">Saved successfully!</string>
     <string name="preferences_db_save_error">Unable to save: %1$s</string>
     <string name="preferences_db_restore_warning">This will wipe out any existing data! Go ahead?
     </string>
     <string name="preferences_restore_loading">Restoring from storage&#8230;</string>
-    <string name="preferences_db_restored">Restore successful! Please restart OneBusAway.</string>
     <string name="preferences_db_restore_error">Unable to restore: %1$s</string>
 
     <string name="preferences_experimental_regions_title">Experimental regions</string>
@@ -703,7 +669,6 @@
     <string name="preferences_tutorial_summary">Show instructions for using this app</string>
     <string name="preferences_donate_title">Donate</string>
     <string name="preferences_donate_summary">Support the OneBusAway open-source project</string>
-    <string name="preferences_powered_by_oba_title">Powered by OneBusAway</string>
     <string name="preferences_powered_by_oba_summary">Find out more about the open-source project
     </string>
 
@@ -736,11 +701,8 @@
     <string name="minutes_full">minutes</string>
 
     <string name="preferences_preferred_vibration_title">Vibrate</string>
-    <string name="preferences_preferred_vibration_summary">Let OneBusAway notifications vibrate</string>
 
     <string name="preferences_preferred_sound_title">Reminder sound</string>
-    <string name="preferences_preferred_sound_summary">Select the OneBusAway notification tone</string>
-    <string name="preferences_category_parent_advanced">Parent Advanced</string>
 
     <!-- Navigation Drawer -->
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -834,21 +796,8 @@
 
     <!-- Tutorials -->
     <string name="tutorial_button_text">Got it!</string>
-    <string name="tutorial_welcome_title">Welcome to OneBusAway!</string>
-    <string name="tutorial_welcome_text">Tap on a stop (green dot on the map) to see arrival
-        times.
-    </string>
     <string name="tutorial_opt_out_dialog_title">Show tutorial?</string>
-    <string name="tutorial_opt_out_dialog_text">Would you like to see popup descriptions for how to
-        use OneBusAway? You can always turn the popups on or off in Settings, or show the
-        tutorial later via Help.
-    </string>
     <string name="tutorial_arrival_header_arrival_info_title">How long until your bus arrives?
-    </string>
-    <string name="tutorial_arrival_header_arrival_info_text">This long! Colored background tells you
-        if the bus is early (red) or late (blue). On time = green background. If we don\'t know
-        where the bus is, the scheduled time is shown (gray background). Gray with strikethrough text
-        (a line through it) means the trip is canceled.
     </string>
     <string name="tutorial_arrival_header_sliding_panel_title">Slide up to show more arrivals
     </string>
@@ -885,73 +834,15 @@
 
     <!-- Permissions -->
     <string name="location_permissions_title">Location permissions</string>
-    <string name="location_permissions_message">We recommend allowing location use while the app is
-        running to show your real-time position on the map and automatically select your OneBusAway
-        region for your local transit agency. This location data is not collected by OneBusAway.
-
-        \n\nAlternately, you can manually select your region if you choose not to allow
-        location permissions.
-    </string>
     <string name="no_thanks">No thanks</string>
 
     <string name="storage_permissions_title">Access to device storage is required</string>
-    <string name="storage_permissions_message">To backup or restore your data, OneBusAway needs permission to access your local device storage.</string>
 
     <!-- About -->
     <string name="title_activity_about">About</string>
-    <string name="about_text">
-        "Find out more about the OneBusAway open-source project at https://onebusaway.org.\n\n"
-
-        "*** Code ***\n\n"
-
-        "We'd like to thank the following who have contributed code to OneBusAway Android:\n\n"
-
-        "* Paul Watts\n"
-        "* Brian Ferris\n"
-        "* Daniel Welsh\n"
-        "* Arno Hart\n"
-        "* Sean Barbeau\n"
-        "* York Region Transit\n"
-        "* Ben Du\n"
-        "* Cagri Cetin\n"
-        "* Mike Karabushin\n"
-        "* Aziz Batihk\n"
-        "* Charles Bond\n"
-        "* Hillsborough Area Regional Transit (via Simon Jacobs at Cambridge Systematics)\n"
-        "* Bridgette Eichelberger\n"
-        "* Rodrigo Carvalho (Google Summer of Code 2017)\n"
-        "* Steve Moritani\n"
-        "* Ellen Conley\n\n"
-
-        "Want to contribute to this app? Check it out on Github at
-        https://github.com/OneBusAway/onebusaway-android.\n\n"
-
-        "*** Translations ***\n\n"
-
-        "We'd like to thank those who have contributed translations to OneBusAway Android:\n\n"
-
-        "* Ari Rusakko\n"
-        "* Eleonora Fabbri\n"
-        "* Edgar Andrés Moncada Taborda\n\n"
-
-        "*** Images ***\n\n"
-
-        "Thanks to the designers who created images used in the vehicle icons, which were uploaded "
-        "to the Noun Project under CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/us/):\n\n"
-
-        "* Arrow by Zlatko Najdenovski, MK\n"
-        "* Map Marker by Housin Aziz, SE\n"
-        "* Incognito by Christopher Schreiner\n"
-        "* Flag Triangle by Austin Andrews\n\n"
-
-        "Thanks to Google for the material design icons
-        (https://github.com/google/material-design-icons), "
-        "licensed under Apache v2.0 (https://www.apache.org/licenses/LICENSE-2.0).\n\n"
-    </string>
 
     <!-- Trip Planner strings -->
 
-    <string name="title_activity_trip_plan">Trip Planner (beta)</string>
     <string name="trip_plan_from">From: </string>
     <string name="trip_plan_to">To: </string>
     <string name="trip_plan_leaving">Leaving</string>
@@ -1150,10 +1041,6 @@
     <string name="trip_plan_early">Your trip is early.</string>
 
     <!-- Trip plan advanced settings -->
-    <string name="trip_plan_advanced_settings">Additional Trip Preferences</string>
-    <string name="minimize_transfers">Minimize transfers</string>
-    <string name="maximum_walk_distance">Maximum walk distance: </string>
-    <string name="wheelchair_accessible">Avoid stairs</string>
 
     <string name="travel_by_label">Travel by: </string>
     <string name="transit_mode_transit_only">Transit only</string>
@@ -1173,10 +1060,6 @@
     <string name="floating_bike_title">Tap to reserve this bike</string>
 
     <string name="application_ignoring_battery_opt_title">Performance Alert!</string>
-    <string name="application_ignoring_battery_opt_message">Battery optimizations are enabled for
-        this application which may decrease the performance of the application. To get the best experience
-        from this application, please go to settings and disable performance optimizations for OneBusAway.
-    </string>
 
     <!--Travel Behaviour data collection-->
     <string name="travel_behavior_opt_in_message">We\'d like your help with research to improve transit service.</string>
@@ -1204,15 +1087,92 @@
     <string name="cancel">Cancel</string>
 
     <!-- Rate app -->
-    <string name="navdrawer_item_rate_app">Rate OneBusAway</string>
-    <string name="rate_title">Enjoying OneBusAway?</string>
-    <string name="rate_message">If you are enjoying using OneBusAway, please take a moment to rate it. Your rating and feedback will help us improving the app.</string>
+
+    <!-- Remove ads -->
+
+    <!-- MyMetro overridden -->
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Welcome to MyMetro Onboard App!</string>
+    <string name="tutorial_welcome_text">Tap on a stop (purple dot on the map) to see arrival
+        times.
+    </string>
+    <string name="tutorial_opt_out_dialog_text">Would you like to see popup descriptions for how to
+        use MyMetro? You can always turn the popups on or off in Settings, or show the
+        tutorial later via Help.
+    </string>
+    <string name="tutorial_arrival_header_arrival_info_text">This long! Colored background tells you
+        if the bus is early (dark indigo) or late (light indigo). On time = normal indigo background. If we don\'t
+        know where the bus is, the scheduled time is shown (light purple background).
+    </string>
+    <string name="location_permissions_message">MyMetro Onboard App collects location data to enable to show
+        your real-time position on the map and automatically select your MyMetro region for your local transit agency
+        even when the app is running in background or not in use. The location service is also required to send/receive
+        virtual hail requests. This app also acts as an AVL module to send location data to transit server to determine
+        the current trip position.
+    </string>
+    <string name="storage_permissions_message">To backup or restore your data, MyMetro needs permission to access your local device storage.</string>
+
+    <string name="report_problem_hint">Your reports help MyMetro find and fix problems!</string>
+    <!--  Bug report -->
+    <string name="bug_report_subject">MyMetro Onboard App: Feedback</string>
+    <string name="bug_report_subject_trip_plan">MyMetro Onboard App: Trip Plan Feedback</string>
+    <string name="bug_report_subject_trip_plan_fail">MyMetro Onboard App: Trip Plan Failed Feedback</string>
+
+    <string name="preferences_arrival_info_style_options_a">MyMetro classic</string>
+    <string name="preferences_db_restored">Restore successful! Please restart MyMetro Onboard App.</string>
+    <string name="preferences_preferred_vibration_summary">Let MyMetro Onboard App notifications vibrate</string>
+    <string name="preferences_preferred_sound_summary">Select the MyMetro Onboard App notification tone</string>
+    <string name="preferences_category_parent_advanced">Parent Advanced</string>
+    <string name="preferences_restore_summary">Restores from previous save. After selecting this option you\'ll be asked to pick a file. Please select \"db.backup\" or \"MyMetroOnboard.backup\", which will be in a folder \"MyMetroBackups\", likely on your SD card or under your \"Documents\" folder.</string>
+    <string name="preferences_powered_by_oba_title">Powered by Nautilus Technology</string>
+
+    <string name="about_text">
+        "Nautilus Technology is an Australian startup technology company with the vision of"
+        "creating and accelerating competitive advantages through cutting-edge technology and"
+        "solutions.\n\nMyMetro was initially launched to provide support to the transit riders of"
+        "Australian Cities. Over the time it has extended it\'s service to other parts of the world."
+        "Please visit https://mymetro.au for more details.\n\nMyMetro"
+        "Onboard App is in-vehicle AVL application which allows a vehicle to integrate"
+        "with MyMetro transit platform. This app will enable the driver to select current trip."
+        "The app will automatically send AVL data to MyMetro transit server.\n\nMyMetro"
+        "Onboard platform is based the opensource Transit Clock real-time transit information project."
+        "The goal is to use any type of real-time GPS data to generate useful public transportation information."
+        "The system is for both letting passengers know the status of their vehicles and helping agencies more"
+        "effectively manage their systems. By providing a complete open-source system, agencies can have a"
+        "cost effective system and have full ownership of it.\n\nVisit"
+        "https://github.com/TheTransitClock/transitime for more details\n\nFor"
+        "further information, please contact support@mymetro.au"
+    </string>
+
+    <!-- Trip Planner strings -->
+    <string name="title_activity_trip_plan">Trip Planner</string>
+    <string name="navdrawer_item_plan_trip">Plan a trip</string>
+
+    <!-- See src/main/res/strings.xml for more strings you can override here -->
+    <string name="main_help_legend_ontime">Indigo means \"On time\"</string>
+    <string name="main_help_legend_late">Light indigo means \"Running late\"</string>
+    <string name="main_help_legend_early">Dark indigo means \"Running early\"</string>
+    <string name="main_help_legend_scheduled">Light purple means \"Scheduled arrival\" - We don\'t know
+        where the bus is now, but the schedule says there is an upcoming arrival
+    </string>
+    <string name="main_help_legend_canceled">Light purple with strikethrough means the trip has been
+        canceled - this bus is NOT coming
+    </string>
+
+    <string name="zoom_control_zoom_in">Zoom In</string>
+    <string name="zoom_control_zoom_out">Zoom Out</string>
+
+    <string name="application_ignoring_battery_opt_message">Battery optimizations are enabled for
+        this application which may decrease the performance of the application. To get the best experience
+        from this application, please go to settings and disable performance optimizations for MyMetro.
+    </string>
+    <string name="navdrawer_item_rate_app">Rate MyMetro</string>
+    <string name="rate_title">Enjoying MyMetro?</string>
+    <string name="rate_message">If you are enjoying using MyMetro, please take a moment to rate it. Your rating and feedback will help us improving the app.</string>
     <string name="rate_positive">Yes</string>
     <string name="rate_never">Don\'t Show Again</string>
     <string name="rate_remind_later">Remind Me Later</string>
     <string name="analytics_label_button_press_rate_app">rate_app</string>
-
-    <!-- Remove ads -->
     <string name="navdrawer_item_remove_ads">Remove Ads</string>
     <string name="remove_ads_title">Remove Ads</string>
     <string name="remove_ads_btn_label">Buy Ads Free Subscription</string>
@@ -1220,7 +1180,7 @@
     <string name="remove_ads_message1">Though we are trying to show ads at a minimal level, we understand that seeing ads sometimes can be annoying. However, ads help us covering the huge cost to keep the infrastructure running on the cloud. It also supports the on going development to improve the app.</string>
     <string name="remove_ads_message2">Purchasing subscription is optional. By purchasing Ads Free Subscription you will enjoy ads free seamless in-app experience. Your purchase will be a great support and much appreciated.</string>
     <string name="remove_ads_message3">Payments will be charged using your Google account. The subscription will be automatically renewed yearly unless you cancel it at least 24 hours before the anniversary of current subscription. You can manage and cancel your subscription from your Google account\'s Subscriptions section. Visit https://play.google.com/store/account/subscriptions</string>
-    <string name="remove_ads_message4">By purchasing this subscription you are agreeing to OneBusAway Terms of Use https://onebusaway.org/terms-of-use</string>
+    <string name="remove_ads_message4">By purchasing this subscription you are agreeing to MyMetro Terms of Use https://www.mymetro.au/terms-of-use</string>
     <string name="remove_ads_already_purchased">You already have purchased this subscription.</string>
     <string name="remove_ads_product_unavailable">The subscription is not available in your region.</string>
     <string name="remove_ads_product_not_found">The subscription is not available anymore.</string>
@@ -1232,4 +1192,30 @@
     <string name="analytics_label_button_press_remove_ads">remove_ads</string>
     <string name="analytics_label_button_press_buy_ads_free_subscription">buy_ads_free_subscription</string>
 
+    <!-- Trip plan advanced settings -->
+    <string name="trip_plan_advanced_settings">Additional Trip Preferences</string>
+    <string name="minimize_transfers">Minimize transfers</string>
+    <string name="maximum_walk_distance">Maximum walk distance: </string>
+    <string name="wheelchair_accessible">Avoid stairs during walk</string>
+
+    <string name="my_option_clear_starred_routes">Remove all starred routes</string>
+    <string name="route_info_favorite">Favorite route</string>
+    <string name="starred_routes_shortcut">Starred Routes</string>
+    <string name="navdrawer_item_starred_stops">Starred stops/routes</string>
+    <string name="my_no_starred_routes">You have no starred routes.\n\nYou can add a star to a route on
+        the arrivals screen by tapping on the star next to the route name.
+    </string>
+
+    <string name="navdrawer_item_region">Your region</string>
+
+    <string name="main_help_whatsnew">
+        <b>New feature</b>\n&#8226;\u0020
+        Open311 Integration\n&#8226;\u0020
+        Users can track their submitted problem reports\n&#8226;\u0020
+        On-screen shortcut for stop actions\n
+        <b>Bug fixes</b>\n&#8226;\u0020
+        Crash bug fix\n&#8226;\u0020
+        Performance improvement\n&#8226;\u0020
+        Libraries upgrade
+    </string>
 </resources>

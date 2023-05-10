@@ -138,6 +138,7 @@ public class ObaRegionsTask extends AsyncTask<Void, Integer, ArrayList<ObaRegion
     protected void onPostExecute(ArrayList<ObaRegion> results) {
         if (results == null) {
             //This is a catastrophic failure to load region info from all sources
+            clearCallbacks();
             return;
         }
 
@@ -198,6 +199,8 @@ public class ObaRegionsTask extends AsyncTask<Void, Integer, ArrayList<ObaRegion
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
         }
+
+        clearCallbacks();
 
         super.onPostExecute(results);
     }
@@ -260,6 +263,12 @@ public class ObaRegionsTask extends AsyncTask<Void, Integer, ArrayList<ObaRegion
         };
         mPauseForCallbackHandler.postDelayed(mPauseForCallback,
                 CALLBACK_DELAY);
+    }
+
+    private void clearCallbacks() {
+        if (mCallbacks != null) {
+            mCallbacks.clear();
+        }
     }
 
     public void setProgressDialogMessage(String progressDialogMessage) {

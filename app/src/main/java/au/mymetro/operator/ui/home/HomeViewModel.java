@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import au.mymetro.operator.oba.io.elements.ObaArrivalInfo;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
 import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.map.MapParams;
 
 public class HomeViewModel extends ViewModel {
@@ -17,6 +19,8 @@ public class HomeViewModel extends ViewModel {
     private final MutableLiveData<String> mBlockId;
     private final MutableLiveData<ObaArrivalInfo> mArrivalInfo;
     private final MutableLiveData<ObaStop> mStop;
+    private final MutableLiveData<ObaTripDetailsResponse> mResponse;
+    private final MutableLiveData<ObaRegion> mRegionChanged;
 
     public HomeViewModel() {
         mServiceStatus = new MutableLiveData<>();
@@ -26,6 +30,8 @@ public class HomeViewModel extends ViewModel {
         mBlockId = new MutableLiveData<>();
         mArrivalInfo = new MutableLiveData<>();
         mStop = new MutableLiveData<>();
+        mResponse = new MutableLiveData<>();
+        mRegionChanged = new MutableLiveData<>();
         mMapMode.setValue(MapParams.MODE_STOP);
     }
 
@@ -85,6 +91,14 @@ public class HomeViewModel extends ViewModel {
         return mRouteId;
     }
 
+    public MutableLiveData<ObaTripDetailsResponse> getResponse() {
+        return mResponse;
+    }
+
+    public void setResponse(ObaTripDetailsResponse response) {
+        mResponse.setValue(response);
+    }
+
     public void setBlockId(String blockId) {
         mBlockId.setValue(blockId);
     }
@@ -124,5 +138,12 @@ public class HomeViewModel extends ViewModel {
         }
 
         mStop.setValue(stop);
+    }
+
+    public MutableLiveData<ObaRegion> getRegionChanged() {
+        return mRegionChanged;
+    }
+    public void setRegionChanged(ObaRegion changed) {
+        mRegionChanged.setValue(changed);
     }
 }

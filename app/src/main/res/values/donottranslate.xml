@@ -78,16 +78,10 @@
     <!-- IdeaScale URL -->
     <string name="ideascale_url">https://onebusaway.ideascale.com/a/ideas/top/campaign-filter/byids/campaigns/46167</string>
 
-    <!-- Powered by OBA URL -->
-    <string name="powered_by_oba_url">https://onebusaway.org</string>
-
     <!-- Travel Behavior Study Participant Info Url-->
     <string name="travel_behavior_participants_url">https://script.google.com/macros/s/AKfycbyUnU7wYhGk_Y6UyEjQ0ePNn9avA3jA7QqDHI2PzKg2RYftrj9x/exec</string>
 
     <string name="travel_behavior_participants_opt_out_url">https://script.google.com/macros/s/AKfycbyrCNQluXQHpMZt-jYqjdmV9CLT43sSCeGcIS1yNJtWB5LCtSOw/exec</string>
-
-    <!-- Open-source link for Github project -->
-    <string name="open_source_github">https://github.com/OneBusAway/onebusaway-android</string>
 
     <!-- StopInfo project (see #103) -->
     <string name="stop_info_url_path">busstops</string>
@@ -121,12 +115,6 @@
     <string name="analytics_label_sort_by_mfu_stops">Clicked sort by most frequently used from
         MyStarredStopsFragment
     </string>
-    <string name="analytics_label_sort_by_name_routes">
-        Clicked sort by name from MyStarredRoutesFragment
-    </string>
-    <string name="analytics_label_sort_by_mfu_routes">
-        Clicked sort by most frequently used from MyStarredRoutesFragment
-    </string>
     <string name="analytics_label_sort_by_name_reminder">Clicked sort by name from
         MyRemindersFragment
     </string>
@@ -138,7 +126,6 @@
     <string name="analytics_label_hide_arrivals_in_header">Clicked hide arrivals in header
     </string>
     <string name="analytics_label_trip_plan">Planned a Trip</string>
-    <string name="analytics_label_button_press_star">starred_stops</string>
     <string name="analytics_label_button_press_nearby">nearby</string>
     <string name="analytics_label_button_press_reminders">my_reminders</string>
     <string name="analytics_label_button_press_trip_plan">trip_plan</string>
@@ -239,13 +226,8 @@
     <string name="ri_append_schedule_deviation">schedule_deviation=%1$s min;\n</string>
     <string name="ri_append_schedule_deviation_early">schedule_deviation=%1$s min early;\n</string>
     <string name="ri_append_schedule_deviation_late">schedule_deviation=%1$s min late;\n</string>
-    <string name="ri_static_user_name">OneBusAway</string>
-    <string name="ri_static_user_last_name">User</string>
-    <string name="ri_static_user_email">issue-report@onebusaway.org</string>
-    <string name="ri_static_user_phone"></string>
     <string name="ri_selected_service_stop">stop</string>
     <string name="ri_selected_service_trip">trip</string>
-    <string name="ri_app_feedback_email">android-app@onebusaway.org</string>
 
     <string name="arrival_list_stop_directions">\u0020(%1$s)</string>
 
@@ -261,4 +243,22 @@
     <string name="analytics_label_custom_metadata_feedback">FeedbackText</string>
 
     <string name="not_request_battery_optimizations_key">request_battery_optimizations_key</string>
+
+    <!-- MyMetro overridden -->
+    <!-- Problem reporting additions -->
+    <string name="ri_static_user_name">MyMetro</string>
+    <string name="ri_static_user_last_name">User</string>
+    <string name="ri_static_user_email">support@mymetro.au</string>
+    <string name="ri_static_user_phone">N/A</string>
+    <string name="ri_app_feedback_email">support@mymetro.au</string>
+
+    <string name="analytics_label_sort_by_name_routes">Clicked sort by name from MyStarredRoutesFragment</string>
+    <string name="analytics_label_sort_by_mfu_routes">Clicked sort by most frequently used from MyStarredRoutesFragment</string>
+    <string name="analytics_label_button_press_star">starred_stops_routes</string>
+
+    <!-- Open-source link for Github project -->
+    <string name="open_source_github">https://github.com/nautilustechnologyau/mymetro-traccar-client-android</string>
+
+    <string name="powered_by_oba_url">https://nautilus-tech.com.au</string>
+
 </resources>

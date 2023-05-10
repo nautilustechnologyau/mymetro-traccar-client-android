@@ -34,9 +34,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -59,6 +64,7 @@ import au.mymetro.operator.oba.util.ArrayAdapter;
 import au.mymetro.operator.oba.util.LocationUtils;
 import au.mymetro.operator.oba.util.PreferenceUtils;
 import au.mymetro.operator.oba.util.RegionUtils;
+import au.mymetro.operator.ui.home.HomeViewModel;
 
 public class RegionsFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<ArrayList<ObaRegion>> {
@@ -90,12 +96,14 @@ public class RegionsFragment extends ListFragment
     GoogleApiClient mGoogleApiClient;
 
     private FirebaseAnalytics mFirebaseAnalytics;
+    private HomeViewModel homeViewModel;
 
     @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -152,8 +160,9 @@ public class RegionsFragment extends ListFragment
         ObaAnalytics.reportUiEvent(mFirebaseAnalytics,
                 getString(R.string.region_selected_manually),
                 region.getName());
-
-        NavHelp.goHome(getActivity(), false);
+        homeViewModel.setRegionChanged(region);
+        // NavHelp.goHome(getActivity(), false);
+        NavHelp.goUp(requireActivity());
     }
 
     @Override

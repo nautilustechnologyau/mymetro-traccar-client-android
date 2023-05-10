@@ -21,11 +21,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -59,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.core.widget.ImageViewCompat;
@@ -165,7 +164,7 @@ public final class UIUtils {
         }
     }
 
-    public static void showObaApiKeyInputDialog(Context context) {
+    public static void showObaApiKeyInputDialog(Context context, ApiKeyCheckerTask.ApiKeyCheckerTaskListener listener) {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         builder.setTitle(context.getString(R.string.oba_api_key_dialog_title,
                 Application.get().getCurrentRegion().getName()));
@@ -179,27 +178,25 @@ public final class UIUtils {
         // Set up the buttons
         builder.setPositiveButton(R.string.oba_api_key_dialog_ok, null);
 
-        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        AlertDialog apiKeyDialog = builder.create();
 
         ApiKeyCheckerTask checkerTask = new ApiKeyCheckerTask();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialog) {
-                Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        String apiKey = input.getText().toString();
-                        PreferenceUtils.saveString(context.getString(R.string.preference_key_oba_api_key), apiKey);
-                        ObaContext.setApiKey(apiKey);
-                        checkerTask.execute(context, apiKey);
-                        dialog.dismiss();
-                    }
-                });
-            }
+        apiKeyDialog.setOnShowListener(dialog -> {
+            Button button = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
+                String apiKey = input.getText().toString();
+                PreferenceUtils.saveString(context.getString(R.string.preference_key_oba_api_key), apiKey);
+                ObaContext.setApiKey(apiKey);
+                checkerTask.execute(context, listener, apiKey);
+                dialog.dismiss();
+            });
         });
 
-        dialog.show();
+        apiKeyDialog.setOnCancelListener(dialog1 -> {
+            listener.onApiCheckerTaskComplete(false);
+        });
+
+        apiKeyDialog.show();
     }
 
     public static void showProgress(Fragment fragment, boolean visible) {
@@ -1464,14 +1461,13 @@ public final class UIUtils {
         }
     }
 
-    public static void popupSnackbarForApiKey(Activity context) {
+    public static void popupSnackbarForApiKey(Activity context, ApiKeyCheckerTask.ApiKeyCheckerTaskListener listener) {
         Snackbar snackbar =
                 Snackbar.make(
                         context.findViewById(R.id.home_layout),
                         R.string.oba_api_key_invalid,
-                        Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction("ENTER", view -> UIUtils.showObaApiKeyInputDialog(context));
-        // snackbar.setActionTextColor(context.getResources().getColor(R.color.theme_primary));
+                        Snackbar.LENGTH_SHORT);
+        snackbar.setAction("DISMISS", view -> {});
         snackbar.show();
     }
 }

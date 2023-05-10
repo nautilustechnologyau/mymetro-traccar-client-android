@@ -15,8 +15,13 @@
  */
 package au.mymetro.operator.oba.io.request;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import au.mymetro.operator.oba.io.elements.ObaReferences;
 import au.mymetro.operator.oba.io.elements.ObaReferencesElement;
+import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.elements.ObaTripDetails;
 import au.mymetro.operator.oba.io.elements.ObaTripDetailsElement;
 import au.mymetro.operator.oba.io.elements.ObaTripSchedule;
@@ -64,4 +69,24 @@ public final class ObaTripDetailsResponse extends ObaResponseWithRefs
     public ObaReferences getRefs() {
         return data.references;
     }
+
+    public List<ObaStop> getStops() {
+        List<ObaStop> stops = new ArrayList<>();
+        ObaTripSchedule schedule = getSchedule();
+        if (schedule == null) {
+            return stops;
+        }
+
+        ObaTripSchedule.StopTime[] stopTimes = schedule.getStopTimes();
+        if (stopTimes == null) {
+            return stops;
+        }
+
+        for (ObaTripSchedule.StopTime stopTime : stopTimes) {
+            stops.add(getStop(stopTime.getStopId()));
+        }
+
+        return stops;
+    }
+
 }
