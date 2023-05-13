@@ -381,19 +381,25 @@ public class HomeFragment extends Fragment
         ObaTripStatus tripStatus = mTripStatusUtil.getTripStatus();
         long deviation = tripStatus.getScheduleDeviation();
         long date = tripStatus.getServiceDate();
-        String time = DateUtils.formatDateTime(getActivity(),
-                date + mTripStatusUtil.getNextStopTime().getArrivalTime() * 1000
-                        + deviation * 1000,
+        String timeScheduled = DateUtils.formatDateTime(getActivity(),
+                date + mTripStatusUtil.getNextStopTime().getArrivalTime() * 1000,
+                DateUtils.FORMAT_SHOW_TIME |
+                        DateUtils.FORMAT_NO_NOON |
+                        DateUtils.FORMAT_NO_MIDNIGHT);
+
+        String timeEstimated = DateUtils.formatDateTime(getActivity(),
+                date + deviation * 1000 + mTripStatusUtil.getNextStopTime().getArrivalTime() * 1000,
                 DateUtils.FORMAT_SHOW_TIME |
                         DateUtils.FORMAT_NO_NOON |
                         DateUtils.FORMAT_NO_MIDNIGHT);
 
         binding.tripInfoRoute.setText(UIUtils.getRouteDisplayName(route));
         binding.tripInfoHeadsign.setText(trip.getHeadsign());
-        binding.tripInfoNextStop.setText(nextStop.getName());
+        binding.tripInfoNextStopName.setText(nextStop.getName());
         binding.tripInfoNextStopDirection.setText(UIUtils.getStopDirectionText(nextStop.getDirection()));
-        binding.tripInfoArrivalTime.setText(time);
-        binding.tripInfoNextStopDistance.setText(mTripStatusUtil.getDistanceToNextStop() + "m");
+        binding.tripInfoArrivalTimeScheduled.setText(timeScheduled);
+        binding.tripInfoArrivalTimeEstimated.setText(timeEstimated);
+        binding.tripInfoNextStopDistance.setText(mTripStatusUtil.getDistanceToNextStop() + " m");
 
         String speed = String.format(Locale.getDefault(), "%d km/h", (int)mTripStatusUtil.getSpeed());
         Log.d(TAG, "Speed: " + speed);
@@ -418,29 +424,19 @@ public class HomeFragment extends Fragment
     void updateStatusView(ObaTripStatus status) {
         boolean isRealtime = UIUtils.isLocationRealtime(status);
 
-        TextView statusView = binding.status.status3;
-        statusView.setBackgroundResource(R.drawable.round_corners_style_b_status);
-        GradientDrawable d = (GradientDrawable) statusView.getBackground();
-
-        // Set padding on status view
-        int pSides = UIUtils.dpToPixels(requireActivity(), 5);
-        int pTopBottom = UIUtils.dpToPixels(requireActivity(), 2);
-
         int statusColor;
 
         if (isRealtime) {
             long deviationMin = TimeUnit.SECONDS.toMinutes(status.getScheduleDeviation());
             String statusString = ArrivalInfoUtils.computeArrivalLabelFromDelay(getResources(), deviationMin);
-            statusView.setText(statusString);
             statusColor = ArrivalInfoUtils.computeColorFromDeviation(deviationMin);
-            d.setColor(getResources().getColor(statusColor));
-            statusView.setPadding(pSides, pTopBottom, pSides, pTopBottom);
+            binding.tripInfoArrivalStatus.setText(statusString.replace("min ", "min\n"));
+            binding.tripInfoArrivalStatus.setTextColor(statusColor);
         } else {
             // Scheduled info
-            statusView.setText(R.string.stop_info_scheduled);
-            statusColor = R.color.stop_info_scheduled_time;
-            d.setColor(getResources().getColor(statusColor));
-            statusView.setPadding(pSides, pTopBottom, pSides, pTopBottom);
+            statusColor = getResources().getColor(R.color.stop_info_scheduled_time);
+            binding.tripInfoArrivalStatus.setText(R.string.stop_info_scheduled);
+            binding.tripInfoArrivalStatus.setTextColor(statusColor);
         }
     }
 

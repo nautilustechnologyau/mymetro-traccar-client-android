@@ -200,7 +200,7 @@ public class ObaRegionsTask extends AsyncTask<Void, Integer, ArrayList<ObaRegion
             mGoogleApiClient.disconnect();
         }
 
-        clearCallbacks();
+        // clearCallbacks();
 
         super.onPostExecute(results);
     }

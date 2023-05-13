@@ -4,6 +4,8 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.type.Date;
+
 import org.onebusaway.geospatial.model.XYPoint;
 import org.onebusaway.transit_data_federation.impl.shapes.PointAndIndex;
 import org.onebusaway.transit_data_federation.impl.shapes.ShapePointsLibrary;
@@ -14,7 +16,9 @@ import java.util.List;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.elements.ObaTripSchedule;
 import au.mymetro.operator.oba.io.elements.ObaTripStatus;
+import au.mymetro.operator.oba.io.elements.ObaTripStatusElement;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
+import au.mymetro.operator.oba.util.LocationUtils;
 
 public class TripStatusUtils {
     public static String TAG = "TripStatusUtils";
@@ -151,7 +155,7 @@ public class TripStatusUtils {
         computeTripStatus(mCurrentStop);
     }
 
-    private void computeTripStatus(XYPoint targetPoint) {
+    private void computeTripStatus(XYPoint targetPoint, Location location) {
         if (mTripEnded) {
             return;
         }
@@ -248,6 +252,25 @@ public class TripStatusUtils {
             mCurrentStopIndex = mNextStopIndex;
         }*/
 
+        mResponse.getStatus().setPredicted(true);
+        mResponse.getStatus().setNextStop(getNextStop().getName());
+        mResponse.getStatus().setClosestStop(mStops.get(pointIndex.index).getName());
+        mResponse.getStatus().setLastKnownLocation(ObaTripStatus.Position.getInstance(targetPoint.getY(), targetPoint.getX()));
+        mResponse.getStatus().setDistanceAlongTrip(pointIndex.distanceAlongShape);
+        mResponse.getStatus().setLastUpdateTime(System.currentTimeMillis() / 1000);
+        if (location != null) {
+            mResponse.getStatus().setLastLocationUpdateTime(location.getTime());
+            if (location.hasBearing()) {
+                mResponse.getStatus().setBearing(location.getBearing());
+            }
+
+            if (location.hasSpeed()) {
+                mResponse.getStatus().setSpeed(location.getSpeed());
+            } else {
+                mResponse.getStatus().setSpeed(0);
+            }
+        }
+
         // get the distance
         float distance = calculateDistance(targetPoint, mPoints.get(mNextStopIndex));
         if (mDistanceToNextStop <= 0) {
@@ -256,19 +279,29 @@ public class TripStatusUtils {
         }
 
         if ((mDistanceToNextStop - distance) > THRESHOLD) {
-            float distanceTraveled = mDistanceToNextStop - distance;
+            float distanceTraveled = mDistanceToNextStop - distance; // meters
             Log.d(TAG, "Distance traveled (m): " + distanceTraveled);
-            long timeElapsed = System.currentTimeMillis() - mLastDistanceSampleTime;
+            long timeElapsed = System.currentTimeMillis() - mLastDistanceSampleTime; // milliseconds
             Log.d(TAG, "Time elapsed (ms): " + timeElapsed);
-            double speedInSec = (distanceTraveled / timeElapsed);
+            double speedInSec = (distanceTraveled / timeElapsed); // km/sec
             mSpeed = Math.round(Math.abs(speedInSec * 3600));
             Log.d(TAG, "Calculated speed kmh: " + mSpeed);
 
+            if (mResponse.getStatus().getSpeed() == 0) {
+                mResponse.getStatus().setSpeed((float) mSpeed);
+            }
+
             // predicted arrival time
-            double predictedArrivalTimeInSec = distance / speedInSec;
-            double scheduledArrivalTimeInSec = (mStopTimes.get(mNextStopIndex).getArrivalTime() - System.currentTimeMillis()/1000);
-            Log.d(TAG, "Calculated predicted time (s): " + predictedArrivalTimeInSec);
+            long serviceDate = getTripStatus().getServiceDate();
+            long currentTimeInSec = new java.util.Date().getTime()/1000;
+            long predictedDurationOfArrivalInSec = (long)((distance / speedInSec)/1000);
+            long scheduledArrivalTimeInSec = serviceDate/1000 + mStopTimes.get(mNextStopIndex).getArrivalTime();
+            long predictedArrivalTimeInSec = currentTimeInSec + predictedDurationOfArrivalInSec;
+            long deviation = predictedArrivalTimeInSec - scheduledArrivalTimeInSec;
+            mResponse.getStatus().setScheduleDeviation(deviation);
             Log.d(TAG, "Schedule time (s): " + scheduledArrivalTimeInSec);
+            Log.d(TAG, "Predicted arrival time (s): " + predictedArrivalTimeInSec);
+            Log.d(TAG, "Deviation (s): " + deviation);
             mDistanceToNextStop = distance;
             mLastDistanceSampleTime = System.currentTimeMillis();
         } else {
@@ -306,7 +339,7 @@ public class TripStatusUtils {
         if (location == null) {
             return;
         }
-        computeInBackground(p(location.getLongitude(), location.getLatitude()));
+        computeInBackground(location);
     }
 
     public void computeTripStatus(ObaStop stop) {
@@ -327,6 +360,19 @@ public class TripStatusUtils {
         }
 
         computeTask = new StatusComputeTask(this, point);
+        computeTask.execute();
+    }
+
+    public void computeInBackground(Location location) {
+        if (computeTask != null) {
+            if (computeTask.getStatus() == AsyncTask.Status.PENDING || computeTask.getStatus() == AsyncTask.Status.FINISHED) {
+                computeTask.cancel(true);
+            } else {
+                return;
+            }
+        }
+
+        computeTask = new StatusComputeTask(this, location);
         computeTask.execute();
     }
 
@@ -435,15 +481,22 @@ public class TripStatusUtils {
     private class StatusComputeTask extends AsyncTask<Object, Void, TripStatusUtils> {
         private TripStatusUtils mTripStatus;
         private XYPoint mPoint;
+        private Location mLocation;
 
         public StatusComputeTask(TripStatusUtils tripStatus, XYPoint point) {
             mTripStatus = tripStatus;
             mPoint = point;
         }
 
+        public StatusComputeTask(TripStatusUtils tripStatus, Location location) {
+            mTripStatus = tripStatus;
+            mLocation = location;
+            mPoint = p(location.getLongitude(), location.getLatitude());
+        }
+
         @Override
         protected TripStatusUtils doInBackground(Object... params) {
-            mTripStatus.computeTripStatus(mPoint);
+            mTripStatus.computeTripStatus(mPoint, mLocation);
             return mTripStatus;
         }
 

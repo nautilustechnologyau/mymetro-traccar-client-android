@@ -23,53 +23,53 @@ public final class ObaTripStatusElement implements ObaTripStatus, Serializable {
 
     protected static final ObaTripStatusElement EMPTY_OBJECT = new ObaTripStatusElement();
 
-    private final long serviceDate;
+    private long serviceDate;
 
-    private final boolean predicted;
+    private boolean predicted;
 
-    private final long scheduleDeviation;
+    private long scheduleDeviation;
 
-    private final String vehicleId;
+    private String vehicleId;
 
-    private final String closestStop;
+    private String closestStop;
 
-    private final long closestStopTimeOffset;
+    private long closestStopTimeOffset;
 
-    private final Position position;
+    private Position position;
 
-    private final String activeTripId;
+    private String activeTripId;
 
-    private final Double distanceAlongTrip;
+    private Double distanceAlongTrip;
 
-    private final Double scheduledDistanceAlongTrip;
+    private Double scheduledDistanceAlongTrip;
 
-    private final Double totalDistanceAlongTrip;
+    private Double totalDistanceAlongTrip;
 
-    private final Double orientation;
+    private Double orientation;
 
-    private final String nextStop;
+    private String nextStop;
 
-    private final long nextStopTimeOffset;
+    private long nextStopTimeOffset;
 
-    private final String phase;
+    private String phase;
 
-    private final String status;
+    private String status;
 
-    private final Long lastUpdateTime;
+    private Long lastUpdateTime;
 
-    private final Position lastKnownLocation;
+    private Position lastKnownLocation;
 
-    private final Long lastLocationUpdateTime;
+    private Long lastLocationUpdateTime;
 
-    private final Double lastKnownOrientation;
+    private Double lastKnownOrientation;
 
-    private final int blockTripSequence;
+    private int blockTripSequence;
 
-    private final String occupancyStatus;
+    private String occupancyStatus;
 
-    private final boolean airConditioned;
+    private boolean airConditioned;
 
-    private final boolean wheelchairAccessible;
+    private boolean wheelchairAccessible;
 
     private float speed;
 
@@ -246,5 +246,140 @@ public final class ObaTripStatusElement implements ObaTripStatus, Serializable {
     @Override
     public float getBearing() {
         return bearing;
+    }
+
+    @Override
+    public void setServiceDate(long serviceDate) {
+        this.serviceDate = serviceDate;
+    }
+
+    @Override
+    public void setPredicted(boolean predicted) {
+        this.predicted = predicted;
+    }
+
+    @Override
+    public void setScheduleDeviation(long scheduleDeviation) {
+        this.scheduleDeviation = scheduleDeviation;
+    }
+
+    @Override
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+
+    @Override
+    public void setClosestStop(String closestStop) {
+        this.closestStop = closestStop;
+    }
+
+    @Override
+    public void setClosestStopTimeOffset(long closestStopTimeOffset) {
+        this.closestStopTimeOffset = closestStopTimeOffset;
+    }
+
+    @Override
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    @Override
+    public void setActiveTripId(String activeTripId) {
+        this.activeTripId = activeTripId;
+    }
+
+    @Override
+    public void setDistanceAlongTrip(Double distanceAlongTrip) {
+        this.distanceAlongTrip = distanceAlongTrip;
+    }
+
+    @Override
+    public void setScheduledDistanceAlongTrip(Double scheduledDistanceAlongTrip) {
+        this.scheduledDistanceAlongTrip = scheduledDistanceAlongTrip;
+    }
+
+    @Override
+    public void setTotalDistanceAlongTrip(Double totalDistanceAlongTrip) {
+        this.totalDistanceAlongTrip = totalDistanceAlongTrip;
+    }
+
+    @Override
+    public void setOrientation(Double orientation) {
+        this.orientation = orientation;
+    }
+
+    @Override
+    public void setNextStop(String nextStop) {
+        this.nextStop = nextStop;
+    }
+
+    @Override
+    public void setNextStopTimeOffset(long nextStopTimeOffset) {
+        this.nextStopTimeOffset = nextStopTimeOffset;
+    }
+
+    @Override
+    public void setPhase(String phase) {
+        this.phase = phase;
+    }
+
+    @Override
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @Override
+    public void setLastUpdateTime(Long lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
+    @Override
+    public void setLastKnownLocation(Position lastKnownLocation) {
+        this.lastKnownLocation = lastKnownLocation;
+    }
+
+    @Override
+    public void setLastLocationUpdateTime(Long lastLocationUpdateTime) {
+        this.lastLocationUpdateTime = lastLocationUpdateTime;
+    }
+
+    @Override
+    public void setLastKnownOrientation(Double lastKnownOrientation) {
+        this.lastKnownOrientation = lastKnownOrientation;
+    }
+
+    @Override
+    public void setBlockTripSequence(int blockTripSequence) {
+        this.blockTripSequence = blockTripSequence;
+    }
+
+    @Override
+    public void setOccupancyStatus(String occupancyStatus) {
+        this.occupancyStatus = occupancyStatus;
+    }
+
+    @Override
+    public void setAirConditioned(boolean airConditioned) {
+        this.airConditioned = airConditioned;
+    }
+
+    @Override
+    public void setWheelchairAccessible(boolean wheelchairAccessible) {
+        this.wheelchairAccessible = wheelchairAccessible;
+    }
+
+    @Override
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    @Override
+    public void setOdometer(double odometer) {
+        this.odometer = odometer;
+    }
+
+    @Override
+    public void setBearing(float bearing) {
+        this.bearing = bearing;
     }
 }

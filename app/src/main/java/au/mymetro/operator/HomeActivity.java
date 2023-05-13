@@ -348,7 +348,7 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             checkRegionStatus();
         }*/
 
-        if (!isApiKeyValid()) {
+        if (!isApiKeyValid() && Application.get().getCurrentRegion() != null) {
             UIUtils.showObaApiKeyInputDialog(this, this);
         }
 
@@ -535,6 +535,11 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         boolean permission = requestPermissionsIfRequired(checkPermission, initialPermission);
 
         if (permission) {
+            if (Application.get().getCurrentRegion() != null) {
+                PreferenceUtils.saveString(KEY_URL, Application.get().getCurrentRegion().getTraccarBaseUrl());
+            } else {
+                PreferenceUtils.saveString(KEY_URL, null);
+            }
             if (isTraccarEnabled()) {
                 Intent intent = new Intent(this, TrackingService.class);
                 Bundle bundle = new Bundle();
@@ -664,8 +669,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             ).show();
 
             UIUtils.showObaApiKeyInputDialog(this, this);
-
-            PreferenceUtils.saveString(KEY_URL, Application.get().getCurrentRegion().getTraccarBaseUrl());
         }
 
         //FragmentManager fm = getSupportFragmentManager();

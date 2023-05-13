@@ -23,6 +23,60 @@ import au.mymetro.operator.oba.util.LocationUtils;
 
 public interface ObaTripStatus {
 
+    void setServiceDate(long serviceDate);
+
+    void setPredicted(boolean predicted);
+
+    void setScheduleDeviation(long scheduleDeviation);
+
+    void setVehicleId(String vehicleId);
+
+    void setClosestStop(String closestStop);
+
+    void setClosestStopTimeOffset(long closestStopTimeOffset);
+
+    void setPosition(Position position);
+
+    void setActiveTripId(String activeTripId);
+
+    void setDistanceAlongTrip(Double distanceAlongTrip);
+
+    void setScheduledDistanceAlongTrip(Double scheduledDistanceAlongTrip);
+
+    void setTotalDistanceAlongTrip(Double totalDistanceAlongTrip);
+
+    void setOrientation(Double orientation);
+
+    void setNextStop(String nextStop);
+
+    void setNextStopTimeOffset(long nextStopTimeOffset);
+
+    void setPhase(String phase);
+
+    void setStatus(String status);
+
+    void setLastUpdateTime(Long lastUpdateTime);
+
+    void setLastKnownLocation(Position lastKnownLocation);
+
+    void setLastLocationUpdateTime(Long lastLocationUpdateTime);
+
+    void setLastKnownOrientation(Double lastKnownOrientation);
+
+    void setBlockTripSequence(int blockTripSequence);
+
+    void setOccupancyStatus(String occupancyStatus);
+
+    void setAirConditioned(boolean airConditioned);
+
+    void setWheelchairAccessible(boolean wheelchairAccessible);
+
+    void setSpeed(float speed);
+
+    void setOdometer(double odometer);
+
+    void setBearing(float bearing);
+
     public static final class Position implements Serializable {
 
         private double lat = 0;
@@ -39,6 +93,13 @@ public interface ObaTripStatus {
 
         public Location getLocation() {
             return LocationUtils.makeLocation(lat, lon);
+        }
+
+        public static Position getInstance(double lat, double lon) {
+            Position pos = new Position();
+            pos.lat = lat;
+            pos.lon = lon;
+            return pos;
         }
     }
 
