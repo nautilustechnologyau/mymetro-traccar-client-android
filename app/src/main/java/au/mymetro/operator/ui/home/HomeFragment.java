@@ -1,23 +1,36 @@
+/*
+ * Copyright 2023 Nautilus Technology
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.mymetro.operator.ui.home;
 
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,17 +38,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.onebusaway.transit_data_federation.impl.shapes.PointAndIndex;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -50,16 +59,12 @@ import au.mymetro.operator.oba.io.elements.ObaRegion;
 import au.mymetro.operator.oba.io.elements.ObaRoute;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.elements.ObaTrip;
-import au.mymetro.operator.oba.io.elements.ObaTripDetails;
 import au.mymetro.operator.oba.io.elements.ObaTripSchedule;
 import au.mymetro.operator.oba.io.elements.ObaTripStatus;
-import au.mymetro.operator.oba.io.elements.OccupancyState;
-import au.mymetro.operator.oba.io.elements.Status;
 import au.mymetro.operator.oba.io.request.ObaArrivalInfoResponse;
 import au.mymetro.operator.oba.io.request.ObaStopsForLocationResponse;
 import au.mymetro.operator.oba.io.request.ObaStopsForRouteResponse;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
-import au.mymetro.operator.oba.io.request.ObaTripsForRouteResponse;
 import au.mymetro.operator.oba.map.MapModeController;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment;
@@ -77,10 +82,11 @@ public class HomeFragment extends Fragment
         BaseMapFragment.LocationChangedListener,
         SimpleArrivalListFragment.Callback,
         MapModeController.RoutesDataReceivedListener,
-        MapModeController.VehicleDataReceivedListener,
         MapModeController.TripDetailsDataReceivedListener,
         MapModeController.StopDataReceivedListener,
-        BaseMapFragment.MapInitCompletedListener, TripStatusUtils.TripStatusComputedListener, TripStatusUtils.CloseToStopListener {
+        BaseMapFragment.MapInitCompletedListener,
+        TripStatusUtils.TripStatusComputedListener,
+        TripStatusUtils.CloseToStopListener {
 
     public static String TAG = "HomeFragment";
 
@@ -200,7 +206,7 @@ public class HomeFragment extends Fragment
         String alertHeader = "Are you sure you want to select the trip?";
         String alertItems = "";
 
-        if (stopInfo.getEta() > 3) {
+        if (stopInfo.getEta() > 5) {
             showAlertDialog = true;
             alertItems = alertItems + "- " + getActivity().getString(R.string.msg_trip_too_early, stopInfo.getEta()) + "\n";
         }
@@ -234,27 +240,10 @@ public class HomeFragment extends Fragment
             return;
         }
 
-        /*double speed = 0.0f;
-        if (location == null) {
-            // try to use location from trip status
-            ObaTripDetailsResponse response = homeViewModel.getResponse().getValue();
-            if (response == null) {
-                return;
-            } else {
-                location = response.getStatus().getLastKnownLocation();
-                if (location != null) {
-                    speed = location.getSpeed();
-                } else {
-                    return;
-                }
-            }
-        }*/
-
         if (location == null) {
             return;
         }
 
-        //binding.tripInfoSpeed.setText(String.format("%f kmh", speed));
         updateNextStopInfo(location);
     }
 
@@ -288,33 +277,8 @@ public class HomeFragment extends Fragment
 
         ObaTripStatus tripStatus = response.getStatus();
         if (tripStatus == null) {
-            // endTrip();
             return;
         }
-
-        /*if (tripStatus.getStatus() != null && tripStatus.getStatus() == Status.CANCELED) {
-            endTrip();
-            return;
-        }*/
-
-        String activeTripId = tripStatus.getActiveTripId();
-        String currentTripId = response.getId();
-        /*if (TextUtils.isEmpty(activeTripId) || !activeTripId.equals(currentTripId)) {
-            endTrip();
-            return;
-        }*/
-
-        ObaTrip trip = response.getTrip(homeViewModel.getTripId().getValue());
-        /*if (trip == null) {
-            endTrip();
-            return;
-        }*/
-
-        ObaRoute route = response.getRoute(homeViewModel.getRouteId().getValue());
-        /*if (route == null) {
-            endTrip();
-            return;
-        }*/
 
         ObaTripSchedule schedule = response.getSchedule();
         if (schedule == null) {
@@ -322,38 +286,13 @@ public class HomeFragment extends Fragment
             return;
         }
 
-        /*if (TextUtils.isEmpty(tripStatus.getNextStop())) {
-            endTrip();
-            return;
-        }*/
-
-        /*ObaStop nextStop = response.getStop(tripStatus.getNextStop());
-        if (nextStop == null) {
-            endTrip();
-            return;
-        }*/
-
         ObaTripSchedule.StopTime[] stopTimes = schedule.getStopTimes();
         if (stopTimes == null || stopTimes.length < 1) {
             endTrip();
             return;
         }
 
-        /*ObaTripSchedule.StopTime nextStopTime = null;
-        for (ObaTripSchedule.StopTime stopTime : stopTimes) {
-            if (stopTime.getStopId().equals(tripStatus.getNextStop())) {
-                nextStopTime = stopTime;
-                break;
-            }
-        }*/
-
-        /*if (nextStopTime == null) {
-            endTrip();
-            return;
-        }*/
-
         mTripStatusUtil = new TripStatusUtils(homeViewModel.getStop().getValue(), response, this, this);
-        //updateNextStopLocation();
     }
 
     void updateNextStopLocation() {
@@ -401,9 +340,34 @@ public class HomeFragment extends Fragment
         binding.tripInfoArrivalTimeEstimated.setText(timeEstimated);
         binding.tripInfoNextStopDistance.setText(mTripStatusUtil.getDistanceToNextStop() + " m");
 
-        String speed = String.format(Locale.getDefault(), "%d km/h", (int)mTripStatusUtil.getSpeed());
-        Log.d(TAG, "Speed: " + speed);
+        String speed = String.format(Locale.getDefault(), "%d", (int)mTripStatusUtil.getSpeed());
         binding.tripInfoSpeed.setText(speed);
+
+        int speedProgress = (int)((mTripStatusUtil.getSpeed() / 100) * 100);
+        binding.tripInfoSpeedProgress.setProgress(speedProgress);
+
+        // compute stop progress
+        double currentStopDistance = mTripStatusUtil.getCurrentStopTime().getDistanceAlongTrip();
+        double nextStopDistance = mTripStatusUtil.getNextStopTime().getDistanceAlongTrip();
+        double distanceBetweenStop = nextStopDistance - currentStopDistance;
+        double distanceTravelled = mTripStatusUtil.getDistanceToNextStop();
+        if (distanceBetweenStop > 0 && distanceTravelled > 0) {
+            int stopProgress = (int) (100 - (distanceTravelled / distanceBetweenStop) * 100);
+            Log.d(TAG, "Current Stop distance along trip: " + currentStopDistance);
+            Log.d(TAG, "Next Stop distance along trip: " + nextStopDistance);
+            Log.d(TAG, "Distance between stops: " + distanceBetweenStop);
+            Log.d(TAG, "Distance travelled: " + distanceTravelled);
+            Log.d(TAG, "Stop progress: " + stopProgress);
+            binding.tripInfoNextStopDistanceProgress.setProgress(stopProgress);
+        }
+
+        // compute trip progress
+        double totalDistance = mTripStatusUtil.getTotalTripLength();
+        double travelledDistance = mTripStatusUtil.getDistanceTravelled();
+        int tripProgress = (int)((travelledDistance / totalDistance) * 100);
+        binding.tripInfoTripTravelDistanceProgress.setProgress(tripProgress);
+        binding.tripInfoTravelledDistance.setText(String.format(Locale.getDefault(), "%d %%", tripProgress));
+
         updateStatusView(tripStatus);
     }
 
@@ -429,86 +393,16 @@ public class HomeFragment extends Fragment
         if (isRealtime) {
             long deviationMin = TimeUnit.SECONDS.toMinutes(status.getScheduleDeviation());
             String statusString = ArrivalInfoUtils.computeArrivalLabelFromDelay(getResources(), deviationMin);
-            statusColor = ArrivalInfoUtils.computeColorFromDeviation(deviationMin);
+            //statusColor = ArrivalInfoUtils.computeColorFromDeviation(deviationMin);
             binding.tripInfoArrivalStatus.setText(statusString.replace("min ", "min\n"));
-            binding.tripInfoArrivalStatus.setTextColor(statusColor);
+            //binding.tripInfoArrivalStatus.setTextColor(statusColor);
         } else {
             // Scheduled info
-            statusColor = getResources().getColor(R.color.stop_info_scheduled_time);
+            //statusColor = getResources().getColor(R.color.stop_info_scheduled_time);
             binding.tripInfoArrivalStatus.setText(R.string.stop_info_scheduled);
-            binding.tripInfoArrivalStatus.setTextColor(statusColor);
+            //binding.tripInfoArrivalStatus.setTextColor(statusColor);
         }
     }
-
-    @Override
-    public void onVehicleDataReceived(ObaTripsForRouteResponse response) {
-        /*Log.d(TAG, "Vehicle data received: " + response);
-        if (response == null) {
-            return;
-        }
-
-        if (MapParams.MODE_ROUTE.equals(homeViewModel.getMapMode().getValue())) {
-            binding.tripInfoHeader.setVisibility(View.VISIBLE);
-
-            ObaTripDetails tripDetails = null;
-            for (ObaTripDetails td : response.getTrips()) {
-                if (td.getId().equals(homeViewModel.getTripId().getValue())) {
-                    tripDetails = td;
-                    break;
-                }
-            }
-
-            if (tripDetails == null) {
-                // notify main activity that the trip has ended
-                homeViewModel.setServiceStatus(false);
-                homeViewModel.setTripId(null);
-                homeViewModel.setArrivalInfo(null);
-                homeViewModel.setStop(null);
-                homeViewModel.setRouteId(null);
-                homeViewModel.setBlockId(null);
-
-                Snackbar snackbar = Snackbar.make(requireActivity().findViewById(R.id.home_layout),
-                        R.string.trip_ended,
-                        Snackbar.LENGTH_INDEFINITE);
-                snackbar.setAction("DISMISS", v -> {});
-                snackbar.show();
-                return;
-            }
-
-            ObaTrip trip = response.getTrip(homeViewModel.getTripId().getValue());
-            if (trip == null) {
-                return;
-            }
-
-            ObaRoute route = response.getRoute(homeViewModel.getRouteId().getValue());
-            if (route == null) {
-                return;
-            }
-
-            ObaTripStatus tripStatus = tripDetails.getStatus();
-            if (tripStatus == null) {
-                return;
-            }
-
-            ObaStop nextStop = response.getStop(tripDetails.getStatus().getNextStop());
-
-            if (nextStop == null) {
-                // notify trip end
-                //binding.tripInfoNextStop.setText(nextStop.getName());
-                //binding.tripInfoNextStopDirection.setText(UIUtils.getStopDirectionText(nextStop.getDirection()));
-            } else {
-                long etaMin = tripStatus.getNextStopTimeOffset() / 60;
-                long etaSec = tripStatus.getNextStopTimeOffset() % 60;
-                binding.tripInfoRoute.setText(UIUtils.getRouteDisplayName(route));
-                binding.tripInfoHeadsign.setText(trip.getHeadsign());
-                binding.tripInfoNextStop.setText(nextStop.getName());
-                binding.tripInfoNextStopDirection.setText(UIUtils.getStopDirectionText(nextStop.getDirection()));
-                binding.tripInfoEtaMin.setText(String.valueOf(etaMin));
-                binding.tripInfoEtaSec.setText(String.valueOf(etaSec));
-            }
-        }*/
-    }
-
 
     @Override
     public void onMapInitCompleted(MapModeController controller) {
@@ -520,7 +414,7 @@ public class HomeFragment extends Fragment
     }
 
     private void onStopChange(ObaStop stop) {
-        removeFragmentByTag(SimpleArrivalListFragment.TAG);
+        removeArrivalFragment();
         if (stop != null && MapParams.MODE_STOP.equals(homeViewModel.getMapMode().getValue())) {
             showArrivalListFragment(stop);
         }
@@ -551,7 +445,7 @@ public class HomeFragment extends Fragment
         updateStopInfoHeaders(homeViewModel.getArrivalInfo().getValue());
 
         // remove arrival fragment (if any)
-        removeFragmentByTag(SimpleArrivalListFragment.TAG);
+        removeArrivalFragment();
 
         ObaArrivalInfo arrivalInfo = homeViewModel.getArrivalInfo().getValue();
         Bundle bundle = createMapBundle();
@@ -559,7 +453,6 @@ public class HomeFragment extends Fragment
             MapModeController controller = mMapFragment.setMapMode(MapParams.MODE_ROUTE, bundle);
             if (controller != null) {
                 controller.setRoutesDataReceivedListener(this);
-                controller.setVehicleDataReceivedListener(this);
                 controller.setTripDetailsDataReceivedListener(this);
             }
 
@@ -595,34 +488,14 @@ public class HomeFragment extends Fragment
             routeName = UIUtils.getRouteDisplayName(arrivalInfo);
         }
 
-        String headsign = "-:-";
-        String eta = "-:-";
-        String min = "-:-";
-        if (arrivalInfo != null) {
-            headsign = arrivalInfo.getHeadsign();
-
-            ArrivalInfo stopInfo = ArrivalInfoUtils.convertObaArrivalInfo(requireActivity(), arrivalInfo, true);
-
-            if (stopInfo.getEta() == 0) {
-                eta = getString(R.string.stop_info_eta_now);
-                min = "";
-            } else {
-                eta = String.valueOf(stopInfo.getEta());
-                min = "min";
-            }
-        }
-
         String nextStopName = "-:-";
-        String direction = "-:-";
         if (stop != null) {
             nextStopName = stop.getName();
-            direction = stop.getDirection();
         }
 
         if (mapMode == null || mapMode.equals(MapParams.MODE_STOP)) {
             binding.selectStopHeader.setVisibility(View.VISIBLE);
             binding.tripInfoHeader.setVisibility(View.GONE);
-            // binding.tripInfoFabsPanel.setVisibility(View.GONE);
 
             if (stop == null) {
                 binding.selectStopInfoText.setText(R.string.report_dialog_stop_header);
@@ -640,14 +513,6 @@ public class HomeFragment extends Fragment
         } else {
             binding.selectStopHeader.setVisibility(View.GONE);
             binding.tripInfoHeader.setVisibility(View.VISIBLE);
-            //binding.tripInfoFabsPanel.setVisibility(View.VISIBLE);
-
-            /*binding.tripInfoRoute.setText(routeName);
-            binding.tripInfoHeadsign.setText(headsign);
-            binding.tripInfoNextStop.setText(nextStopName);
-            binding.tripInfoNextStopDirection.setText(UIUtils.getStopDirectionText(direction));
-            binding.tripInfoEta.setText(eta);
-            binding.tripInfoEtaMin.setText(min);*/
         }
     }
 
@@ -691,16 +556,18 @@ public class HomeFragment extends Fragment
             mMapFragment.setArguments(createMapBundle());
             mMapFragment.setMapInitCompletedListener(this);
             mMapFragment.setLocationChangedListener(this);
-            //mMapFragment.setMyLocation();
-
-            // Register listener for map focus callbacks
-            mMapFragment.setOnFocusChangeListener(this);
 
             fm.beginTransaction().replace(R.id.map_view, mMapFragment).commit();
         }
         fm.beginTransaction().show(mMapFragment).commit();
 
         setupLocationHelper(mSavedInstanceState);
+
+        mMapFragment.setMyLocation();
+
+        // Register listener for map focus callbacks
+        mMapFragment.setOnFocusChangeListener(this);
+
     }
 
     public void setMyLocationEnabled() {
@@ -734,7 +601,7 @@ public class HomeFragment extends Fragment
     }
 
     void selectStopTrip() {
-        removeFragmentByTag(SimpleArrivalListFragment.TAG);
+        removeArrivalFragment();
 
         if (!MapParams.MODE_STOP.equals(homeViewModel.getMapMode().getValue())) {
             return;
@@ -742,9 +609,6 @@ public class HomeFragment extends Fragment
 
         ObaStop stop = homeViewModel.getStop().getValue();
 
-        /*if (mMapFragment != null && stop != null) {
-            mMapFragment.doFocusChange(stop);
-        }*/
         if (mMapFragment != null && stop != null) {
             showArrivalListFragment(stop);
         }
@@ -758,6 +622,8 @@ public class HomeFragment extends Fragment
         }
         mProgressDialog.show();
 
+        binding.bottomSheet.setVisibility(View.VISIBLE);
+
         LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
         View v = layoutInflater.inflate(R.layout.arrivals_list_header, null);
         v.setVisibility(View.GONE);
@@ -768,7 +634,6 @@ public class HomeFragment extends Fragment
                 obaStop,
                 homeViewModel.getArrivalInfo().getValue(),
                 this);
-
     }
 
     private void selectTrip(ObaArrivalInfo obaArrivalInfo, String agencyName, String blockId, View view) {
@@ -822,9 +687,10 @@ public class HomeFragment extends Fragment
         }
     }
 
-    protected void removeFragmentByTag(String tag) {
+    protected void removeArrivalFragment() {
+        binding.bottomSheet.setVisibility(View.GONE);
         FragmentManager manager = getActivity().getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentByTag(tag);
+        Fragment fragment = manager.findFragmentByTag(SimpleArrivalListFragment.TAG);
 
         if (fragment != null) {
             FragmentTransaction trans = manager.beginTransaction();
@@ -842,17 +708,24 @@ public class HomeFragment extends Fragment
         homeViewModel.setStop(null);
         homeViewModel.setRouteId(null);
         homeViewModel.setBlockId(null);
+        if (mTripStatusUtil != null) {
+            mTripStatusUtil.destroy();
+            mTripStatusUtil = null;
+        }
 
-        Snackbar snackbar = Snackbar.make(requireActivity().findViewById(R.id.home_layout),
-                R.string.trip_ended,
-                Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction("DISMISS", v -> {});
-        snackbar.show();
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
+        builder.setTitle(R.string.msg_trip_end_title);
+        builder.setIcon(R.drawable.ic_alert);
+        builder.setMessage(R.string.msg_trip_end_message);
+        builder.setPositiveButton(R.string.ok, null);
+        builder.show();
     }
 
     @Override
     public void onTripStatusComputed(TripStatusUtils tripStatus) {
-        updateNextStopLocation();
+        if (binding != null) {
+            updateNextStopLocation();
+        }
     }
 
     @Override
@@ -862,8 +735,7 @@ public class HomeFragment extends Fragment
             Ringtone r = RingtoneManager.getRingtone(requireActivity(), notification);
             r.play();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, "Error playing notification", e);
         }
-        //Log.d("onCloseToStop", "pointAndIndex.distanceFromTarget: " + pointAndIndex.distanceFromTarget + ", pointAndIndex.point: " + pointAndIndex.point);
     }
 }

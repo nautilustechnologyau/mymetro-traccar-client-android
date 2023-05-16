@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2023 Nautilus Technology
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <vector android:height="24dp" android:viewportHeight="236.91"
     android:viewportWidth="236.91" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#FF000000" android:pathData="M202.84,90.89c-0.19,-0.25 -0.4,-0.49 -0.63,-0.72c-0.23,-0.23 -0.47,-0.43 -0.72,-0.63c-21.39,-21.05 -50.72,-34.07 -83.03,-34.07c-0,0 -0.01,-0 -0.01,-0c-0.01,0 -0.01,0 -0.02,0C86.13,55.48 56.81,68.49 35.42,89.55c-0.25,0.19 -0.49,0.4 -0.72,0.63c-0.23,0.23 -0.43,0.47 -0.63,0.72C13.01,112.29 0,141.62 0,173.93c0,4.14 3.36,7.5 7.5,7.5h221.91c4.14,0 7.5,-3.36 7.5,-7.5C236.91,141.62 223.9,112.29 202.84,90.89zM118.46,147.69c-7.35,0 -14,3.03 -18.76,7.9l-4.72,-2.05c5.71,-6.57 14.12,-10.73 23.48,-10.73c14.58,0 26.84,10.07 30.21,23.63h-5.06C140.38,155.6 130.34,147.69 118.46,147.69zM158.88,166.43c-3.54,-19.11 -20.31,-33.63 -40.43,-33.63c-13.49,0 -25.49,6.53 -32.99,16.6l-42.48,-18.48c-3.8,-1.65 -8.22,0.09 -9.87,3.89s0.09,8.22 3.89,9.87l41.84,18.2c-0.32,1.16 -0.6,2.35 -0.82,3.55H15.27c1.65,-22.9 10.78,-43.75 24.96,-60.12l5.12,5.12c1.47,1.46 3.38,2.2 5.3,2.2s3.84,-0.73 5.3,-2.2c2.93,-2.93 2.93,-7.68 0,-10.61l-5.12,-5.12c16.38,-14.17 37.23,-23.31 60.12,-24.96v8.54c0,4.14 3.36,7.5 7.5,7.5s7.5,-3.36 7.5,-7.5v-8.54c22.9,1.65 43.75,10.78 60.12,24.96l-5.12,5.12c-2.93,2.93 -2.93,7.68 0,10.61c1.47,1.46 3.38,2.2 5.3,2.2s3.84,-0.73 5.3,-2.2l5.12,-5.12c14.18,16.38 23.31,37.23 24.96,60.12H158.88z"/>

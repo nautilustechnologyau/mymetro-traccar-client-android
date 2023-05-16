@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2011-2014 Paul Watts (paulcwatts@gmail.com),
- * University of South Florida (sjbarbeau@gmail.com), and individual contributors.
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -901,7 +900,7 @@ public class BaseMapFragment extends SupportMapFragment
         setMyLocation(lastLocation, true, true);
     }
     private void setMyLocation(Location l, boolean useDefaultZoom, boolean animateToLocation) {
-        if (mMap != null) {
+        if (mMap != null && l != null) {
             // Move camera to current location
             CameraPosition.Builder cameraPosition = new CameraPosition.Builder()
                     .target(MapHelpV2.makeLatLng(l));
@@ -1030,6 +1029,10 @@ public class BaseMapFragment extends SupportMapFragment
             CameraPosition cp = mMap.getCameraPosition();
 
             LatLng target = MapHelpV2.makeLatLng(location);
+            if (target == null) {
+                return;
+            }
+
             LatLng offsetTarget;
 
             if (isRouteDisplayed() && overlayExpanded) {
@@ -1094,7 +1097,9 @@ public class BaseMapFragment extends SupportMapFragment
                 lineOptions.color(lineOverlayColor);
 
                 for (Location l : s.getPoints()) {
-                    lineOptions.add(MapHelpV2.makeLatLng(l));
+                    if (l != null) {
+                        lineOptions.add(MapHelpV2.makeLatLng(l));
+                    }
                 }
                 // Add the line to the map, and keep a reference in the ArrayList
                 mLineOverlay.add(mMap.addPolyline(lineOptions));

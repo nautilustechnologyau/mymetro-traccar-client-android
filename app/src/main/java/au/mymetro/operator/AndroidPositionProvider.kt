@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 - 2021 Anton Tananaev (anton@traccar.org)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package au.mymetro.operator
 
 import android.annotation.SuppressLint
@@ -26,7 +27,7 @@ import android.os.Looper
 class AndroidPositionProvider(context: Context, listener: PositionListener) : PositionProvider(context, listener), LocationListener {
 
     private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private val provider = getProvider(preferences.getString(MainFragment.KEY_ACCURACY, "medium"))
+    private val provider = getProvider(preferences.getString(PreferencesFragment.KEY_ACCURACY, "medium"))
 
     @SuppressLint("MissingPermission")
     override fun startUpdates() {
@@ -79,5 +80,4 @@ class AndroidPositionProvider(context: Context, listener: PositionListener) : Po
             else   -> LocationManager.NETWORK_PROVIDER
         }
     }
-
 }

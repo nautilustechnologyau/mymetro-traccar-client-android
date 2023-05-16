@@ -15,8 +15,8 @@
   ~ limitations under the License.
   -->
 
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-  <background android:drawable="@mipmap/ic_launcher_background"/>
-  <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
-  <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>
-</adaptive-icon>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <corners android:radius="10dip"/>
+    <stroke android:color="@color/primary_dark" android:width="5dip"/>
+</shape>

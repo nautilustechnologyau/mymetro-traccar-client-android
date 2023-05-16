@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2023 Nautilus Technology
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <vector android:height="48dp" android:viewportHeight="44.793"
     android:viewportWidth="44.793" android:width="48dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#FF000000" android:pathData="M27.325,14.756c-0.911,-0.912 -2.479,-0.267 -2.479,1.023v1.523h-5.831c-3.409,0 -6.191,2.793 -6.191,6.202v4.285c0,1.477 1.201,2.673 2.677,2.673c1.477,0 2.677,-1.196 2.677,-2.673v-4.285c0,-0.461 0.376,-0.85 0.838,-0.85h5.832v1.557c0,1.289 1.567,1.936 2.479,1.023l4.221,-4.216c0.564,-0.564 0.562,-1.481 -0.002,-2.047L27.325,14.756z"/>

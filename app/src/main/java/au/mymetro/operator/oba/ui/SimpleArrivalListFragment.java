@@ -1,12 +1,11 @@
 /*
- * Copyright (C) 2012-2015 Paul Watts (paulcwatts@gmail.com), University of South Florida,
- * Benjamin Du (bendu@me.com), and individual contributors.
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -199,7 +198,10 @@ public class SimpleArrivalListFragment extends Fragment
     }
 
     private void loadArrivalList(ObaArrivalInfo[] info, final ObaReferences refs, long currentTime) {
-        LinearLayout contentLayout = (LinearLayout) getActivity().
+        if (getActivity() == null) {
+            return;
+        }
+        LinearLayout contentLayout = (LinearLayout) requireActivity().
                 findViewById(R.id.simple_arrival_content);
         if (contentLayout == null) {
             return;

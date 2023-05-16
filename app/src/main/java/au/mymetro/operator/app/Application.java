@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Nautilus Technology
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.mymetro.operator.app;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -26,15 +42,22 @@ import androidx.multidex.MultiDexApplication;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import java.security.KeyManagementException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+
+import javax.net.ssl.SSLContext;
 
 import au.mymetro.operator.R;
 import au.mymetro.operator.oba.io.ObaAnalytics;
@@ -77,6 +100,17 @@ public class Application extends MultiDexApplication {
         System.setProperty("http.keepAliveDuration", String.valueOf(30 * 60 * 1000));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             registerChannel();
+        }
+        // https://stackoverflow.com/questions/29916962/javax-net-ssl-sslhandshakeexception-javax-net-ssl-sslprotocolexception-ssl-han
+        try {
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+            SSLContext sslContext;
+            sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(null, null, null);
+            sslContext.createSSLEngine();
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
+                | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
         }
 
         mApp = this;

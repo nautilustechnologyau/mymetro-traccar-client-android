@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2012 Paul Watts (paulcwatts@gmail.com)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,8 +30,6 @@ import au.mymetro.operator.oba.io.elements.ObaRegion;
 public class ObaContext {
 
     private static final String TAG = "ObaContext";
-
-    //private String mApiKey = "v1_BktoDJ2gJlu6nLM6LsT9H8IUbWc=cGF1bGN3YXR0c0BnbWFpbC5jb20=";
 
     private static String mApiKey = "";
 

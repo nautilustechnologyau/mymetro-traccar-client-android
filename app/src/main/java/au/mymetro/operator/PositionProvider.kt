@@ -1,11 +1,11 @@
 /*
- * Copyright 2013 - 2022 Anton Tananaev (anton@traccar.org)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,10 +36,10 @@ abstract class PositionProvider(
     }
 
     protected var preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    protected var deviceId = preferences.getString(MainFragment.KEY_DEVICE, "undefined")!!
-    protected var interval = preferences.getString(MainFragment.KEY_INTERVAL, "600")!!.toLong() * 1000
-    protected var distance: Double = preferences.getString(MainFragment.KEY_DISTANCE, "0")!!.toInt().toDouble()
-    protected var angle: Double = preferences.getString(MainFragment.KEY_ANGLE, "0")!!.toInt().toDouble()
+    protected var deviceId = preferences.getString(PreferencesFragment.KEY_DEVICE, "undefined")!!
+    protected var interval = preferences.getString(PreferencesFragment.KEY_INTERVAL, "600")!!.toLong() * 1000
+    protected var distance: Double = preferences.getString(PreferencesFragment.KEY_DISTANCE, "0")!!.toInt().toDouble()
+    protected var angle: Double = preferences.getString(PreferencesFragment.KEY_ANGLE, "0")!!.toInt().toDouble()
     private var lastLocation: Location? = null
 
     abstract fun startUpdates()

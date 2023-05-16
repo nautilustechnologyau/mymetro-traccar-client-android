@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2022 Anton Tananaev (anton@traccar.org)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package au.mymetro.operator
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.net.Uri
@@ -32,7 +31,6 @@ import androidx.preference.*
 import au.mymetro.operator.ApiKeyCheckerTask.ApiKeyCheckerTaskListener
 import au.mymetro.operator.app.Application
 import au.mymetro.operator.oba.io.ObaAnalytics
-import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment
 import au.mymetro.operator.oba.region.ObaRegionsTask
 import au.mymetro.operator.oba.ui.NavHelp
 import au.mymetro.operator.oba.ui.RegionsActivity
@@ -40,33 +38,17 @@ import au.mymetro.operator.oba.util.UIUtils
 import com.google.firebase.analytics.FirebaseAnalytics
 import java.util.*
 
-class MainFragment : PreferenceFragmentCompat(),
+class PreferencesFragment : PreferenceFragmentCompat(),
         OnSharedPreferenceChangeListener,
         ObaRegionsTask.Callback,
         ApiKeyCheckerTaskListener {
 
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var alarmManager: AlarmManager
-    private lateinit var alarmIntent: PendingIntent
-    private var requestingPermissions: Boolean = false
     private var mAutoSelectInitialValue: Boolean = true
     private lateinit var mFirebaseAnalytics: FirebaseAnalytics
-    private lateinit var mRegionChangeListener: RegionPreferenceChangeListener
-
-    interface RegionPreferenceChangeListener {
-        fun onRegionPreferenceChanged(currentRegionChanged: Boolean)
-    }
-
-    fun setRegionPreferenceChangeListener(listener: RegionPreferenceChangeListener) {
-        mRegionChangeListener = listener
-    }
 
     @SuppressLint("UnspecifiedImmutableFlag")
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        //if (BuildConfig.HIDDEN_APP && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-        //    removeLauncherIcon()
-        //}
-        // setHasOptionsMenu(true)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         setPreferencesFromResource(R.xml.preferences, rootKey)
         initPreferences()
@@ -107,13 +89,6 @@ class MainFragment : PreferenceFragmentCompat(),
         }
 
         val regionClickListener = Preference.OnPreferenceClickListener { _ ->
-            /*sharedPreferences.edit().putBoolean(getString(R.string.preference_key_auto_select_region), false).apply()
-
-            Application.get().currentRegion = null
-            val callbacks: MutableList<ObaRegionsTask.Callback> = ArrayList()
-            callbacks.add(this)
-            val task = ObaRegionsTask(activity, callbacks, false, true)
-            task.execute()*/
             RegionsActivity.start(activity)
             true
         }
@@ -134,17 +109,6 @@ class MainFragment : PreferenceFragmentCompat(),
                     }
                     true
                 }
-
-        /*alarmManager = requireActivity().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val originalIntent = Intent(activity, AutostartReceiver::class.java)
-        originalIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-        alarmIntent = PendingIntent.getBroadcast(activity, 0, originalIntent, flags)*/
 
         if (sharedPreferences.getBoolean(KEY_STATUS, false)) {
             //startTrackingService(checkPermission = true, initialPermission = false)
@@ -183,29 +147,8 @@ class MainFragment : PreferenceFragmentCompat(),
         }
     }
 
-    /*private fun removeLauncherIcon() {
-        val className = MainActivity::class.java.canonicalName!!.replace(".MainActivity2", ".Launcher")
-        val componentName = ComponentName(requireActivity().packageName, className)
-        val packageManager = requireActivity().packageManager
-        if (packageManager.getComponentEnabledSetting(componentName) != PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
-            packageManager.setComponentEnabledSetting(
-                componentName,
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP
-            )
-            val builder = AlertDialog.Builder(requireActivity())
-            builder.setIcon(android.R.drawable.ic_dialog_alert)
-            builder.setMessage(getString(R.string.hidden_alert))
-            builder.setPositiveButton(android.R.string.ok, null)
-            builder.show()
-        }
-    }*/
-
     override fun onStart() {
         super.onStart()
-        /*if (requestingPermissions) {
-            requestingPermissions = BatteryOptimizationHelper().requestException(requireContext())
-        }*/
     }
 
     override fun onResume() {
@@ -236,7 +179,6 @@ class MainFragment : PreferenceFragmentCompat(),
         findPreference<Preference>(KEY_ACCURACY)?.isEnabled = enabled
         findPreference<Preference>(KEY_BUFFER)?.isEnabled = enabled
         findPreference<Preference>(KEY_WAKELOCK)?.isEnabled = enabled
-        // findPreference<Preference>(KEY_VEHICLE)?.isEnabled = enabled
         findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled = enabled
 
         if (enabled) {
@@ -251,13 +193,10 @@ class MainFragment : PreferenceFragmentCompat(),
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == KEY_STATUS) {
             if (sharedPreferences.getBoolean(KEY_STATUS, false)) {
-                // startTrackingService(checkPermission = true, initialPermission = false)
                 setPreferencesEnabled(false)
             } else {
-                // stopTrackingService()
                 setPreferencesEnabled(true)
             }
-            // (requireActivity().application as MainApplication).handleRatingFlow(requireActivity())
         } else if (key == KEY_DEVICE) {
             findPreference<Preference>(KEY_DEVICE)?.summary = sharedPreferences.getString(KEY_DEVICE, null)
         } else if (key == getString(R.string.preference_key_auto_select_region)) {
@@ -269,22 +208,6 @@ class MainFragment : PreferenceFragmentCompat(),
             }
         }
     }
-
-    /*override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }*/
-
-    /*override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.status) {
-            startActivity(Intent(activity, StatusActivity::class.java))
-            return true
-        } else if (item.itemId == R.id.info) {
-            DokiActivity.start(requireContext())
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }*/
 
     private fun initPreferences() {
         PreferenceManager.setDefaultValues(requireActivity(), R.xml.preferences, false)
@@ -304,81 +227,6 @@ class MainFragment : PreferenceFragmentCompat(),
         preference?.isEnabled = false
         preference?.isVisible = false
     }
-
-    /*private fun showBackgroundLocationDialog(context: Context, onSuccess: () -> Unit) {
-        val builder = AlertDialog.Builder(context)
-        val option = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            context.packageManager.backgroundPermissionOptionLabel
-        } else {
-            context.getString(R.string.request_background_option)
-        }
-        builder.setMessage(context.getString(R.string.request_background, option))
-        builder.setPositiveButton(android.R.string.ok) { _, _ -> onSuccess() }
-        builder.setNegativeButton(android.R.string.cancel, null)
-        builder.show()
-    }
-
-    private fun startTrackingService(checkPermission: Boolean, initialPermission: Boolean) {
-        var permission = initialPermission
-        if (checkPermission) {
-            val requiredPermissions: MutableSet<String> = HashSet()
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requiredPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-            permission = requiredPermissions.isEmpty()
-            if (!permission) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestPermissions(requiredPermissions.toTypedArray(), PERMISSIONS_REQUEST_LOCATION)
-                }
-                return
-            }
-        }
-        if (permission) {
-            setPreferencesEnabled(false)
-            ContextCompat.startForegroundService(requireContext(), Intent(activity, TrackingService::class.java))
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                alarmManager.setInexactRepeating(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    ALARM_MANAGER_INTERVAL.toLong(), ALARM_MANAGER_INTERVAL.toLong(), alarmIntent
-                )
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestingPermissions = true
-                showBackgroundLocationDialog(requireContext()) {
-                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), PERMISSIONS_REQUEST_BACKGROUND_LOCATION)
-                }
-            } else {
-                requestingPermissions = BatteryOptimizationHelper().requestException(requireContext())
-            }
-        } else {
-            sharedPreferences.edit().putBoolean(KEY_STATUS, false).apply()
-            val preference = findPreference<TwoStatePreference>(KEY_STATUS)
-            preference?.isChecked = false
-        }
-    }
-
-    private fun stopTrackingService() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            alarmManager.cancel(alarmIntent)
-        }
-        requireActivity().stopService(Intent(activity, TrackingService::class.java))
-        setPreferencesEnabled(true)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == PERMISSIONS_REQUEST_LOCATION) {
-            var granted = true
-            for (result in grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    granted = false
-                    break
-                }
-            }
-            startTrackingService(false, granted)
-        }
-    }*/
 
     private fun validateServerURL(userUrl: String): Boolean {
         val port = Uri.parse(userUrl).port
@@ -403,24 +251,12 @@ class MainFragment : PreferenceFragmentCompat(),
         if (preferenceKey.equals(getString(R.string.preference_key_region), ignoreCase = true)) {
             if (Application.get().currentRegion != null) {
                 findPreference<Preference>(getString(R.string.preference_key_region))?.summary = Application.get().currentRegion.name
-                //mCustomApiUrlPref.setSummary(getString(R.string.preferences_oba_api_servername_summary))
-                //val customOtpApiUrl: String = Application.get().getCustomOtpApiUrl()
-                //if (!TextUtils.isEmpty(customOtpApiUrl)) {
-                //    mCustomOtpApiUrlPref.setSummary(customOtpApiUrl)
-                //} else {
-                //    mCustomOtpApiUrlPref
-                //            .setSummary(getString(R.string.preferences_otp_api_servername_summary))
-                //}
-            } else {
-                //mPreference.setSummary(getString(R.string.preferences_region_summary_custom_api))
-                //mCustomApiUrlPref.setSummary(Application.get().getCustomApiUrl())
             }
         }
     }
 
     companion object {
-        private val TAG = MainFragment::class.java.simpleName
-        // private const val ALARM_MANAGER_INTERVAL = 15000
+        private val TAG = PreferencesFragment::class.java.simpleName
         const val KEY_DEVICE = "vehicle_id"
         const val KEY_URL = "url"
         const val KEY_INTERVAL = "interval"
@@ -430,9 +266,6 @@ class MainFragment : PreferenceFragmentCompat(),
         const val KEY_STATUS = "status"
         const val KEY_BUFFER = "buffer"
         const val KEY_WAKELOCK = "wakelock"
-        //const val KEY_VEHICLE = "vehicle_id"
-        // private const val PERMISSIONS_REQUEST_LOCATION = 2
-        // private const val PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 3
     }
 
     override fun onRegionTaskFinished(currentRegionChanged: Boolean) {
@@ -454,30 +287,12 @@ class MainFragment : PreferenceFragmentCompat(),
             changePreferenceSummary(getString(R.string.preference_key_region))
 
             UIUtils.showObaApiKeyInputDialog(activity, this)
-
-            // Since the current region was updated as a result of enabling/disabling experimental servers, go home
-            // NavHelp.goHome(activity, false)
         }
-
-        /*if (mRegionChangeListener != null) {
-            mRegionChangeListener.onRegionPreferenceChanged(currentRegionChanged)
-        }*/
     }
 
     override fun onApiCheckerTaskComplete(valid: Boolean?) {
-        if (java.lang.Boolean.TRUE == valid) {
-            /*val fm = activity!!.supportFragmentManager
-            val fragment = fm.findFragmentByTag(BaseMapFragment.TAG)
-
-            if (fragment != null) {
-                val mMapFragment = fragment as BaseMapFragment
-                mMapFragment.zoomToRegion()
-                mMapFragment.refreshData()
-            }*/
-        } else {
+        if (java.lang.Boolean.FALSE == valid) {
             UIUtils.popupSnackbarForApiKey(activity, this)
-            // UIUtils.showObaApiKeyInputDialog(activity, this)
         }
     }
-
 }

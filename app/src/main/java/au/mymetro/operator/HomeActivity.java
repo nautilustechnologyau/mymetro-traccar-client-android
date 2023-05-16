@@ -1,9 +1,25 @@
+/*
+ * Copyright 2023 Nautilus Technology
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.mymetro.operator;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static au.mymetro.operator.MainFragment.KEY_STATUS;
-import static au.mymetro.operator.MainFragment.KEY_URL;
+import static au.mymetro.operator.PreferencesFragment.KEY_STATUS;
+import static au.mymetro.operator.PreferencesFragment.KEY_URL;
 import static au.mymetro.operator.oba.util.PermissionUtils.BACKGROUND_LOCATION_PERMISSION_REQUEST;
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSION_REQUEST;
@@ -32,8 +48,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -59,6 +73,7 @@ import au.mymetro.operator.app.Application;
 import au.mymetro.operator.databinding.ActivityMainBinding;
 import au.mymetro.operator.oba.io.ObaAnalytics;
 import au.mymetro.operator.oba.io.ObaContext;
+import au.mymetro.operator.oba.io.elements.ObaRegion;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment;
@@ -284,10 +299,10 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         //new TravelBehaviorManager(this, getApplicationContext()).
         //        registerTravelBehaviorParticipant();
 
-        //if (Application.get().getCurrentRegion() != null) {
-        //    PreferenceUtils.saveString(getString(R.string.preference_key_region),
-        //            Application.get().getCurrentRegion().getName());
-        //}
+        /*if (Application.get().getCurrentRegion() != null) {
+            PreferenceUtils.saveString(getString(R.string.preference_key_region),
+                    Application.get().getCurrentRegion().getId());
+        }*/
 
         requestPermissionAndInit();
 
@@ -406,25 +421,21 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         } else {
             if (!isApiKeyValid()) {
                 showApiKeyDialog(this);
-                //UIUtils.popupSnackbarForApiKey(this);
                 return;
             }
 
             String tripId = homeViewModel.getTripId().getValue();
             if (TextUtils.isEmpty(tripId)) {
-                Snackbar snackbar = Snackbar.make(findViewById(R.id.home_layout),
-                                R.string.msg_trip_not_selected,
-                                Snackbar.LENGTH_INDEFINITE);
-                snackbar.setAction("DISMISS", v -> {
-
-                });
-                snackbar.show();
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+                builder.setTitle(R.string.msg_trip_no_trip_title);
+                builder.setIcon(R.drawable.ic_alert);
+                builder.setMessage(R.string.msg_trip_not_selected);
+                builder.setPositiveButton(R.string.ok, null);
+                builder.show();
                 return;
             }
             startTrackingService(true, false);
         }
-
-        ((Application) getApplication()).handleRatingFlow(this);
 
         setupStartStopButtonState();
 
@@ -535,8 +546,9 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         boolean permission = requestPermissionsIfRequired(checkPermission, initialPermission);
 
         if (permission) {
-            if (Application.get().getCurrentRegion() != null) {
-                PreferenceUtils.saveString(KEY_URL, Application.get().getCurrentRegion().getTraccarBaseUrl());
+            ObaRegion region = Application.get().getCurrentRegion();
+            if (region != null) {
+                PreferenceUtils.saveString(KEY_URL, region.getTraccarBaseUrl());
             } else {
                 PreferenceUtils.saveString(KEY_URL, null);
             }

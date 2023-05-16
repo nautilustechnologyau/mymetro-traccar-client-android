@@ -1,8 +1,21 @@
+/*
+ * Copyright 2023 Nautilus Technology
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package au.mymetro.operator.ui.settings;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,13 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import au.mymetro.operator.ApiKeyCheckerTask;
-import au.mymetro.operator.MainFragment;
+import au.mymetro.operator.PreferencesFragment;
 import au.mymetro.operator.R;
 import au.mymetro.operator.databinding.FragmentSettingsBinding;
 import au.mymetro.operator.oba.io.elements.ObaRegion;
@@ -35,7 +44,7 @@ public class SettingsFragment extends Fragment implements ApiKeyCheckerTask.ApiK
     //private Boolean requestingPermissions = false;
     //private Boolean mAutoSelectInitialValue = true;
     //private FirebaseAnalytics mFirebaseAnalytics;
-    private MainFragment mPreferenceFragment;
+    private PreferencesFragment mPreferenceFragment;
     private HomeViewModel homeViewModel;
 
     /*@Override
@@ -64,7 +73,7 @@ public class SettingsFragment extends Fragment implements ApiKeyCheckerTask.ApiK
 
         //final TextView textView = binding.textDashboard;
         //dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-        mPreferenceFragment = new MainFragment();
+        mPreferenceFragment = new PreferencesFragment();
         //mPreferenceFragment.setRegionPreferenceChangeListener(this);
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.preferences_placeholder, mPreferenceFragment)

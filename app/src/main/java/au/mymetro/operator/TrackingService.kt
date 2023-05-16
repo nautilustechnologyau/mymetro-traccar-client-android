@@ -1,11 +1,11 @@
 /*
- * Copyright 2012 - 2021 Anton Tananaev (anton@traccar.org)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -68,17 +68,11 @@ class TrackingService : Service() {
         NotificationsFragment.addMessage(getString(R.string.status_service_create))
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(MainFragment.KEY_WAKELOCK, true)) {
+            if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferencesFragment.KEY_WAKELOCK, true)) {
                 val powerManager = getSystemService(POWER_SERVICE) as PowerManager
                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, javaClass.name)
                 wakeLock?.acquire()
             }
-
-            /*Log.d(TAG, "Starting tracking controller with tripId: " + tripId)
-            Log.d(TAG, "Starting tracking controller with routeId: " + routeId)
-            Log.d(TAG, "Starting tracking controller with blockId: " + blockId)
-            trackingController = TrackingController(this, tripId, routeId, blockId)
-            trackingController?.start()*/
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -92,7 +86,6 @@ class TrackingService : Service() {
 
     // @TargetApi(Build.VERSION_CODES.ECLAIR)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Log.d(TAG, "Starting tracking service with intent: " + intent)
         tripId = intent?.extras?.getString("tripId", "")!!
         Log.d(TAG, "Starting tracking service with tripId: " + tripId)
         routeId = intent.extras?.getString("routeId", "")!!

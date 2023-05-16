@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2023 Nautilus Technology
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <vector android:height="64dp" android:viewportHeight="321.48"
     android:viewportWidth="321.48" android:width="64dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#FF000000" android:pathData="M252.62,115.28c-4.24,0 -8.47,0.43 -12.61,1.23c-13.68,-31.88 -44.34,-54.14 -79.89,-54.14c-35.47,0 -66.08,22.16 -79.8,53.93c-3.77,-0.66 -7.61,-1.01 -11.45,-1.01C30.89,115.28 0,147.54 0,187.2c0,39.66 30.89,71.92 68.86,71.92c19.64,0 38.27,-8.75 51.34,-24.03c11.97,6.44 25.54,10.07 39.91,10.07c14.71,0 28.58,-3.82 40.75,-10.54c13.09,15.57 31.91,24.49 51.75,24.49c37.97,0 68.86,-32.26 68.86,-71.92C321.48,147.54 290.59,115.28 252.62,115.28zM252.62,246.31c-15.61,0 -30.45,-6.76 -41.12,-18.61c21.87,-16.63 36.11,-43.58 36.11,-73.93c0,-8.68 -1.16,-17.07 -3.33,-25.03c2.75,-0.43 5.54,-0.65 8.34,-0.65c31.14,0 56.47,26.52 56.47,59.11S283.76,246.31 252.62,246.31zM160.11,75.18c41.41,0 75.11,35.26 75.11,78.59c0,43.33 -33.69,78.59 -75.11,78.59c-41.42,0 -75.11,-35.26 -75.11,-78.59C85,110.43 118.7,75.18 160.11,75.18zM68.86,246.31c-31.14,0 -56.47,-26.52 -56.47,-59.11s25.33,-59.11 56.47,-59.11c2.39,0 4.77,0.17 7.13,0.49c-2.2,8 -3.38,16.45 -3.38,25.19c0,30.7 14.57,57.92 36.86,74.5C98.85,239.77 84.22,246.31 68.86,246.31z"/>

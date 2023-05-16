@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 - 2021 Anton Tananaev (anton@traccar.org)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,8 +39,8 @@ class TrackingController(private val context: Context,
     private val databaseHelper = DatabaseHelper(context)
     private val networkManager = NetworkManager(context, this)
 
-    private val url: String = preferences.getString(MainFragment.KEY_URL, context.getString(R.string.settings_url_default_value))!!
-    private val buffer: Boolean = preferences.getBoolean(MainFragment.KEY_BUFFER, true)
+    private val url: String = preferences.getString(PreferencesFragment.KEY_URL, context.getString(R.string.settings_url_default_value))!!
+    private val buffer: Boolean = preferences.getBoolean(PreferencesFragment.KEY_BUFFER, true)
 
     private var isOnline = networkManager.isOnline
     private var isWaiting = false
@@ -131,7 +131,7 @@ class TrackingController(private val context: Context,
             override fun onComplete(success: Boolean, result: Position?) {
                 if (success) {
                     if (result != null) {
-                        if (result.deviceId == preferences.getString(MainFragment.KEY_DEVICE, null)) {
+                        if (result.deviceId == preferences.getString(PreferencesFragment.KEY_DEVICE, null)) {
                             send(result)
                         } else {
                             delete(result)

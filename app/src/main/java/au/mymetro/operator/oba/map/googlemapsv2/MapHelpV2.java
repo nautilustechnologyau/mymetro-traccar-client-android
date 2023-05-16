@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2014 University of South Florida (sjbarbeau@gmail.com)
+ * Copyright 2023 Nautilus Technology
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,6 +51,9 @@ public class MapHelpV2 {
      * @return A LatLng representing this LatLng.
      */
     public static final LatLng makeLatLng(Location l) {
+        if (l == null) {
+            return null;
+        }
         return makeLatLng(l.getLatitude(), l.getLongitude());
     }
 
@@ -61,6 +64,9 @@ public class MapHelpV2 {
      * @return A Location representing this LatLng.
      */
     public static final Location makeLocation(LatLng latLng) {
+        if (latLng == null) {
+            return null;
+        }
         Location l = new Location("FromLatLng");
         l.setLatitude(latLng.latitude);
         l.setLongitude(latLng.longitude);
