@@ -77,13 +77,11 @@ import au.mymetro.operator.oba.io.elements.ObaShape;
 import au.mymetro.operator.oba.io.elements.ObaStop;
 import au.mymetro.operator.oba.io.request.ObaResponse;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
-import au.mymetro.operator.oba.map.DirectionsMapController;
 import au.mymetro.operator.oba.map.MapModeController;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.map.RouteMapController;
 import au.mymetro.operator.oba.map.StopMapController;
 import au.mymetro.operator.oba.region.ObaRegionsTask;
-import au.mymetro.operator.oba.ui.LayersSpeedDialAdapter;
 import au.mymetro.operator.oba.ui.SingleLiveEvent;
 import au.mymetro.operator.oba.util.LocationHelper;
 import au.mymetro.operator.oba.util.LocationUtils;
@@ -112,7 +110,7 @@ public class BaseMapFragment extends SupportMapFragment
         LocationSource, LocationHelper.Listener,
         com.google.android.gms.maps.GoogleMap.OnCameraChangeListener,
         StopOverlay.OnFocusChangedListener, OnMapReadyCallback,
-        VehicleOverlay.Controller, LayersSpeedDialAdapter.LayerActivationListener {
+        VehicleOverlay.Controller {
 
     public static final String TAG = "BaseMapFragment";
 
@@ -196,14 +194,6 @@ public class BaseMapFragment extends SupportMapFragment
     private Marker mCurrLocationMarker;
 
     private MapInitCompletedListener mMapInitCompletedListener;
-
-    @Override
-    public void onActivateLayer(LayerInfo layer) {
-    }
-
-    @Override
-    public void onDeactivateLayer(LayerInfo layer) {
-    }
 
     public interface OnFocusChangedListener {
 
@@ -621,11 +611,11 @@ public class BaseMapFragment extends SupportMapFragment
             removeMapController(MapParams.MODE_STOP);
             StopMapController controller = new StopMapController(this);
             mControllers.add(controller);
-        } else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
+        } /*else if (MapParams.MODE_DIRECTIONS.equals(mode)) {
             removeMapController(MapParams.MODE_DIRECTIONS);
             DirectionsMapController controller = new DirectionsMapController(this);
             mControllers.add(controller);
-        }
+        }*/
 
         for (MapModeController controller : mControllers) {
             controller.setState(args);

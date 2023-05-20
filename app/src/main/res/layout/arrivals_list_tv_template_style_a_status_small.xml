@@ -27,6 +27,6 @@
           android:text="12 min delay"
           android:id="@+id/status3"
           style="@style/ArrivalsListStatusSmallStyleA"
+          android:background="@drawable/round_corners_style_b_status"
           android:layout_span="2"
-          android:layout_alignParentRight="true"
-          android:background="@drawable/round_corners_style_b_status"/>
+          android:layout_alignParentRight="true"/>

@@ -24,10 +24,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.PowerManager.WakeLock
-import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -127,16 +127,11 @@ class TrackingService : Service() {
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            val intent: Intent
-            if (!BuildConfig.HIDDEN_APP) {
-                intent = Intent(context, HomeActivity::class.java)
-                builder
-                    .setContentTitle(context.getString(R.string.settings_status_on_summary))
-                    .setTicker(context.getString(R.string.settings_status_on_summary))
-                    .color = ContextCompat.getColor(context, R.color.primary_dark)
-            } else {
-                intent = Intent(Settings.ACTION_SETTINGS)
-            }
+            val intent = Intent(context, HomeActivity::class.java)
+            builder
+                .setContentTitle(context.getString(R.string.settings_status_on_summary))
+                .setTicker(context.getString(R.string.settings_status_on_summary))
+                .color = ContextCompat.getColor(context, R.color.primary_dark)
             val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 PendingIntent.FLAG_IMMUTABLE
             } else {

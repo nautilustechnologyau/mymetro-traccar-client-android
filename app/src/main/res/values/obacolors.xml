@@ -131,4 +131,20 @@
     <color name="zoom_btn_color_pressed">#82CCCCCC</color>
     <color name="zoom_btn_color">#82CCCCCC</color>
 
+    <color name="quantum_googblue">@color/quantum_googblue500</color>
+    <color name="quantum_googblue50">#e8f0fe</color>
+    <color name="quantum_googblue100">#c6dafc</color>
+    <color name="quantum_googblue200">#a1c2fa</color>
+    <color name="quantum_googblue300">#7baaf7</color>
+    <color name="quantum_googblue400">#5e97f6</color>
+    <color name="quantum_googblue500">#4285f4</color>
+    <color name="quantum_googblue600">#3b78e7</color>
+    <color name="quantum_googblue700">#3367d6</color>
+    <color name="quantum_googblue800">#2a56c6</color>
+    <color name="quantum_googblue900">#1c3aa9</color>
+    <color name="quantum_googblueA100">#82b1ff</color>
+    <color name="quantum_googblueA200">#448aff</color>
+    <color name="quantum_googblueA400">#2979ff</color>
+    <color name="quantum_googblueA700">#2962ff</color>
+
 </resources>

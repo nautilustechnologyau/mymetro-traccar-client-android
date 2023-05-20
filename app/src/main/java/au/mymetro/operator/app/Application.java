@@ -38,6 +38,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -97,20 +98,26 @@ public class Application extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
+
         System.setProperty("http.keepAliveDuration", String.valueOf(30 * 60 * 1000));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             registerChannel();
         }
+
         // https://stackoverflow.com/questions/29916962/javax-net-ssl-sslhandshakeexception-javax-net-ssl-sslprotocolexception-ssl-han
-        try {
-            ProviderInstaller.installIfNeeded(getApplicationContext());
-            SSLContext sslContext;
-            sslContext = SSLContext.getInstance("TLSv1.2");
-            sslContext.init(null, null, null);
-            sslContext.createSSLEngine();
-        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
-                | NoSuchAlgorithmException | KeyManagementException e) {
-            e.printStackTrace();
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                ProviderInstaller.installIfNeeded(getApplicationContext());
+                SSLContext sslContext;
+                sslContext = SSLContext.getInstance("TLSv1.2");
+                sslContext.init(null, null, null);
+                sslContext.createSSLEngine();
+            } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
+                    | NoSuchAlgorithmException | KeyManagementException e) {
+                e.printStackTrace();
+            }
         }
 
         mApp = this;

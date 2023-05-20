@@ -19,6 +19,7 @@ package au.mymetro.operator.ui.home;
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.media.Ringtone;
@@ -45,6 +46,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.onebusaway.transit_data_federation.impl.shapes.PointAndIndex;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -124,7 +126,9 @@ public class HomeFragment extends Fragment
         }
 
         updateStopInfoHeaders(homeViewModel.getArrivalInfo().getValue());
+
         selectStopTrip();
+
         return root;
     }
 
@@ -144,6 +148,10 @@ public class HomeFragment extends Fragment
         super.onDestroyView();
         binding = null;
         mMapFragment = null;
+
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
     }
 
     @Override
@@ -160,6 +168,9 @@ public class HomeFragment extends Fragment
 
     @Override
     public void onArrivalDataReceived(ObaArrivalInfoResponse response) {
+        if (!UIUtils.canManageDialog(requireActivity())) {
+            return;
+        }
         if (mProgressDialog != null) {
             mProgressDialog.hide();
         }
@@ -353,11 +364,6 @@ public class HomeFragment extends Fragment
         double distanceTravelled = mTripStatusUtil.getDistanceToNextStop();
         if (distanceBetweenStop > 0 && distanceTravelled > 0) {
             int stopProgress = (int) (100 - (distanceTravelled / distanceBetweenStop) * 100);
-            Log.d(TAG, "Current Stop distance along trip: " + currentStopDistance);
-            Log.d(TAG, "Next Stop distance along trip: " + nextStopDistance);
-            Log.d(TAG, "Distance between stops: " + distanceBetweenStop);
-            Log.d(TAG, "Distance travelled: " + distanceTravelled);
-            Log.d(TAG, "Stop progress: " + stopProgress);
             binding.tripInfoNextStopDistanceProgress.setProgress(stopProgress);
         }
 
@@ -394,13 +400,42 @@ public class HomeFragment extends Fragment
             long deviationMin = TimeUnit.SECONDS.toMinutes(status.getScheduleDeviation());
             String statusString = ArrivalInfoUtils.computeArrivalLabelFromDelay(getResources(), deviationMin);
             //statusColor = ArrivalInfoUtils.computeColorFromDeviation(deviationMin);
-            binding.tripInfoArrivalStatus.setText(statusString.replace("min ", "min\n"));
+            //binding.tripInfoArrivalStatus.setText(statusString.replace("min ", "min\n"));
+            binding.tripInfoArrivalStatus.setText(statusString);
             //binding.tripInfoArrivalStatus.setTextColor(statusColor);
         } else {
             // Scheduled info
             //statusColor = getResources().getColor(R.color.stop_info_scheduled_time);
             binding.tripInfoArrivalStatus.setText(R.string.stop_info_scheduled);
             //binding.tripInfoArrivalStatus.setTextColor(statusColor);
+        }
+
+        long deviation = status.getScheduleDeviation();
+        long date = status.getServiceDate();
+        long predicted = date + deviation * 1000 + mTripStatusUtil.getNextStopTime().getArrivalTime() * 1000;
+        long now = new Date().getTime();
+        int ms_in_secs = 1000;
+
+        long nowSecs = now / ms_in_secs;
+        long predictedSecs = predicted / ms_in_secs;
+        long diffSecs = predictedSecs - nowSecs;
+        Log.d(TAG, "Diff secs: " + diffSecs);
+        long etaMins = Math.round(diffSecs / 60.0);
+        long etaSecs = diffSecs % 60;
+        Log.d(TAG, "ETA secs: " + etaSecs);
+        Log.d(TAG, "ETA mins: " + etaMins);
+
+        if (diffSecs <= 10) {
+            binding.tripInfoArrivalEta.setText(R.string.stop_info_eta_now);
+        } else {
+            if (etaSecs == 0) {
+                binding.tripInfoArrivalEta.setText(etaMins + "\nmin");
+            } else if (etaMins == 0) {
+                binding.tripInfoArrivalEta.setText(etaSecs + "\nsec");
+            } else {
+                String eta = String.format(etaMins + "+\nmin");
+                binding.tripInfoArrivalEta.setText(eta);
+            }
         }
     }
 
@@ -440,6 +475,11 @@ public class HomeFragment extends Fragment
         if (MapParams.MODE_STOP.equals(mode)) {
             // we are in stop mode, notify main activity to disable the start button
             homeViewModel.setTripId(null);
+            homeViewModel.setStop(null);
+            homeViewModel.setResponse(null);
+            homeViewModel.setArrivalInfo(null);
+            homeViewModel.setBlockId(null);
+            homeViewModel.setRouteId(null);
         }
 
         updateStopInfoHeaders(homeViewModel.getArrivalInfo().getValue());
@@ -450,6 +490,7 @@ public class HomeFragment extends Fragment
         ObaArrivalInfo arrivalInfo = homeViewModel.getArrivalInfo().getValue();
         Bundle bundle = createMapBundle();
         if (MapParams.MODE_ROUTE.equals(mode) && arrivalInfo != null) {
+
             MapModeController controller = mMapFragment.setMapMode(MapParams.MODE_ROUTE, bundle);
             if (controller != null) {
                 controller.setRoutesDataReceivedListener(this);
@@ -615,6 +656,9 @@ public class HomeFragment extends Fragment
     }
 
     private void showArrivalListFragment(ObaStop obaStop) {
+        if (!UIUtils.canManageDialog(requireActivity())) {
+            return;
+        }
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(requireActivity());
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);

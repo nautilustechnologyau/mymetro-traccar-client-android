@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:animateLayoutChanges="true"
-        android:background="#00555555"
+        android:background="@android:color/transparent"
         android:gravity="center"
         tools:ignore="MissingConstraints">
 
@@ -68,7 +68,8 @@
                         <ImageView
                             android:id="@+id/trip_info_toward"
                             android:layout_width="match_parent"
-                            android:layout_height="32dp"
+                            android:layout_height="54dp"
+                            android:contentDescription="Route"
                             android:gravity="center"
                             android:src="@drawable/ic_arrows_up"
                             app:tint="@color/primary_dark" />
@@ -81,8 +82,8 @@
                             android:gravity="center"
                             android:text="H20"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textColor="@color/primary_dark"
-                            android:textSize="32sp"
+                            android:textColor="#AA00FF"
+                            android:textSize="54sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -115,7 +116,7 @@
                                 android:singleLine="true"
                                 android:text="Paradise"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="34sp"
+                                android:textSize="54sp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -124,7 +125,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="horizontal">
-
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -141,7 +141,7 @@
                                     android:singleLine="true"
                                     android:text="Stop 21c St Bernards Rd - East Side"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
-                                    android:textSize="24sp"
+                                    android:textSize="40sp"
                                     android:textStyle="bold" />
 
                                 <LinearLayout
@@ -176,13 +176,12 @@
                         android:paddingEnd="4dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:layout_editor_absoluteY="2dp">
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="2dp">
+                            android:layout_margin="4dp">
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -192,14 +191,14 @@
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:padding="4dp"
                                     android:background="@color/theme_primary_dark"
                                     android:fontFamily="@font/lato_bold"
                                     android:gravity="center"
+                                    android:padding="4dp"
                                     android:text="SCHEDULED"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
                                     android:textColor="@color/cardview_light_background"
-                                    android:textSize="13sp" />
+                                    android:textSize="20sp" />
 
                                 <TextView
                                     android:id="@+id/trip_info_arrival_time_scheduled"
@@ -209,7 +208,7 @@
                                     android:gravity="center"
                                     android:text="12:30 AM"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
-                                    android:textSize="16sp"
+                                    android:textSize="24sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -217,7 +216,7 @@
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="2dp">
+                            android:layout_margin="4dp">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -227,14 +226,14 @@
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:padding="4dp"
                                     android:background="@color/theme_primary_dark"
                                     android:fontFamily="@font/lato_bold"
                                     android:gravity="center"
+                                    android:padding="4dp"
                                     android:text="ARRIVING"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
                                     android:textColor="@color/cardview_light_background"
-                                    android:textSize="13sp" />
+                                    android:textSize="20sp" />
 
                                 <TextView
                                     android:id="@+id/trip_info_arrival_time_estimated"
@@ -244,14 +243,13 @@
                                     android:gravity="center"
                                     android:text="12:35 AM"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
-                                    android:textSize="16sp"
+                                    android:textSize="24sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
-
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/trip_ext_info_card"
@@ -282,8 +280,8 @@
 
                             <ProgressBar
                                 android:id="@+id/trip_info_trip_travel_distance_progress"
-                                android:layout_width="85dp"
-                                android:layout_height="70dp"
+                                android:layout_width="150dp"
+                                android:layout_height="120dp"
                                 android:layout_gravity="center"
                                 android:indeterminateOnly="false"
                                 android:progress="60"
@@ -297,7 +295,7 @@
                                 android:gravity="center"
                                 android:text="12%"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp"
+                                android:textSize="32sp"
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="@+id/trip_info_trip_travel_distance_progress"
                                 app:layout_constraintEnd_toEndOf="@+id/trip_info_trip_travel_distance_progress"
@@ -316,7 +314,7 @@
                             android:text="Progress"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
-                            android:textSize="14sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -335,8 +333,8 @@
 
                             <ProgressBar
                                 android:id="@+id/trip_info_speed_progress"
-                                android:layout_width="85dp"
-                                android:layout_height="70dp"
+                                android:layout_width="150dp"
+                                android:layout_height="120dp"
                                 android:layout_gravity="center"
                                 android:indeterminateOnly="false"
                                 android:progress="60"
@@ -350,7 +348,7 @@
                                 android:gravity="center"
                                 android:text="40"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp"
+                                android:textSize="32sp"
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="@+id/trip_info_speed_progress"
                                 app:layout_constraintEnd_toEndOf="@+id/trip_info_speed_progress"
@@ -369,7 +367,7 @@
                             android:text="Speed km/h"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
-                            android:textSize="14sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -387,8 +385,8 @@
 
                             <ProgressBar
                                 android:id="@+id/trip_info_next_stop_distance_progress"
-                                android:layout_width="85dp"
-                                android:layout_height="70dp"
+                                android:layout_width="150dp"
+                                android:layout_height="120dp"
                                 android:layout_gravity="center"
                                 android:indeterminateOnly="false"
                                 android:progress="60"
@@ -402,7 +400,7 @@
                                 android:gravity="center"
                                 android:text="200 m"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp"
+                                android:textSize="32sp"
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="@+id/trip_info_next_stop_distance_progress"
                                 app:layout_constraintEnd_toEndOf="@+id/trip_info_next_stop_distance_progress"
@@ -421,7 +419,7 @@
                             android:text="Distance"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
-                            android:textSize="14sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -439,8 +437,8 @@
 
                             <ProgressBar
                                 android:id="@+id/trip_info_arrival_status_progress"
-                                android:layout_width="85dp"
-                                android:layout_height="70dp"
+                                android:layout_width="150dp"
+                                android:layout_height="120dp"
                                 android:layout_gravity="center"
                                 android:indeterminateOnly="false"
                                 android:progress="100"
@@ -454,7 +452,7 @@
                                 android:gravity="center"
                                 android:text="NOW"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp"
+                                android:textSize="32sp"
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="@+id/trip_info_arrival_status_progress"
                                 app:layout_constraintEnd_toEndOf="@+id/trip_info_arrival_status_progress"
@@ -469,17 +467,34 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@drawable/round_corners_style_b_status"
-                            android:ellipsize="end"
                             android:fontFamily="@font/lato_bold"
                             android:gravity="center|bottom"
-                            android:singleLine="true"
                             android:text="5 min late"
+                            android:singleLine="true"
+                            android:ellipsize="end"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
-                            android:textSize="14sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent">
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/trip_schedule_view"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:clickable="true"
+                            android:contentDescription="Show trip schedule"
+                            android:gravity="right"
+                            android:src="@drawable/ic_icon_trip"
+                            android:visibility="visible" />
+                    </LinearLayout>
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
@@ -489,26 +504,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
-        android:background="@android:color/transparent"
+        android:background="#00555555"
         android:gravity="bottom"
         app:layout_constraintTop_toBottomOf="@id/trip_info_header">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:orientation="vertical">
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/trip_schedule_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:src="@drawable/ic_icon_trip"
-                android:visibility="visible" />
-        </LinearLayout>
     </RelativeLayout>
 
     <RelativeLayout
@@ -538,8 +538,8 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
                         android:layout_margin="2dp"
                         android:layout_marginEnd="8dp"
                         android:src="@drawable/ic_drawer_maps_place"
@@ -556,7 +556,7 @@
                         android:singleLine="true"
                         android:text="-:-"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textSize="20sp" />
+                        android:textSize="32sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -565,8 +565,8 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
                         android:layout_margin="2dp"
                         android:layout_marginEnd="8dp"
                         android:src="@drawable/ic_icon_trip"
@@ -583,7 +583,7 @@
                         android:singleLine="true"
                         android:text="-:-"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:textSize="20sp" />
+                        android:textSize="32sp" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -597,7 +597,7 @@
         <RelativeLayout
             android:id="@+id/map_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></RelativeLayout>
+            android:layout_height="match_parent" />
     </RelativeLayout>
 
     <RelativeLayout

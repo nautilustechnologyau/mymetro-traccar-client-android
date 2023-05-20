@@ -91,7 +91,6 @@ import au.mymetro.operator.oba.io.elements.Status;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsRequest;
 import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.nav.NavigationService;
-import au.mymetro.operator.oba.travelbehavior.TravelBehaviorManager;
 import au.mymetro.operator.oba.util.ArrivalInfoUtils;
 import au.mymetro.operator.oba.util.DBUtil;
 import au.mymetro.operator.oba.util.LocationUtils;
@@ -564,9 +563,6 @@ public class TripDetailsListFragment extends ListFragment {
                                 Application.get().getString(R.string.destination_reminder_title),
                                 Toast.LENGTH_LONG
                         ).show();
-
-                        TravelBehaviorManager.saveDestinationReminders(mStopId, mDestinationId,
-                                mTripId, mRouteId, mTripInfo.getCurrentTime());
                     }
                 });
 

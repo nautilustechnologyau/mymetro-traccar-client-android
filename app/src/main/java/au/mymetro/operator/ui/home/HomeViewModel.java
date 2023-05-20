@@ -159,6 +159,7 @@ public class HomeViewModel extends ViewModel {
     public MutableLiveData<ObaRegion> getRegionChanged() {
         return mRegionChanged;
     }
+
     public void setRegionChanged(ObaRegion changed) {
         mRegionChanged.setValue(changed);
     }

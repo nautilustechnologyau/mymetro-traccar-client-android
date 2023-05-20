@@ -10,10 +10,6 @@ repositories {
         url "https://repo.camsys-apps.com/releases"
     }
     maven {
-        // for Amazon Maps
-        url uri('../.m2/repository')
-    }
-    maven {
         // CUTR Releases
         url "https://github.com/CUTR-at-USF/cutr-mvn-repo/raw/master/snapshots"
     }
@@ -30,11 +26,10 @@ android {
     }*/
     defaultConfig {
         applicationId 'au.mymetro.operator'
-        buildConfigField 'boolean', 'HIDDEN_APP', 'false'
         minSdkVersion 19
         targetSdkVersion 33
-        versionCode 4
-        versionName '1.0.3'
+        versionCode 6
+        versionName '1.0.5'
 
         multiDexEnabled true
 
@@ -62,11 +57,6 @@ android {
     productFlavors {
         regular {
             isDefault = true
-        }
-        google
-        hidden {
-            applicationId 'au.mymetro.operator.hidden'
-            buildConfigField 'boolean', 'HIDDEN_APP', 'true'
         }
     }
 
@@ -144,15 +134,10 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.android.material:material:1.6.1' // wait for preference-ktx update
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.judemanutd:autostarter:1.1.0'
-    //implementation('dev.doubledot.doki:library:0.0.1@aar') {
-    //    transitive = true
-    //}
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
@@ -160,29 +145,29 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
     implementation 'androidx.navigation:navigation-fragment:2.4.1'
     implementation 'androidx.navigation:navigation-ui:2.4.1'
-    implementation 'com.google.android.gms:play-services-base:18.2.0'
     implementation 'androidx.annotation:annotation:1.5.0'
     implementation 'androidx.work:work-runtime:2.8.1'
-    implementation 'com.google.firebase:firebase-storage:20.1.0'
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.5.0'
-    implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.5'
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.robolectric:robolectric:4.7.3'
+
+    implementation 'com.google.android.gms:play-services-base:18.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    // implementation 'com.google.android.libraries.places:places-compat:2.6.0'
+    implementation 'com.google.android.material:material:1.6.1' // wait for preference-ktx update
+    implementation 'com.google.android.play:app-update:2.0.1'
+
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
-    implementation 'com.google.firebase:firebase-core'
-    implementation 'com.google.firebase:firebase-analytics'
     // to fix Google Play warning
     implementation ('com.google.firebase:firebase-auth:21.3.0') {
         exclude module: "play-services-safetynet"
     }
+    implementation 'com.google.firebase:firebase-storage:20.2.0'
+    //implementation 'com.google.firebase:firebase-firestore-ktx:24.6.0'
+    implementation 'com.google.firebase:firebase-core'
+    implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-crashlytics'
-    implementation 'com.google.android.gms:play-services-location:21.0.1'
-    implementation 'com.google.android.play:core:1.10.3'
-    // Google Play Services Maps (only for Google flavor)
-    implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    // Google Play Services Places is required by ProprietaryMapHelpV2 (only for Google flavor)
-    implementation 'com.google.android.libraries.places:places-compat:2.6.0'
-    implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.firebase:firebase-crashlytics-buildtools:2.9.5'
+    //implementation 'com.google.guava:guava:24.1-jre'
+    implementation 'com.google.guava:guava:27.0.1-android'
 
     // For sorting alphanumeric route names
     implementation ('org.onebusaway.util:comparators:1.0.0') {
@@ -201,51 +186,23 @@ dependencies {
         transitive = false
     }
 
-    // implementation 'edu.washington.cs.rse:javaproj:1.0.4'
-
-    // implementation 'org.locationtech.jts:jts-core:1.19.0'
-
     // For floating action button speed dial
-    implementation 'uk.co.markormesher:android-fab:2.2.0'
+    // implementation 'uk.co.markormesher:android-fab:2.2.0'
 
-
-    // Firebase Analytics
-    // implementation 'com.google.firebase:firebase-core:21.1.1'
-    // implementation 'com.google.firebase:firebase-analytics:21.2.2'
-    // Cloud Firestore (for storing destination alert test data)
-    // implementation 'com.google.firebase:firebase-firestore:24.5.0'
-    // Google Play Services Location
-    // implementation 'com.google.android.gms:play-services-location:21.0.1'
     // JSON data binding for OBA REST API responses
     implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
     // Explicit dependency on Gson is now apparently needed
     implementation 'com.google.code.gson:gson:2.9.1'
-    implementation 'de.grundid.opendatalab:geojson-jackson:1.7'
+    //implementation 'de.grundid.opendatalab:geojson-jackson:1.7'
     implementation 'commons-io:commons-io:2.8.0'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'edu.usf.cutr.opentripplanner.android:opentripplanner-pojos:1.0.0-SNAPSHOT'
 
-
-
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.7.3'
 }
 
-if (getGradle().getStartParameter().getTaskRequests().toString().contains('Google')) {
-    apply plugin: 'com.google.gms.google-services'
-    apply plugin: 'com.google.firebase.crashlytics'
-
-    task copyJson(type: Copy) {
-        from '../../environment/google-services'
-        into '.'
-        include 'traccar-client-android.json'
-        rename('traccar-client-android.json', 'google-services.json')
-    }
-
-    afterEvaluate {
-        preBuild.dependsOn copyJson
-    }
-}
 
 // Exclude all classes from dependencies that conflict with Android platform classes (#849)
 configurations {

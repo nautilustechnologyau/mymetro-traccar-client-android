@@ -18,9 +18,10 @@ package au.mymetro.operator;
 
 import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static com.google.android.play.core.install.model.AppUpdateType.FLEXIBLE;
+import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE;
 import static au.mymetro.operator.PreferencesFragment.KEY_STATUS;
 import static au.mymetro.operator.PreferencesFragment.KEY_URL;
-import static au.mymetro.operator.oba.util.PermissionUtils.BACKGROUND_LOCATION_PERMISSION_REQUEST;
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSIONS;
 import static au.mymetro.operator.oba.util.PermissionUtils.LOCATION_PERMISSION_REQUEST;
 import static au.mymetro.operator.oba.util.UIUtils.canManageDialog;
@@ -32,6 +33,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -59,10 +61,18 @@ import androidx.preference.PreferenceManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
+import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
@@ -73,12 +83,13 @@ import au.mymetro.operator.app.Application;
 import au.mymetro.operator.databinding.ActivityMainBinding;
 import au.mymetro.operator.oba.io.ObaAnalytics;
 import au.mymetro.operator.oba.io.ObaContext;
+import au.mymetro.operator.oba.io.elements.ObaArrivalInfo;
 import au.mymetro.operator.oba.io.elements.ObaRegion;
 import au.mymetro.operator.oba.io.elements.ObaStop;
+import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.map.googlemapsv2.BaseMapFragment;
 import au.mymetro.operator.oba.region.ObaRegionsTask;
-import au.mymetro.operator.oba.travelbehavior.constants.TravelBehaviorConstants;
 import au.mymetro.operator.oba.ui.ArrivalsListFragment;
 import au.mymetro.operator.oba.util.LocationUtils;
 import au.mymetro.operator.oba.util.PermissionUtils;
@@ -157,6 +168,21 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     private HomeFragment mHomeFragment;
 
     private NavController mNavController;
+
+    // in-app update
+    public static final int DAYS_FOR_FLEXIBLE_UPDATE = 3;
+    public static int UPDATE_REQUEST_CODE = 1000001;
+    private static AppUpdateManager mAppUpdateManager = null;
+
+    // required to restore view when user clicks on notification icon
+    // after the strip has been started and the application wen background
+    private static ObaStop mStop;
+    private static String mTripId;
+    private static String mMapMode;
+    private static String mRouteId;
+    private static String mBlockId;
+    private static ObaArrivalInfo mArrivalInfo;
+    private static ObaTripDetailsResponse mResponse;
 
     /**
      * GoogleApiClient being used for Location Services
@@ -267,11 +293,9 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
-        if (BuildConfig.HIDDEN_APP && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            removeLauncherIcon();
-        }
-
         setupNavigation();
+
+        checkUpdate();
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mSharedPreferences.edit().putBoolean(KEY_STATUS, false).commit();
@@ -287,23 +311,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
         setupGooglePlayServices();
 
-        // To enable checkBatteryOptimizations, also uncomment the
-        // REQUEST_IGNORE_BATTERY_OPTIMIZATIONS permission in AndroidManifest.xml
-        // See https://github.com/OneBusAway/onebusaway-android/pull/988#discussion_r299950506
-        // checkBatteryOptimizations();
-
-        //setupPermissions(this);
-
-        // BaseMapFragment.setOnLocationPermissionResultListener(this);
-
-        //new TravelBehaviorManager(this, getApplicationContext()).
-        //        registerTravelBehaviorParticipant();
-
-        /*if (Application.get().getCurrentRegion() != null) {
-            PreferenceUtils.saveString(getString(R.string.preference_key_region),
-                    Application.get().getCurrentRegion().getId());
-        }*/
-
         requestPermissionAndInit();
 
         if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
@@ -312,17 +319,11 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             checkRegionStatus();
         }
 
-        /*if (!mInitialStartup && !isApiKeyValid()) {
-            UIUtils.showObaApiKeyInputDialog(this);
-        }*/
-
-        // setupMapFragment(savedInstanceState);
-
-        // setupLocationHelper(savedInstanceState);
-
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         homeViewModel.getTripId().observe(this, this::onTripChange);
         homeViewModel.getServiceStatus().observe(this, this::onServiceStatus);
+
+        restoreTripState();
     }
 
     // Register the permissions callback, which handles the user's response to the
@@ -355,13 +356,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     @Override
     public void onStart() {
         super.onStart();
-        // requestPermissionsIfRequired(true, false);
-
-        /*if (!mInitialStartup || PermissionUtils.hasGrantedAtLeastOnePermission(this, LOCATION_PERMISSIONS)) {
-            // It's not the first startup or if the user has already granted location permissions (Android L and lower), then check the region status
-            // Otherwise, wait for a permission callback from the BaseMapFragment before checking the region status
-            checkRegionStatus();
-        }*/
 
         if (!isApiKeyValid() && Application.get().getCurrentRegion() != null) {
             UIUtils.showObaApiKeyInputDialog(this, this);
@@ -394,11 +388,118 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     public void onResume() {
         super.onResume();
         setupStartStopButtonState();
+        checkUpdateStatus();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    private void checkUpdateStatus() {
+        // in-apps update status check
+        if (mAppUpdateManager != null) {
+            mAppUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+                // If the update is downloaded but not installed,
+                // notify the user to complete the update.
+                Log.d(TAG, "App Update Status " + appUpdateInfo.installStatus());
+                if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                    popupSnackbarForCompleteUpdate();
+                    return;
+                }
+
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                    try {
+                        // If an in-app update is already running, resume the update.
+                        mAppUpdateManager.startUpdateFlowForResult(
+                                appUpdateInfo,
+                                IMMEDIATE,
+                                this,
+                                UPDATE_REQUEST_CODE);
+                    } catch (Exception ex) {
+                        Log.e(TAG, "Error updating app: " + ex.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
+    public void checkUpdate() {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Log.d(TAG, "This version does not support in-app updates");
+            return;
+        }
+
+        // already displayed?
+        if (mAppUpdateManager != null) {
+            return;
+        }
+
+        mAppUpdateManager = AppUpdateManagerFactory.create(this);
+
+        // Returns an intent object that you use to check for an update.
+        Task<AppUpdateInfo> appUpdateInfoTask = mAppUpdateManager.getAppUpdateInfo();
+
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                // Request the update.
+                Integer stalenessDays = appUpdateInfo.clientVersionStalenessDays();
+                int appUpdateType = FLEXIBLE;
+                if (stalenessDays != null && stalenessDays >= DAYS_FOR_FLEXIBLE_UPDATE) {
+                    appUpdateType = IMMEDIATE;
+                }
+
+                startUpdate(appUpdateInfo, appUpdateType);
+            }
+        });
+    }
+
+    private void startUpdate(AppUpdateInfo appUpdateInfo, int appUpdateType) {
+
+        if (appUpdateType == AppUpdateType.FLEXIBLE) {
+            // Create a listener to track request state updates.
+            InstallStateUpdatedListener appUpdateListener = state -> {
+                if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                    // After the update is downloaded, show a notification
+                    // and request user confirmation to restart the app.
+                    popupSnackbarForCompleteUpdate();
+                    // appUpdateManager.unregisterListener(listener);
+                }
+            };
+
+            mAppUpdateManager.registerListener(appUpdateListener);
+        }
+
+        try {
+            int updateType = AppUpdateType.FLEXIBLE;
+            if (appUpdateType == 1) {
+                updateType = IMMEDIATE;
+            }
+            mAppUpdateManager.startUpdateFlowForResult(
+                    // Pass the intent that is returned by 'getAppUpdateInfo()'.
+                    appUpdateInfo,
+                    // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
+                    updateType,
+                    // The current activity making the update request.
+                    this,
+                    // Include a request code to later monitor this update request.
+                    UPDATE_REQUEST_CODE);
+        } catch (IntentSender.SendIntentException e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    // Displays the snackbar notification and call to action.
+    private void popupSnackbarForCompleteUpdate() {
+        Snackbar snackbar =
+                Snackbar.make(
+                        findViewById(R.id.home_layout),
+                        "An update has just been downloaded.",
+                        Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("RESTART", view -> mAppUpdateManager.completeUpdate());
+        snackbar.setActionTextColor(getResources().getColor(R.color.theme_primary));
+        snackbar.show();
     }
 
     private void setupAlarmManager() {
@@ -444,11 +545,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
     private void onTripChange(String tripId) {
         Log.d(TAG, "Trip selection changed: " + tripId);
-        /*if (TextUtils.isEmpty(tripId)) {
-            mBtnFabStartStop.setEnabled(false);
-        } else {
-            mBtnFabStartStop.setEnabled(true);
-        }*/
     }
 
     private void onServiceStatus(Boolean status) {
@@ -500,18 +596,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
         mNavController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, mNavController, appBarConfiguration);
         NavigationUI.setupWithNavController(mBinding.navView, mNavController);
-
-        /*navController.addOnDestinationChangedListener((navController1, navDestination, bundle) -> {
-            if (navDestination.getId() == R.id.navigation_home) {
-
-            }
-        });*/
-
-        /*mNavController.addOnDestinationChangedListener((navController, navDestination, bundle) -> {
-            if (navDestination.getId() == R.id.navigation_home) {
-                //navDestination.
-            }
-        });*/
     }
 
     private void setupStartStopButtonState() {
@@ -519,6 +603,28 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             mBtnFabStartStop.setImageResource(R.drawable.ic_stop);
         } else {
             mBtnFabStartStop.setImageResource(R.drawable.ic_start);
+        }
+    }
+
+    private void saveTripState() {
+        mStop = homeViewModel.getStop().getValue();
+        mTripId = homeViewModel.getTripId().getValue();
+        mMapMode = homeViewModel.getMapMode().getValue();
+        mRouteId = homeViewModel.getRouteId().getValue();
+        mBlockId = homeViewModel.getBlockId().getValue();
+        mArrivalInfo = homeViewModel.getArrivalInfo().getValue();
+        mResponse = homeViewModel.getResponse().getValue();
+    }
+
+    void restoreTripState() {
+        if (isTrackingOn()) {
+            homeViewModel.setStop(mStop);
+            homeViewModel.setTripId(mTripId);
+            homeViewModel.setRouteId(mRouteId);
+            homeViewModel.setBlockId(mBlockId);
+            homeViewModel.setArrivalInfo(mArrivalInfo);
+            homeViewModel.setResponse(mResponse);
+            homeViewModel.setMapMode(mMapMode);
         }
     }
 
@@ -567,18 +673,19 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
                             ALARM_MANAGER_INTERVAL, ALARM_MANAGER_INTERVAL, mAlarmIntent
                     );
                 }
-            }
 
-            homeViewModel.setMapMode(MapParams.MODE_ROUTE);
-            mServiceStarted = true;
+                homeViewModel.setMapMode(MapParams.MODE_ROUTE);
+                mServiceStarted = true;
+                saveTripState();
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-                    && ContextCompat.checkSelfPermission(this,
-                    ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                mRequestingPermissions = true;
-                showBackgroundLocationDialog(this);
-            } else {
-                mRequestingPermissions = new BatteryOptimizationHelper().requestException(this);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                        && ContextCompat.checkSelfPermission(this,
+                        ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    mRequestingPermissions = true;
+                    showBackgroundLocationDialog(this);
+                } else {
+                    mRequestingPermissions = new BatteryOptimizationHelper().requestException(this);
+                }
             }
         }
     }
@@ -647,28 +754,9 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
             return;
         }
 
-        //ObaRegionsTask.
-        // Show "What's New" (which might need refreshed Regions API contents)
-        //boolean update = autoShowWhatsNew();
-
-        // Redraw nav drawer if the region changed, or if we just installed a new version
-        //if (currentRegionChanged || update) {
-        //    redrawNavigationDrawerFragment();
-        //}
-
-
-        /*Fragment fragment = fm.findFragmentByTag(BaseMapFragment.TAG);
-        if (fragment != null) {
-            mMapFragment = (BaseMapFragment) fragment;
-            mMapFragment.setMyLocation();
-        }*/
-
         if (!currentRegionChanged && Application.get().getCurrentRegion() != null && !isApiKeyValid()) {
             UIUtils.showObaApiKeyInputDialog(this, this);
         }
-        //    PreferenceUtils.saveString(getString(R.string.preference_key_region),
-        //            Application.get().getCurrentRegion().getName());
-        //}
         // If region changed and was auto-selected, show user what region we're using
         if (currentRegionChanged
                 && Application.getPrefs().getBoolean(getString(R.string.preference_key_auto_select_region), true)
@@ -682,15 +770,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
 
             UIUtils.showObaApiKeyInputDialog(this, this);
         }
-
-        //FragmentManager fm = getSupportFragmentManager();
-        //HomeFragment homeFragment = (HomeFragment)fm.findFragmentByTag(HomeFragment.TAG);
-        //setupHomeFragment();
-        /*if (mHomeFragment != null) {
-            mHomeFragment.setupMapFragment();
-            mHomeFragment.updateFragmentHeader();
-        }*/
-        // updateLayersFab();
         setupHomeFragment();
     }
 
@@ -709,23 +788,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
      * info from the server.  Also includes auto-selection of closest region.
      */
     private void checkRegionStatus() {
-        //First check for custom API URL set by user via Preferences, since if that is set we don't need region info from the REST API
-        //if (!TextUtils.isEmpty(Application.get().getCustomApiUrl())) {
-        //    return;
-        //}
-
-        // Check if region is hard-coded for this build flavor
-        /*if (BuildConfig.USE_FIXED_REGION) {
-            ObaRegion r = RegionUtils.getRegionFromBuildFlavor();
-            // Set the hard-coded region
-            RegionUtils.saveToProvider(this, Collections.singletonList(r));
-            Application.get().setCurrentRegion(r);
-            // Disable any region auto-selection in preferences
-            PreferenceUtils
-                    .saveBoolean(getString(R.string.preference_key_auto_select_region), false);
-            return;
-        }*/
-
         boolean forceReload = false;
         boolean showProgressDialog = true;
 
@@ -770,27 +832,6 @@ public class HomeActivity extends AppCompatActivity implements ObaRegionsTask.Ca
     private boolean isApiKeyValid() {
         String apiKey = PreferenceUtils.getString(getString(R.string.preference_key_oba_api_key));
         return !TextUtils.isEmpty(apiKey);
-    }
-
-    /**
-     * Setup permissions that are only requested if the user joins the travel behavior study. This
-     * method must be called from #onCreate().
-     * <p>
-     * A call to #requestPhysicalActivityPermission() invokes the permission request, and should only
-     * be called in the case when the user opts into the study.
-     *
-     * @param activity
-     */
-    private void setupPermissions(AppCompatActivity activity) {
-        travelBehaviorPermissionsLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        // User opt-ed into study and granted physical activity tracking - now request background location permissions (when targeting Android 11 we can't request both simultaneously)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            activity.requestPermissions(TravelBehaviorConstants.BACKGROUND_LOCATION_PERMISSION, BACKGROUND_LOCATION_PERMISSION_REQUEST);
-                        }
-                    }
-                });
     }
 
     /**

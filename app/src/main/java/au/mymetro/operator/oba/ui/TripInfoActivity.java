@@ -53,7 +53,6 @@ import java.util.List;
 
 import au.mymetro.operator.R;
 import au.mymetro.operator.oba.provider.ObaContract;
-import au.mymetro.operator.oba.tripservice.TripService;
 import au.mymetro.operator.oba.util.FragmentUtils;
 import au.mymetro.operator.oba.util.PreferenceUtils;
 import au.mymetro.operator.oba.util.UIUtils;
@@ -294,9 +293,9 @@ public class TripInfoActivity extends AppCompatActivity {
             }
 
             // If we don't have the route name, look it up in the DB
-            if (mRouteName == null) {
+            /*if (mRouteName == null) {
                 mRouteName = TripService.getRouteShortName(getActivity(), mRouteId);
-            }
+            }*/
             if (mStopName == null) {
                 mStopName = UIUtils.stringForQuery(getActivity(), Uri.withAppendedPath(
                                 ObaContract.Stops.CONTENT_URI, mStopId),
@@ -447,7 +446,7 @@ public class TripInfoActivity extends AppCompatActivity {
             if (c != null) {
                 c.close();
             }
-            TripService.scheduleAll(getActivity(), true);
+            //TripService.scheduleAll(getActivity(), true);
 
             PreferenceUtils.saveInt(getString(R.string.preference_key_default_reminder_time), reminder);
 
@@ -533,7 +532,7 @@ public class TripInfoActivity extends AppCompatActivity {
                                     public void onClick(DialogInterface dialog, int which) {
                                         ContentResolver cr = getActivity().getContentResolver();
                                         cr.delete(tripUri, null, null);
-                                        TripService.scheduleAll(getActivity(), true);
+                                        //TripService.scheduleAll(getActivity(), true);
                                         getActivity().finish();
                                     }
                                 }

@@ -57,13 +57,8 @@
             android:targetActivity=".HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
         </activity-alias>
 
         <meta-data
@@ -86,17 +81,6 @@
         <activity
             android:name=".oba.ui.RegionsActivity"
             android:exported="false" />
-        <activity
-            android:name=".ShortcutActivity"
-            android:exported="true"
-            android:label="@string/menu_shortcuts">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".oba.ui.TripDetailsActivity"
             android:exported="false" />

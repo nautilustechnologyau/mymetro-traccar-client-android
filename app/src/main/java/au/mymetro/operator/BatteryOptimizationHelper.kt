@@ -26,7 +26,6 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.judemanutd.autostarter.AutoStartPermissionHelper
 
 class BatteryOptimizationHelper {
 
@@ -83,7 +82,8 @@ class BatteryOptimizationHelper {
                     }
                     return true
                 }
-            } else if (!sharedPreferences.getBoolean(KEY_AUTOSTART_REQUESTED, false)) {
+            }
+            /*else if (!sharedPreferences.getBoolean(KEY_AUTOSTART_REQUESTED, false)) {
                 sharedPreferences.edit().putBoolean(KEY_AUTOSTART_REQUESTED, true).apply()
                 try {
                     if (AutoStartPermissionHelper.getInstance().getAutoStartPermission(context)) {
@@ -91,7 +91,7 @@ class BatteryOptimizationHelper {
                     }
                 } catch (e: SecurityException) {
                 }
-            }
+            }*/
         }
         return false
     }

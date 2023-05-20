@@ -75,7 +75,6 @@ import au.mymetro.operator.oba.io.elements.OccupancyState;
 import au.mymetro.operator.oba.io.request.ObaArrivalInfoResponse;
 import au.mymetro.operator.oba.map.MapParams;
 import au.mymetro.operator.oba.provider.ObaContract;
-import au.mymetro.operator.oba.travelbehavior.TravelBehaviorManager;
 import au.mymetro.operator.oba.util.ArrayAdapterWithIcon;
 import au.mymetro.operator.oba.util.ArrivalInfoUtils;
 import au.mymetro.operator.oba.util.BuildFlavorUtils;
@@ -427,9 +426,6 @@ public class ArrivalsListFragment extends ListFragment
             info = result.getArrivalInfo();
             situations = UIUtils.getAllSituations(result, mRoutesFilter);
             refs = result.getRefs();
-
-            TravelBehaviorManager.saveArrivalInfo(info, result.getUrl(),
-                    result.getCurrentTime(), mStopId);
 
             // Report Stop distance metric
             Location stopLocation = mStop.getLocation();

@@ -37,7 +37,8 @@ public class TripStatusUtils {
 
     private static final double MIN_DISTANCE_TO_DETERMINE_TRIP_END = 10;
     private static final double MIN_DISTANCE_TO_DETERMINE_CLOSE_STOP = 20;
-    private static final double THRESHOLD = .001;
+    private static final double DISTANCE_THRESHOLD = 0.0001;
+    private static final double SPEED_THRESHOLD = 0.278;
 
     private int mCurrentStopIndex = -1;
     private int mNextStopIndex = -1;
@@ -60,6 +61,7 @@ public class TripStatusUtils {
     private double mTotalTripLength = 0;
     private double mTripDistanceTravelled = 0;
     private boolean mStatusChanged = false;
+    private Location mLastKnownLocation;
 
     private AsyncTask<?, ?, ?> mComputeTask;
 
@@ -152,10 +154,16 @@ public class TripStatusUtils {
         mTripStatusComputedListener = null;
     }
 
-    private void computeTripStatus(XYPoint targetPoint, Location location) {
+    private void updateTripStatus(Location location) {
         if (mTripEnded) {
             return;
         }
+
+        if (location == null) {
+            return;
+        }
+
+        XYPoint targetPoint = p(location.getLongitude(), location.getLatitude());;
 
         List<PointAndIndex> result = mShapePointLibrary.computePotentialAssignments(mPoints,
                 mShapePointDistances, targetPoint, mCurrentStopIndex, mStops.size());
@@ -166,7 +174,7 @@ public class TripStatusUtils {
             pointIndex = result.get(0);
             if (mNextStopIndex != pointIndex.index + 1) {
                 mNextStopIndex = pointIndex.index + 1;
-                mDistanceToNextStop = 0;
+                mDistanceToNextStop = (float) getNextStopDistance(pointIndex.index);
                 mLastDistanceSampleTime = 0;
                 mLastIdleTimestamp = 0;
             }
@@ -178,6 +186,7 @@ public class TripStatusUtils {
 
         if (mNextStopIndex >= mStops.size() - 1) {
             mNextStopIndex = mStops.size() - 1;
+            mDistanceToNextStop = 0;
         }
 
         if (mCurrentStopIndex >= mStops.size() - 1) {
@@ -190,71 +199,92 @@ public class TripStatusUtils {
         mResponse.getStatus().setLastKnownLocation(ObaTripStatus.Position.getInstance(targetPoint.getY(), targetPoint.getX()));
         mResponse.getStatus().setDistanceAlongTrip(pointIndex.distanceAlongShape);
         mResponse.getStatus().setLastUpdateTime(System.currentTimeMillis() / 1000);
-        if (location != null) {
-            mResponse.getStatus().setLastLocationUpdateTime(location.getTime());
-            if (location.hasBearing()) {
-                mResponse.getStatus().setBearing(location.getBearing());
-            }
-
-            if (location.hasSpeed()) {
-                mResponse.getStatus().setSpeed(location.getSpeed());
-            } else {
-                mResponse.getStatus().setSpeed(0);
-            }
+        mResponse.getStatus().setLastLocationUpdateTime(location.getTime());
+        if (location.hasBearing()) {
+            mResponse.getStatus().setBearing(location.getBearing());
         }
 
         // get the distance
         long now = new java.util.Date().getTime();
+        long currentTimeInSec = now/1000;
         float distance = calculateDistance(targetPoint, mPoints.get(mNextStopIndex));
-        if (mDistanceToNextStop <= 0) {
-            mDistanceToNextStop = distance;
-            mLastDistanceSampleTime = now;
+        long serviceDate = getTripStatus().getServiceDate();
+
+        // distance delta
+        double distanceDelta = Math.abs(mDistanceToNextStop - distance); // meter
+        long timeDelta = now - mLastDistanceSampleTime <= 0 ? now : mLastDistanceSampleTime; // ms
+        mTripDistanceTravelled = calculateTripDistanceTravelled(distance);
+        mLastDistanceSampleTime = now;
+
+        // calculate speed
+        double speedInSec = 0; // m/sec
+        if (location.hasSpeed()) {
+            mSpeed = (location.getSpeed() / 1000) * 3600.00;
+            mResponse.getStatus().setSpeed(location.getSpeed());
+            speedInSec = location.getSpeed();
+        } else {
+            if (distanceDelta > 0 && timeDelta > 0) {
+                speedInSec = (distanceDelta / timeDelta) / 1000; // m/sec
+                mSpeed = Math.round(Math.abs(speedInSec / 1000 * 3600.0));
+            } else {
+                mSpeed = 0;
+                speedInSec = 0;
+            }
+            mResponse.getStatus().setSpeed((float) mSpeed);
         }
 
-        double distanceDelta = mDistanceToNextStop - distance;
-        long timeDelta = now - mLastDistanceSampleTime;
-
-        if (distanceDelta >= THRESHOLD && timeDelta >= 1000) {
-            long timeElapsed = now - mLastDistanceSampleTime; // milliseconds
-            double speedInSec = (distanceDelta / timeElapsed); // km/sec
-            mSpeed = Math.round(Math.abs(speedInSec * 3600));
-
-            if (mResponse.getStatus().getSpeed() == 0) {
-                mResponse.getStatus().setSpeed((float) mSpeed);
-            }
-
-            mTripDistanceTravelled = calculateTripDistanceTravelled(distance);
-
-            // predicted arrival time
-            long serviceDate = getTripStatus().getServiceDate();
-            long currentTimeInSec = now/1000;
-            long predictedDurationOfArrivalInSec = (long)((distance / speedInSec)/1000);
+        /*if (mDistanceToNextStop <= 0) {
+            long predictedDurationOfArrivalInSec = (long)((distance / 0.0167)/1000);
             long scheduledArrivalTimeInSec = serviceDate/1000 + mStopTimes.get(mNextStopIndex).getArrivalTime();
             long predictedArrivalTimeInSec = currentTimeInSec + predictedDurationOfArrivalInSec;
             long deviation = predictedArrivalTimeInSec - scheduledArrivalTimeInSec;
             mResponse.getStatus().setScheduleDeviation(deviation);
-            mDistanceToNextStop = distance;
+        }*/
+
+        // arrival time prediction
+        mDistanceToNextStop = distance;
+        if (distanceDelta >= DISTANCE_THRESHOLD && speedInSec >= SPEED_THRESHOLD) {
+            // predicted arrival time
+            Log.d(TAG, "distance + " + distance);
+            Log.d(TAG, "speedInSec + " + speedInSec);
+            long predictedDurationOfArrivalInSec = (long)(distance / speedInSec);
+            Log.d(TAG, "predictedDurationOfArrivalInSec + " + predictedDurationOfArrivalInSec);
+            long scheduledArrivalTimeInSec = serviceDate/1000 + mStopTimes.get(mNextStopIndex).getArrivalTime();
+            Log.d(TAG, "scheduledArrivalTimeInSec + " + scheduledArrivalTimeInSec);
+            long predictedArrivalTimeInSec = currentTimeInSec + Math.abs(predictedDurationOfArrivalInSec);
+            Log.d(TAG, "predictedArrivalTimeInSec + " + predictedArrivalTimeInSec);
+            long deviation = predictedArrivalTimeInSec - scheduledArrivalTimeInSec; // negative means earlier
+            Log.d(TAG, "deviation + " + deviation);
+
+            mResponse.getStatus().setScheduleDeviation(deviation);
+
             mLastDistanceSampleTime = now;
+
+            mLastIdleTimestamp = 0;
         } else {
+            // this block is to handle idle time waiting on a s top or traffic
             // mSpeed = 0.0;
             if (mLastIdleTimestamp == 0) {
                 mLastIdleTimestamp = now;
             }
+            if (distanceDelta >= DISTANCE_THRESHOLD) {
+                long predictedDurationOfArrivalInSec = (long)((distance / 0.0167)/1000);
+                long scheduledArrivalTimeInSec = serviceDate/1000 + mStopTimes.get(mNextStopIndex).getArrivalTime();
+                long predictedArrivalTimeInSec = currentTimeInSec + predictedDurationOfArrivalInSec;
+                long deviation = predictedArrivalTimeInSec - scheduledArrivalTimeInSec;
+                mResponse.getStatus().setScheduleDeviation(deviation);
+            } else {
+                timeDelta = now - mLastIdleTimestamp;
 
-            timeDelta = now - mLastIdleTimestamp;
-
-            if (timeDelta >= 1000){
-                mSpeed = 0.0;
-                //long timeElapsed = now - mLastIdleTimestamp;
-                //if (timeElapsed >= 1000) {
+                if (timeDelta > 0) {
                     long lastDeviation = mResponse.getStatus().getScheduleDeviation();
-                    Log.d(TAG, "Previous Deviation: " + lastDeviation);
-                    long deviation = lastDeviation + timeDelta / 1000;
-                    Log.d(TAG, "Last Time: " + timeDelta / 1000);
+                    //Log.d(TAG, "Previous Deviation: " + lastDeviation);
+                    long deviation = (long) Math.round(lastDeviation + timeDelta / 1000.00);
+                    //Log.d(TAG, "Time delta: " + timeDelta / 1000);
                     mResponse.getStatus().setScheduleDeviation(deviation);
                     mLastIdleTimestamp = now;
                     Log.d(TAG, "New Deviation: " + deviation);
-                //}
+                }
             }
         }
 
@@ -285,20 +315,10 @@ public class TripStatusUtils {
             return;
         }
 
-        computeInBackground(p(stop.getLongitude(), stop.getLatitude()));
-    }
-
-    public void computeInBackground(XYPoint point) {
-        if (mComputeTask != null) {
-            if (mComputeTask.getStatus() == AsyncTask.Status.PENDING || mComputeTask.getStatus() == AsyncTask.Status.FINISHED) {
-                mComputeTask.cancel(true);
-            } else {
-                return;
-            }
-        }
-
-        mComputeTask = new StatusComputeTask(this, point);
-        mComputeTask.execute();
+        Location location = new Location("LatLong");
+        location.setLongitude(stop.getLongitude());
+        location.setLatitude(stop.getLatitude());
+        computeInBackground(location);
     }
 
     public void computeInBackground(Location location) {
@@ -389,13 +409,17 @@ public class TripStatusUtils {
     }
 
     private double calculateTripDistanceTravelled(double distanceTravelledToNextStop) {
-        double distance = 0;
-        //for (int i = 0; i < mNextStopIndex; i++) {
-        //    distance += mStopTimes.get(i).getDistanceAlongTrip();
-        //}
+        return mStopTimes.get(mNextStopIndex - 1).getDistanceAlongTrip() + distanceTravelledToNextStop;
+    }
 
-        distance = mStopTimes.get(mNextStopIndex - 1).getDistanceAlongTrip() + distanceTravelledToNextStop;
-        return distance;
+    private double getNextStopDistance(int mCurrentStopIndex) {
+        if (mCurrentStopIndex >= mStopTimes.size() - 2) {
+            return 0;
+        }
+
+        ObaTripSchedule.StopTime currentStop = mStopTimes.get(mCurrentStopIndex);
+        ObaTripSchedule.StopTime nextStop = mStopTimes.get(mCurrentStopIndex + 1);
+        return nextStop.getDistanceAlongTrip() - currentStop.getDistanceAlongTrip();
     }
 
     private XYPoint p(double x, double y) {
@@ -416,23 +440,18 @@ public class TripStatusUtils {
 
     private class StatusComputeTask extends AsyncTask<Object, Void, TripStatusUtils> {
         private final TripStatusUtils mTripStatus;
-        private final XYPoint mPoint;
         private Location mLocation;
 
-        public StatusComputeTask(TripStatusUtils tripStatus, XYPoint point) {
-            mTripStatus = tripStatus;
-            mPoint = point;
-        }
 
         public StatusComputeTask(TripStatusUtils tripStatus, Location location) {
             mTripStatus = tripStatus;
             mLocation = location;
-            mPoint = p(location.getLongitude(), location.getLatitude());
         }
 
         @Override
         protected TripStatusUtils doInBackground(Object... params) {
-            mTripStatus.computeTripStatus(mPoint, mLocation);
+            //mTripStatus.computeTripStatus(mLocation);
+            mTripStatus.updateTripStatus(mLocation);
             return mTripStatus;
         }
 
