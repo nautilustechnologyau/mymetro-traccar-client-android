@@ -95,4 +95,5 @@
     <string name="msg_trip_too_early">The trip is too early (%1$d minutes)</string>
     <string name="msg_trip_not_selected">No trip has been selected. Please select a trip from a stop and try again.</string>
     <string name="trip_ended">The trip has ended</string>
+    <string name="trip_in_progress">Trip in progress</string>
 </resources>

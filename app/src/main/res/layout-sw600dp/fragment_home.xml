@@ -69,7 +69,7 @@
                             android:id="@+id/trip_info_toward"
                             android:layout_width="match_parent"
                             android:layout_height="54dp"
-                            android:contentDescription="Route"
+                            android:contentDescription="@string/trip_in_progress"
                             android:gravity="center"
                             android:src="@drawable/ic_arrows_up"
                             app:tint="@color/primary_dark" />
@@ -80,7 +80,8 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/lato_black"
                             android:gravity="center"
-                            android:text="H20"
+                            android:text="H200"
+                            android:maxLines="1"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="#AA00FF"
                             android:textSize="54sp"
@@ -113,7 +114,7 @@
                                 android:layout_weight="1"
                                 android:ellipsize="end"
                                 android:fontFamily="@font/lato_black"
-                                android:singleLine="true"
+                                android:maxLines="1"
                                 android:text="Paradise"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
                                 android:textSize="54sp"
@@ -138,7 +139,7 @@
                                     android:layout_gravity="top"
                                     android:ellipsize="end"
                                     android:fontFamily="@font/lato_black"
-                                    android:singleLine="true"
+                                    android:maxLines="1"
                                     android:text="Stop 21c St Bernards Rd - East Side"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
                                     android:textSize="40sp"
@@ -156,7 +157,7 @@
                                         android:layout_gravity="top"
                                         android:ellipsize="end"
                                         android:fontFamily="sans-serif-condensed"
-                                        android:singleLine="true"
+                                        android:maxLines="1"
                                         android:text="Westbound"
                                         android:textAppearance="?android:attr/textAppearanceMedium"
                                         android:textSize="18sp"
@@ -346,7 +347,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/lato_black"
                                 android:gravity="center"
-                                android:text="40"
+                                android:text="40\nkm/h"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
                                 android:textSize="32sp"
                                 android:textStyle="bold"
@@ -364,7 +365,7 @@
                             android:background="@drawable/round_corners_style_b_status"
                             android:fontFamily="@font/lato_bold"
                             android:gravity="center|bottom"
-                            android:text="Speed km/h"
+                            android:text="Speed"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
                             android:textSize="24sp"
@@ -398,7 +399,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/lato_black"
                                 android:gravity="center"
-                                android:text="200 m"
+                                android:text="200\nmeter"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
                                 android:textSize="32sp"
                                 android:textStyle="bold"
@@ -470,28 +471,12 @@
                             android:fontFamily="@font/lato_bold"
                             android:gravity="center|bottom"
                             android:text="5 min late"
-                            android:singleLine="true"
+                            android:maxLines="1"
                             android:ellipsize="end"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
                             android:textSize="24sp"
                             android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent">
-
-                        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                            android:id="@+id/trip_schedule_view"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:clickable="true"
-                            android:contentDescription="Show trip schedule"
-                            android:gravity="right"
-                            android:src="@drawable/ic_icon_trip"
-                            android:visibility="visible" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -553,7 +538,7 @@
                         android:layout_marginEnd="8dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/lato_bold"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:text="-:-"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="32sp" />
@@ -580,7 +565,7 @@
                         android:layout_marginEnd="8dp"
                         android:ellipsize="end"
                         android:fontFamily="@font/lato_bold"
-                        android:singleLine="true"
+                        android:maxLines="1"
                         android:text="-:-"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="32sp" />
@@ -615,7 +600,26 @@
             android:layout_alignParentBottom="true"
             android:orientation="vertical" />
     </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/trip_schedule_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="200dp"
+        android:gravity="end"
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/trip_schedule_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:clickable="true"
+            android:contentDescription="Show trip schedule"
+            android:gravity="right"
+            android:src="@drawable/ic_icon_trip"
+            android:visibility="visible" />
+    </RelativeLayout>>
     <RelativeLayout
         android:id="@+id/ri_route_info"
         android:layout_width="match_parent"
@@ -636,4 +640,6 @@
             android:layout_alignParentBottom="true"
             android:visibility="gone" />
     </RelativeLayout>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -35,7 +35,7 @@ import au.mymetro.operator.oba.io.request.ObaTripDetailsResponse;
 public class TripStatusUtils {
     public static String TAG = "TripStatusUtils";
 
-    private static final double MIN_DISTANCE_TO_DETERMINE_TRIP_END = 10;
+    private static final double MIN_DISTANCE_TO_DETERMINE_TRIP_END = 20;
     private static final double MIN_DISTANCE_TO_DETERMINE_CLOSE_STOP = 20;
     private static final double DISTANCE_THRESHOLD = 0.0001;
     private static final double SPEED_THRESHOLD = 0.278;
@@ -60,8 +60,8 @@ public class TripStatusUtils {
     private int mCloseNotificationSentForStopIndex = -1;
     private double mTotalTripLength = 0;
     private double mTripDistanceTravelled = 0;
-    private boolean mStatusChanged = false;
-    private Location mLastKnownLocation;
+    //private boolean mStatusChanged = false;
+    //private Location mLastKnownLocation;
 
     private AsyncTask<?, ?, ?> mComputeTask;
 

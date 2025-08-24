@@ -111,7 +111,7 @@ public class HomeFragment extends Fragment
         mSavedInstanceState = savedInstanceState;
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        binding.tripScheduleView.setOnClickListener(this::onTripScheduleViewClicked);
+        binding.tripScheduleBtn.setOnClickListener(this::onTripScheduleViewClicked);
 
         View root = binding.getRoot();
 
@@ -349,9 +349,19 @@ public class HomeFragment extends Fragment
         binding.tripInfoNextStopDirection.setText(UIUtils.getStopDirectionText(nextStop.getDirection()));
         binding.tripInfoArrivalTimeScheduled.setText(timeScheduled);
         binding.tripInfoArrivalTimeEstimated.setText(timeEstimated);
-        binding.tripInfoNextStopDistance.setText(mTripStatusUtil.getDistanceToNextStop() + " m");
 
-        String speed = String.format(Locale.getDefault(), "%d", (int)mTripStatusUtil.getSpeed());
+        // next stop distance
+        long distanceInMeters = mTripStatusUtil.getDistanceToNextStop();
+        String strDistance;
+        if (distanceInMeters < 1000) {
+            strDistance = String.format(Locale.getDefault(), "%d\nmeter", distanceInMeters);
+        } else {
+            double distanceInKm = distanceInMeters / 1000.0;
+            strDistance = String.format(Locale.getDefault(), "%.1f\nkm", distanceInKm);
+        }
+        binding.tripInfoNextStopDistance.setText(strDistance);
+
+        String speed = String.format(Locale.getDefault(), "%d\nkm/h", (int) mTripStatusUtil.getSpeed());
         binding.tripInfoSpeed.setText(speed);
 
         int speedProgress = (int)((mTripStatusUtil.getSpeed() / 100) * 100);
@@ -425,7 +435,7 @@ public class HomeFragment extends Fragment
         Log.d(TAG, "ETA secs: " + etaSecs);
         Log.d(TAG, "ETA mins: " + etaMins);
 
-        if (diffSecs <= 10) {
+        if (diffSecs <= 5) {
             binding.tripInfoArrivalEta.setText(R.string.stop_info_eta_now);
         } else {
             if (etaSecs == 0) {
@@ -537,6 +547,7 @@ public class HomeFragment extends Fragment
         if (mapMode == null || mapMode.equals(MapParams.MODE_STOP)) {
             binding.selectStopHeader.setVisibility(View.VISIBLE);
             binding.tripInfoHeader.setVisibility(View.GONE);
+            binding.tripScheduleView.setVisibility(View.GONE);
 
             if (stop == null) {
                 binding.selectStopInfoText.setText(R.string.report_dialog_stop_header);
@@ -554,6 +565,7 @@ public class HomeFragment extends Fragment
         } else {
             binding.selectStopHeader.setVisibility(View.GONE);
             binding.tripInfoHeader.setVisibility(View.VISIBLE);
+            binding.tripScheduleView.setVisibility(View.VISIBLE);
         }
     }
 

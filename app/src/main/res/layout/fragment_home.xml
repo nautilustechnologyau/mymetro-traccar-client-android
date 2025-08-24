@@ -71,7 +71,8 @@
                             android:layout_height="32dp"
                             android:gravity="center"
                             android:src="@drawable/ic_arrows_up"
-                            app:tint="@color/primary_dark" />
+                            app:tint="@color/primary_dark"
+                            android:contentDescription="@string/trip_in_progress" />
 
                         <TextView
                             android:id="@+id/trip_info_route"
@@ -79,9 +80,11 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/lato_black"
                             android:gravity="center"
-                            android:text="H20"
+                            android:text="500S"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textColor="@color/primary_dark"
+                            android:textColor="#AA00FF"
                             android:textSize="32sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -141,7 +144,7 @@
                                     android:singleLine="true"
                                     android:text="Stop 21c St Bernards Rd - East Side"
                                     android:textAppearance="?android:attr/textAppearanceMedium"
-                                    android:textSize="24sp"
+                                    android:textSize="20sp"
                                     android:textStyle="bold" />
 
                                 <LinearLayout
@@ -348,7 +351,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/lato_black"
                                 android:gravity="center"
-                                android:text="40"
+                                android:text="40\nkm/h"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
@@ -366,7 +369,7 @@
                             android:background="@drawable/round_corners_style_b_status"
                             android:fontFamily="@font/lato_bold"
                             android:gravity="center|bottom"
-                            android:text="Speed km/h"
+                            android:text="Speed"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             android:textColor="@color/cardview_light_background"
                             android:textSize="14sp"
@@ -400,7 +403,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/lato_black"
                                 android:gravity="center"
-                                android:text="200 m"
+                                android:text="200\nmeter"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
@@ -454,7 +457,7 @@
                                 android:gravity="center"
                                 android:text="NOW"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textSize="16sp"
+                                android:textSize="15sp"
                                 android:textStyle="bold"
                                 app:layout_constraintBottom_toBottomOf="@+id/trip_info_arrival_status_progress"
                                 app:layout_constraintEnd_toEndOf="@+id/trip_info_arrival_status_progress"
@@ -482,10 +485,11 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+
         </LinearLayout>
     </RelativeLayout>
 
-    <RelativeLayout
+    <!--RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
@@ -495,8 +499,9 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="bottom|end"
+
             android:orientation="vertical">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -509,7 +514,7 @@
                 android:src="@drawable/ic_icon_trip"
                 android:visibility="visible" />
         </LinearLayout>
-    </RelativeLayout>
+    </RelativeLayout-->
 
     <RelativeLayout
         android:id="@+id/select_stop_header"
@@ -597,7 +602,7 @@
         <RelativeLayout
             android:id="@+id/map_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></RelativeLayout>
+            android:layout_height="match_parent" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -635,5 +640,23 @@
             android:layout_alignParentTop="false"
             android:layout_alignParentBottom="true"
             android:visibility="gone" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/trip_schedule_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="100dp"
+        android:gravity="end"
+        app:layout_constraintBottom_toBottomOf="parent">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/trip_schedule_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        android:src="@drawable/ic_icon_trip"
+        android:visibility="visible" />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

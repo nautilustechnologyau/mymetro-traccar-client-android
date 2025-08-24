@@ -52,7 +52,7 @@
             android:title="@string/settings_accuracy_title" />
 
         <EditTextPreference
-            android:defaultValue="15"
+            android:defaultValue="5"
             android:key="interval"
             android:inputType="number"
             android:summary="@string/settings_interval_summary"
