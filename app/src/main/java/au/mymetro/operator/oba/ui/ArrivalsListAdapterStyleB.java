@@ -154,7 +154,7 @@ public class ArrivalsListAdapterStyleB extends ArrivalsListAdapterBase<CombinedA
         mapImageBtn.setColorFilter(r.getColor(R.color.theme_primary));
 
         ImageButton routeMoreInfo = view.findViewById(R.id.route_more_info);
-        routeMoreInfo.setColorFilter(r.getColor(R.color.switch_thumb_normal_material_dark));
+        routeMoreInfo.setColorFilter(r.getColor(R.color.theme_primary_dark));
 
         starBtn.setImageResource(stopInfo.isRouteAndHeadsignFavorite() ?
                 R.drawable.focus_star_on :

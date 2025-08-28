@@ -1111,7 +1111,7 @@ public class VehicleOverlay implements GoogleMap.OnInfoWindowClickListener, Mark
             TextView statusView = (TextView) view.findViewById(R.id.status);
             TextView lastUpdatedView = (TextView) view.findViewById(R.id.last_updated);
             ImageView moreView = (ImageView) view.findViewById(R.id.trip_more_info);
-            moreView.setColorFilter(r.getColor(R.color.switch_thumb_normal_material_dark));
+            moreView.setColorFilter(r.getColor(R.color.theme_primary_dark));
             ViewGroup occupancyView = view.findViewById(R.id.occupancy);
             ViewGroup vehicleFeaturesView = view.findViewById(R.id.vehicle_features);
 

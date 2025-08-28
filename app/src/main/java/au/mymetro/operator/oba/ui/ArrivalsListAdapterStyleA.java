@@ -79,7 +79,7 @@ public class ArrivalsListAdapterStyleA extends ArrivalsListAdapterBase<ArrivalIn
         ViewGroup occupancyView = view.findViewById(R.id.occupancy);
         ImageView moreView = (ImageView) view.findViewById(R.id.more_horizontal);
         moreView.setColorFilter(
-                context.getResources().getColor(R.color.switch_thumb_normal_material_dark));
+                context.getResources().getColor(R.color.theme_primary_dark));
         ImageView starView = (ImageView) view.findViewById(R.id.route_favorite);
         starView.setColorFilter(context.getResources().getColor(R.color.navdrawer_icon_tint));
         starView.setImageResource(stopInfo.isRouteAndHeadsignFavorite() ?
@@ -170,7 +170,7 @@ public class ArrivalsListAdapterStyleA extends ArrivalsListAdapterBase<ArrivalIn
             Drawable d2 = reminder.getCompoundDrawables()[0];
             d2 = DrawableCompat.wrap(d2);
             DrawableCompat.setTint(d2.mutate(),
-                    view.getResources().getColor(R.color.button_material_dark));
+                    view.getResources().getColor(R.color.theme_primary_dark));
             reminder.setCompoundDrawables(d2, null, null, null);
             reminder.setVisibility(View.VISIBLE);
         } else {

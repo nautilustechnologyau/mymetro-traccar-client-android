@@ -18,7 +18,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 35
     /*android {
         dexOptions {
             javaMaxHeapSize "4G"
@@ -27,9 +27,9 @@ android {
     defaultConfig {
         applicationId 'au.mymetro.operator'
         minSdkVersion 19
-        targetSdkVersion 33
-        versionCode 8
-        versionName '1.0.7'
+        targetSdkVersion 35
+        versionCode 9
+        versionName '1.0.8'
 
         multiDexEnabled true
 
@@ -70,6 +70,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        buildConfig = true
     }
 
     applicationVariants.all {
@@ -153,7 +154,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     // implementation 'com.google.android.libraries.places:places-compat:2.6.0'
     implementation 'com.google.android.material:material:1.6.1' // wait for preference-ktx update
-    implementation 'com.google.android.play:app-update:2.0.1'
+    implementation 'com.google.android.play:app-update:2.1.0'
 
     implementation platform('com.google.firebase:firebase-bom:28.2.1')
     // to fix Google Play warning

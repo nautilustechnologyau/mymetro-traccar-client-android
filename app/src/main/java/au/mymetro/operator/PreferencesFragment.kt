@@ -190,7 +190,7 @@ class PreferencesFragment : PreferenceFragmentCompat(),
         findPreference<Preference>(getString(R.string.preference_key_auto_select_region))?.isEnabled = enabled
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         if (key == KEY_STATUS) {
             if (sharedPreferences.getBoolean(KEY_STATUS, false)) {
                 setPreferencesEnabled(false)
